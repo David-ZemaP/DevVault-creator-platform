@@ -73,6 +73,12 @@ export async function POST(request: NextRequest) {
       proofId: typeof body.proofId === "string" ? body.proofId.trim() : undefined,
       avalancheTx: typeof body.avalancheTx === "string" ? body.avalancheTx.trim() : undefined,
       version: typeof body.version === "number" ? body.version : undefined,
+      projectType: body.projectType === "software" ? "software" : "article",
+      repositoryUrl: typeof body.repositoryUrl === "string" ? body.repositoryUrl.trim() : undefined,
+      zipUrl: typeof body.zipUrl === "string" ? body.zipUrl.trim() : undefined,
+      demoUrl: typeof body.demoUrl === "string" ? body.demoUrl.trim() : undefined,
+      demoPreviewCode: typeof body.demoPreviewCode === "string" ? body.demoPreviewCode : undefined,
+      isHidden: typeof body.isHidden === "boolean" ? body.isHidden : false,
     };
 
     const publication = await serverDb.publications.create(input);

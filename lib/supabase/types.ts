@@ -23,6 +23,12 @@ export interface PublicationRecord {
   avalancheTx?: string;
   version: number;
   createdAt: string;
+  projectType?: "article" | "software";
+  repositoryUrl?: string;
+  zipUrl?: string;
+  demoUrl?: string;
+  demoPreviewCode?: string;
+  isHidden?: boolean;
   // Optional convenience aliases for UI compatibility
   author?: string;
   isGated?: boolean;
@@ -40,6 +46,12 @@ export interface CreatePublicationInput {
   proofId?: string;
   avalancheTx?: string;
   version?: number;
+  projectType?: "article" | "software";
+  repositoryUrl?: string;
+  zipUrl?: string;
+  demoUrl?: string;
+  demoPreviewCode?: string;
+  isHidden?: boolean;
 }
 
 export interface CreateUserInput {
@@ -70,6 +82,12 @@ export interface DatabasePublicationRow {
   proof_id: string | null;
   avalanche_tx: string | null;
   version: number;
+  project_type?: string | null;
+  repository_url?: string | null;
+  zip_url?: string | null;
+  demo_url?: string | null;
+  demo_preview_code?: string | null;
+  is_hidden?: boolean | null;
   created_at: string;
 }
 
@@ -108,6 +126,12 @@ export function dbRowToPublicationRecord(row: DatabasePublicationRow): Publicati
     proofId: row.proof_id ?? undefined,
     avalancheTx: row.avalanche_tx ?? undefined,
     version: row.version ?? 1,
+    projectType: (row.project_type as "article" | "software") || "article",
+    repositoryUrl: row.repository_url ?? undefined,
+    zipUrl: row.zip_url ?? undefined,
+    demoUrl: row.demo_url ?? undefined,
+    demoPreviewCode: row.demo_preview_code ?? undefined,
+    isHidden: Boolean(row.is_hidden),
     createdAt: row.created_at,
     // Convenience fields
     author: row.creator_wallet,
@@ -130,6 +154,12 @@ export function publicationRecordToDbRow(
     proof_id: record.proofId || null,
     avalanche_tx: record.avalancheTx || null,
     version: record.version ?? 1,
+    project_type: record.projectType || "article",
+    repository_url: record.repositoryUrl || null,
+    zip_url: record.zipUrl || null,
+    demo_url: record.demoUrl || null,
+    demo_preview_code: record.demoPreviewCode || null,
+    is_hidden: Boolean(record.isHidden),
     created_at: record.createdAt || new Date().toISOString(),
   };
 }

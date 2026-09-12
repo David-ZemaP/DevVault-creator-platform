@@ -281,9 +281,10 @@ export const serverDb = {
       const createdAt = new Date().toISOString();
       const version = input.version ?? 1;
 
+      const creatorWallet = input.creatorWallet.toLowerCase();
       const newRecord: PublicationRecord = {
         id,
-        creatorWallet: input.creatorWallet,
+        creatorWallet,
         title: input.title,
         description: input.description,
         preview: input.preview,
@@ -293,8 +294,14 @@ export const serverDb = {
         proofId: input.proofId,
         avalancheTx: input.avalancheTx,
         version,
+        projectType: input.projectType || "article",
+        repositoryUrl: input.repositoryUrl,
+        zipUrl: input.zipUrl,
+        demoUrl: input.demoUrl,
+        demoPreviewCode: input.demoPreviewCode,
+        isHidden: Boolean(input.isHidden),
         createdAt,
-        author: input.creatorWallet,
+        author: creatorWallet,
         isGated: Boolean(input.lockAddress && input.lockAddress.trim() !== ""),
       };
 
@@ -304,7 +311,7 @@ export const serverDb = {
           // Guarantee that user exists in Supabase users table to satisfy foreign key constraint
           await client.from("users").upsert(
             {
-              wallet: input.creatorWallet.toLowerCase(),
+              wallet: creatorWallet,
               created_at: new Date().toISOString(),
             },
             { onConflict: "wallet", ignoreDuplicates: true }

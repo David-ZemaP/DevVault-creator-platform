@@ -22,6 +22,12 @@ CREATE TABLE IF NOT EXISTS publications (
   proof_id TEXT,
   avalanche_tx TEXT,
   version INT NOT NULL DEFAULT 1,
+  project_type TEXT NOT NULL DEFAULT 'article', -- 'article' | 'software'
+  repository_url TEXT,
+  zip_url TEXT,
+  demo_url TEXT,
+  demo_preview_code TEXT,
+  is_hidden BOOLEAN NOT NULL DEFAULT FALSE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
