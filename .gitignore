@@ -46,3 +46,9 @@ Thumbs.db
 
 # TypeScript cache
 *.tsbuildinfo
+
+# AI & Agent files
+.agents/
+.agent/
+AGENTS.md
+CLAUDE.md
