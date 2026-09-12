@@ -1,0 +1,6 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "incremental": false },
+  "include": ["scripts/check-demo-flows.ts"],
+  "exclude": ["node_modules"]
+}

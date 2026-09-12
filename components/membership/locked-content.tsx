@@ -1,13 +1,16 @@
 import { Check, LockKeyhole } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import type { ReactNode } from "react";
 import type { MembershipOffer } from "@/types/publication";
 
 interface LockedContentProps {
+  publicationId: string;
+  children?: ReactNode;
   creatorName: string;
   membership: MembershipOffer;
 }
 
-export function LockedContent({ creatorName, membership }: LockedContentProps) {
+export function LockedContent({ creatorName, membership, children }: LockedContentProps) {
   return (
     <section aria-labelledby="membership-title" className="rounded-2xl border border-red-400/20 bg-neutral-900/60 p-6 sm:p-8">
       <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-red-400/10 text-red-400"><LockKeyhole aria-hidden="true" className="h-6 w-6" /></span>
@@ -20,8 +23,12 @@ export function LockedContent({ creatorName, membership }: LockedContentProps) {
       </ul>
       <p className="mt-8 text-3xl font-semibold text-white">{membership.price} <span className="text-base font-medium text-neutral-400">{membership.currency}</span></p>
       <p className="mt-1 text-sm text-neutral-500">for {membership.durationDays} days · demo price</p>
-      <Button disabled aria-describedby="subscribe-availability" className="mt-6 w-full" size="lg">Subscribe</Button>
-      <p id="subscribe-availability" className="mt-3 text-sm leading-relaxed text-neutral-400">Subscriptions are not available in this preview. No payment will be requested.</p>
+      {children ?? (
+        <>
+          <Button disabled aria-describedby="subscribe-availability" className="mt-6 w-full" size="lg">Subscribe</Button>
+          <p id="subscribe-availability" className="mt-3 text-sm leading-relaxed text-neutral-400">Subscriptions are not available in this preview. No payment will be requested.</p>
+        </>
+      )}
     </section>
   );
 }

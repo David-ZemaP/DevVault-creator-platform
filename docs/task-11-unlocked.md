@@ -1,5 +1,7 @@
 ### Tarea 11 — Implementar el estado Unlocked
 
+**Registro histórico, sustituido por el [checkpoint Persona 3](persona-3-checkpoint.md).** El selector URL descrito abajo fue retirado. `previewAccess=unlocked` y `unlocked=true` ahora permanecen Locked incluso en desarrollo hasta completar el flujo mock.
+
 **Objetivo**
 
 Mostrar el cuerpo premium ficticio con la confirmación visible `CONTENT UNLOCKED`, preservando la preview pública. El modo de lectura usa el ancho del layout existente y la escala de tipografía y espaciado de Tailwind. El estado exitoso reutiliza el color emerald que ya utiliza la aplicación.

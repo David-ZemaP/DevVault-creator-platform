@@ -1,5 +1,7 @@
 # Frontend: primer checkpoint
 
+Estado final del bloque: consultar [checkpoint Persona 3](persona-3-checkpoint.md). Los apartados siguientes conservan el diagnóstico histórico; Create, Dashboard, Subscribe y las redes tienen las ampliaciones descritas en ese documento. Los helpers de Unlock/Avalanche sin referencias y el selector URL se retiraron; lint ya no tiene las dos advertencias originales.
+
 ## Stack verificado
 
 Se conserva el App Router en `app/`, el alias `@/*` desde la raíz y TypeScript estricto. No se introduce `src/` ni otro framework.
@@ -39,7 +41,7 @@ Referencias consultadas: [Next.js 16](https://nextjs.org/docs/app/guides/upgradi
 
 ## Estado del producto
 
-Explore y el detalle público usan el mismo repositorio. Todos los artículos de este checkpoint son previews premium Locked. Subscribe está deshabilitado con una explicación visible. `DEMO` es una unidad ficticia; no representa una cotización ni una moneda de la red. Los locks y proofs están pendientes, sin direcciones ni hashes inventados.
+Explore y el detalle público usan el mismo repositorio. Todos los artículos de este checkpoint comienzan como previews premium Locked. Subscribe está deshabilitado en producción; la [Tarea 12](task-12-subscribe.md) incorpora una confirmación de suscripción ficticia en desarrollo que abre el preview Unlocked. `DEMO` es una unidad ficticia; no representa una cotización ni una moneda de la red. Los locks y proofs están pendientes, sin direcciones ni hashes inventados.
 
 La [Tarea 11](task-11-unlocked.md) añade un escenario visual Unlocked exclusivo de desarrollo, con la confirmación y el cuerpo ficticio correspondientes. Producción ignora `previewAccess=unlocked` y sigue Locked. No se compran ni verifican memberships y el selector no representa autorización.
 

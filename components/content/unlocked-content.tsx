@@ -14,7 +14,7 @@ export function UnlockedContent({ content }: UnlockedContentProps) {
           <h2 id="unlocked-content-heading" className="text-xl font-semibold tracking-tight">
             CONTENT UNLOCKED
           </h2>
-          <p className="mt-1 text-sm text-neutral-400">Demo access · No membership verified</p>
+          <p className="mt-1 text-sm text-neutral-400">Demo access · Mock membership verified · No real membership purchased</p>
         </div>
       </div>
       <div className="space-y-5 text-lg leading-loose text-neutral-300">

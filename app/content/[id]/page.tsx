@@ -3,11 +3,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Clock3 } from "lucide-react";
 import { getPublicationById } from "@/features/publications/repository";
-import { LockedContent } from "@/components/membership/locked-content";
-import { UnlockedContent } from "@/components/content/unlocked-content";
-import { AccessPreviewControls } from "@/components/membership/access-preview-controls";
-import { getDevelopmentAccessPreview } from "@/features/publications/development-access-preview";
-import { cn, formatDate } from "@/lib/utils";
+import { MembershipFlow } from "@/components/membership/membership-flow";
+import { SessionContent } from "@/components/content/session-content";
+import { formatDate } from "@/lib/utils";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -16,28 +14,22 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
+  if (process.env.NODE_ENV === "development" && /^demo-[\da-f-]{36}$/.test(id)) return { title: "Demo publication" };
   const result = getPublicationById(id);
   return { title: result?.publication.title ?? "Publication not found", description: result?.publication.preview };
 }
 
-export default async function ContentDetailPage({ params, searchParams }: PageProps) {
+export default async function ContentDetailPage({ params }: PageProps) {
   const { id } = await params;
+  if (process.env.NODE_ENV === "development" && /^demo-[\da-f-]{36}$/.test(id)) return <SessionContent id={id} />;
   const result = getPublicationById(id);
   if (!result) notFound();
   const { publication, creator } = result;
-  const previewQuery = process.env.NODE_ENV === "development" ? await searchParams : undefined;
-  const premiumPreview = await getDevelopmentAccessPreview(id, previewQuery?.previewAccess);
 
   return (
     <div className="space-y-8">
       <Link href="/" className="inline-flex min-h-11 items-center gap-2 text-sm text-neutral-400 hover:text-white"><ArrowLeft aria-hidden="true" className="h-4 w-4" />Back to Explore</Link>
-      {process.env.NODE_ENV === "development" && (
-        <AccessPreviewControls publicationId={id} isUnlocked={Boolean(premiumPreview)} />
-      )}
-      <div className={cn(
-        "grid items-start gap-10 lg:gap-16",
-        premiumPreview ? "mx-auto max-w-3xl" : "lg:grid-cols-[minmax(0,1fr)_340px]",
-      )}>
+      <div className="mx-auto max-w-3xl space-y-8">
         <article className="min-w-0">
           <header className="border-b border-neutral-800 pb-8">
             <p className="text-xs font-semibold tracking-widest text-red-400 uppercase">{publication.category}</p>
@@ -52,10 +44,9 @@ export default async function ContentDetailPage({ params, searchParams }: PagePr
             <h2 id="preview-heading" className="text-sm font-semibold text-neutral-300">Public preview</h2>
             <p className="mt-4 text-lg leading-loose text-neutral-300">{publication.preview}</p>
           </section>
-          {premiumPreview && <UnlockedContent content={premiumPreview} />}
           <p className="border-t border-neutral-800 pt-5 text-sm text-neutral-500">Demo publication · Content proof pending</p>
         </article>
-        {!premiumPreview && <LockedContent creatorName={creator.name} membership={publication.membership} />}
+        <MembershipFlow publicationId={id} creatorName={creator.name} membership={publication.membership} />
       </div>
     </div>
   );

@@ -6,7 +6,7 @@ import { getDefaultConfig, RainbowKitProvider, darkTheme } from "@rainbow-me/rai
 import { injectedWallet } from "@rainbow-me/rainbowkit/wallets";
 import { WagmiProvider } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { avalanche, avalancheFuji } from "viem/chains";
+import { appChains } from "@/lib/web3/networks";
 
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID;
 
@@ -16,7 +16,7 @@ const config = getDefaultConfig({
   // The existing wallet UI remains usable without a WalletConnect credential.
   // An injected-only connector never sends this placeholder to WalletConnect.
   wallets: projectId ? undefined : [{ groupName: "Browser wallet", wallets: [injectedWallet] }],
-  chains: [avalancheFuji, avalanche],
+  chains: appChains,
   ssr: true,
 });
 

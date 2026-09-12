@@ -1,5 +1,5 @@
 import { defineChain } from "viem";
-import { avalanche, avalancheFuji } from "viem/chains";
+import { appChains, membershipChain } from "./networks";
 
 export const hardhatLocal = defineChain({
   id: 31337,
@@ -14,6 +14,6 @@ export const hardhatLocal = defineChain({
   },
 });
 
-export const supportedChains = [avalanche, avalancheFuji, hardhatLocal] as const;
+export const supportedChains = appChains;
 
-export const defaultChain = process.env.NODE_ENV === "production" ? avalanche : avalancheFuji;
+export const defaultChain = membershipChain;

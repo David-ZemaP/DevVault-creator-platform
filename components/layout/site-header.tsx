@@ -11,7 +11,7 @@ export function SiteHeader() {
           DevVault
         </Link>
         <div className="order-last w-full md:order-none md:w-auto"><MainNavigation /></div>
-        <div className="min-w-0 max-w-full"><CustomConnectButton /></div>
+        <div className="min-w-0 max-w-full">{process.env.NODE_ENV === "development" ? <a href="#demo-wallet" className="inline-flex min-h-11 items-center rounded-lg border border-neutral-700 px-4 text-sm text-neutral-200">Demo session</a> : <CustomConnectButton />}</div>
       </div>
     </header>
   );

@@ -1,6 +1,7 @@
+import "server-only";
 import type { PremiumContent } from "@/types/publication";
 
-/** Fictional fixtures only. Selected server-side for the explicit development preview. */
+/** Fictional fixtures only. Delivered by the development action after the mock workflow. */
 export const mockPremiumContent = [
   {
     publicationId: "membership-experiences",

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Web3Provider } from "@/components/wallet/web3-provider";
 import { SiteHeader } from "@/components/layout/site-header";
+import { DemoSessionControls } from "@/components/wallet/demo-session-controls";
 
 export const metadata: Metadata = {
   title: { default: "DevVault — Independent creators, shared knowledge", template: "%s | DevVault" },
@@ -17,6 +18,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <SiteHeader />
           <div className="border-b border-neutral-800/60 bg-neutral-900/40">
             <p className="mx-auto max-w-7xl px-4 py-2.5 text-xs leading-relaxed text-neutral-400 sm:px-6 lg:px-8"><span className="mr-2 font-semibold text-red-300">DEMO PREVIEW</span>Sample creators and publications. Memberships and content proofs are not live.</p>
+            {process.env.NODE_ENV === "development" && <DemoSessionControls />}
           </div>
           <main id="main-content" tabIndex={-1} className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 outline-none sm:px-6 sm:py-12 lg:px-8">{children}</main>
           <footer className="border-t border-neutral-800/60">

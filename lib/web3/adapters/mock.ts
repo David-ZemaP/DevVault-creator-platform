@@ -55,8 +55,9 @@ export function createMockWeb3({ delayMs = 700, now = Date.now, seedLocks = [] }
         throw new AppError("invalid-input", "Set a positive membership price and duration.");
       }
       return once("create", input, async () => {
+        const rejected = consume("reject");
         await pause();
-        if (consume("reject")) throw new AppError("rejected", "You rejected the simulated transaction. Your draft is safe.");
+        if (rejected) throw new AppError("rejected", "You rejected the simulated transaction. Your draft is safe.");
         const lock: LockReference = { status: "mock", id: `demo-lock-${++counter}`, chainId: 133 };
         durations.set(lockKey(lock), input.durationDays);
         return { lock, transaction: transaction(133) };
@@ -66,18 +67,22 @@ export function createMockWeb3({ delayMs = 700, now = Date.now, seedLocks = [] }
       validate(input.account, input.chainId, 133);
       if (input.lock.chainId !== 133 || !durations.has(lockKey(input.lock))) throw new AppError("invalid-input", "This membership is unavailable.");
       return once(`purchase:${lockKey(input.lock)}`, input, async () => {
+        const rejected = consume("reject");
+        const failed = consume("purchase-error");
+        const membershipDelayed = consume("membership-delay");
         await pause();
-        if (consume("reject")) throw new AppError("rejected", "You rejected the simulated purchase. No membership was purchased.");
-        if (consume("purchase-error")) throw new AppError("transaction", "The simulated purchase failed. You can safely retry.");
+        if (rejected) throw new AppError("rejected", "You rejected the simulated purchase. No membership was purchased.");
+        if (failed) throw new AppError("transaction", "The simulated purchase failed. You can safely retry.");
         const key = memberKey(input);
         memberships.set(key, now() + durations.get(lockKey(input.lock))! * 86_400_000);
-        if (consume("membership-delay")) delayed.add(key);
+        if (membershipDelayed) delayed.add(key);
         return transaction(133);
       });
     },
     async hasMembership(input) {
+      const failed = consume("read-error");
       await pause();
-      if (consume("read-error")) throw new AppError("rpc", "Membership verification is unavailable. Retry verification; do not purchase again.");
+      if (failed) throw new AppError("rpc", "Membership verification is unavailable. Retry verification; do not purchase again.");
       const key = memberKey(input);
       if (delayed.delete(key)) return false;
       return (memberships.get(key) ?? 0) > now();
@@ -86,17 +91,20 @@ export function createMockWeb3({ delayMs = 700, now = Date.now, seedLocks = [] }
       validate(input.account, input.chainId, 43113);
       if (!/^0x[\da-f]{64}$/i.test(input.metadataHash)) throw new AppError("invalid-input", "The public metadata digest is invalid.");
       return once("proof", input, async () => {
+        const rejected = consume("reject");
+        const failed = consume("proof-error");
         await pause();
-        if (consume("reject")) throw new AppError("rejected", "You rejected proof registration. The membership lock is preserved.");
-        if (consume("proof-error")) throw new AppError("transaction", "Proof registration failed. Retry this step; your lock is preserved.");
+        if (rejected) throw new AppError("rejected", "You rejected proof registration. The membership lock is preserved.");
+        if (failed) throw new AppError("transaction", "Proof registration failed. Retry this step; your lock is preserved.");
         const proof: RegisteredProof = { status: "mock", id: `demo-proof-${++counter}`, chainId: 43113 };
         proofs.set(input.publicationId, proof);
         return { proof, transaction: transaction(43113) };
       });
     },
     async getContentProof(publicationId) {
+      const failed = consume("read-error");
       await pause();
-      if (consume("read-error")) throw new AppError("rpc", "The proof lookup failed. Retry without registering another proof.");
+      if (failed) throw new AppError("rpc", "The proof lookup failed. Retry without registering another proof.");
       return proofs.get(publicationId);
     },
   };

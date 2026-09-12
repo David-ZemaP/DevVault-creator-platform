@@ -1,5 +1,7 @@
 # Checkpoint: tareas 1–10
 
+Documento histórico. El bloque posterior completo y la validación actual están en [Persona 3](persona-3-checkpoint.md). El selector Locked/Unlocked por URL ya no existe; ahora se verifica membership mock antes de solicitar contenido.
+
 Se ejecutó este bloque tras la autorización para abarcar las tareas necesarias. Las rutas ya existían: se conservaron y ajustaron sus componentes, sin crear otra aplicación. Los perfiles y el dashboard recibieron ajustes mínimos para consumir los nuevos datos y evitar enlaces inconsistentes; no se dan por completadas todas las tareas posteriores.
 
 Validación realizada: build y TypeScript del frontend aprobados; lint sin errores y con dos advertencias previas. Diez casos HTTP aprobados: rutas existentes, tres publicaciones distintas, creator conocido, listado vacío y dos 404. Se comprobó ausencia de fixtures premium en las respuestas y en los 26 scripts cliente servidos por esas rutas. Esto no equivale a una prueba de autorización real ni a una revisión visual del navegador.
@@ -341,4 +343,4 @@ git diff --cached
 git commit -m "feat: establish typed creator previews and locked content flow"
 ```
 
-Continuación implementada: [Tarea 11 — estado Unlocked con contenido ficticio](task-11-unlocked.md), pendiente de revisión visual manual. Después de validarla sigue la **Tarea 12 — flujo mock de Subscribe**.
+Continuaciones implementadas: [Tarea 11 — estado Unlocked con contenido ficticio](task-11-unlocked.md) y [Tarea 12 — flujo mock de Subscribe](task-12-subscribe.md). Revisión visual manual pendiente. El bloque 1–11 ya está guardado en el commit `2885a10`; las indicaciones anteriores de cambios sin commit describen el checkpoint original.

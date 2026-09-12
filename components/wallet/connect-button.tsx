@@ -52,17 +52,6 @@ export function CustomConnectButton() {
                     type="button"
                     className="flex items-center rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-1.5 text-xs text-neutral-300 hover:bg-neutral-800"
                   >
-                    {chain.hasIcon && (
-                      <div className="mr-1.5 h-3 w-3 overflow-hidden rounded-full">
-                        {chain.iconUrl && (
-                          <img
-                            alt={chain.name ?? "Chain icon"}
-                            src={chain.iconUrl}
-                            className="h-3 w-3"
-                          />
-                        )}
-                      </div>
-                    )}
                     {chain.name}
                   </button>
 

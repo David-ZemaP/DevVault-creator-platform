@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { formatAddress } from "@/lib/utils";
-import { PublicationList } from "@/components/content/publication-list";
-import { getCreatorByAddress, listPublications } from "@/features/publications/repository";
+import { CreatorCollection } from "@/components/content/creator-collection";
+import { getCreatorByAddress } from "@/features/publications/repository";
 
 interface PageProps {
   params: Promise<{ address: string }>;
@@ -25,10 +25,7 @@ export default async function ProfilePage({ params }: PageProps) {
           </div>
         </div>
       </header>
-      <section aria-labelledby="creator-publications" className="space-y-5">
-        <h2 id="creator-publications" className="text-xl font-semibold text-white">Publications by {creator.name}</h2>
-        <PublicationList publications={listPublications(creator.address)} />
-      </section>
+      <CreatorCollection address={creator.address} />
     </div>
   );
 }
