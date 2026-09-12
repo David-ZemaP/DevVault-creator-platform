@@ -62,19 +62,19 @@ export function MembershipGate({ lockAddress, isGated, children }: MembershipGat
 
       <h2 className="text-xl font-bold text-white">Members-Only Content</h2>
       <p className="mt-2 text-sm text-neutral-400 max-w-md mx-auto">
-        This publication is token-gated with Unlock Protocol on Avalanche. You need an active
-        membership key to unlock the full content.
+        This publication is token-gated with Unlock Protocol on HashKey Chain (HSK). You need an active
+        membership key on HSK to unlock the full content.
       </p>
 
       {!isConnected ? (
         <div className="mt-6 flex items-center justify-center gap-2 text-sm text-amber-400">
           <ShieldAlert className="h-4 w-4" />
-          <span>Connect your wallet to verify access</span>
+          <span>Connect your wallet to verify access on HashKey</span>
         </div>
       ) : (
         <div className="mt-6 flex justify-center">
           <a href={checkoutUrl} target="_blank" rel="noopener noreferrer">
-            <Button variant="primary">Unlock Access with Key</Button>
+            <Button variant="primary">Unlock Access with HSK Key</Button>
           </a>
         </div>
       )}

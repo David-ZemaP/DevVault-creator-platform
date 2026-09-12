@@ -1,5 +1,7 @@
 import { defineChain } from "viem";
-import { avalanche, avalancheFuji } from "viem/chains";
+import { avalanche, avalancheFuji, hashkey, hashkeyTestnet } from "viem/chains";
+
+export { hashkey, hashkeyTestnet, avalanche, avalancheFuji };
 
 export const hardhatLocal = defineChain({
   id: 31337,
@@ -14,6 +16,20 @@ export const hardhatLocal = defineChain({
   },
 });
 
-export const supportedChains = [avalanche, avalancheFuji, hardhatLocal] as const;
+export const supportedChains = [
+  avalanche,
+  avalancheFuji,
+  hashkey,
+  hashkeyTestnet,
+  hardhatLocal,
+] as const;
 
-export const defaultChain = process.env.NODE_ENV === "production" ? avalanche : avalancheFuji;
+/**
+ * Dual-Service Chain Workflow:
+ * - Content Proof -> Avalanche Fuji (anchors ContentProofRegistry)
+ * - Membership -> HashKey Chain / HSK (verifies Unlock Protocol keys)
+ */
+export const CONTENT_PROOF_CHAIN = process.env.NODE_ENV === "production" ? avalanche : avalancheFuji;
+export const MEMBERSHIP_CHAIN = process.env.NODE_ENV === "production" ? hashkey : hashkeyTestnet;
+export const defaultChain = CONTENT_PROOF_CHAIN;
+
