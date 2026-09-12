@@ -14,31 +14,31 @@ export function SoftwareDemoRunner({ title, demoUrl, demoVideoUrl, projectType }
   if (projectType !== 'software' && !live && !video) return null;
 
   return (
-    <section className="rounded-2xl border border-slate-800/80 bg-slate-900/50 p-6 space-y-4 backdrop-blur-sm" aria-label="Public demo">
+    <section className="rounded-xl border border-zinc-800/80 bg-zinc-900/30 p-5 space-y-3" aria-label="Public demo">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Code2 className="h-5 w-5 text-blue-400" />
-          <h2 className="text-lg font-bold text-white">Interactive Demo & Preview</h2>
+          <Code2 className="h-4 w-4 text-blue-400" />
+          <h2 className="text-sm font-semibold text-white">Interactive Demo & Preview</h2>
         </div>
-        <span className="inline-flex items-center rounded-md bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 text-xs font-semibold text-emerald-400">
+        <span className="inline-flex items-center rounded border border-zinc-800 bg-zinc-900 px-2 py-0.5 text-[11px] font-medium text-zinc-400">
           Public Access
         </span>
       </div>
 
-      <p className="text-sm text-slate-400">
+      <p className="text-xs text-zinc-400">
         Test and explore {title} before purchasing its private source code archive.
       </p>
 
-      <div className="flex flex-wrap items-center gap-3 pt-2">
+      <div className="flex flex-wrap items-center gap-2.5 pt-1">
         {live && (
           <a
             href={live}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-blue-500/20 hover:bg-blue-500 active:bg-blue-700 transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs sm:text-sm font-medium text-white shadow-sm hover:bg-blue-500 active:bg-blue-700 transition-colors"
           >
             <span>Open live demo</span>
-            <ExternalLink className="h-4 w-4" />
+            <ExternalLink className="h-3.5 w-3.5" />
           </a>
         )}
 
@@ -47,15 +47,15 @@ export function SoftwareDemoRunner({ title, demoUrl, demoVideoUrl, projectType }
             href={video}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800/80 px-4 py-2.5 text-sm font-medium text-slate-200 hover:border-slate-600 hover:bg-slate-700/80 hover:text-white transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs sm:text-sm font-medium text-zinc-300 hover:border-zinc-700 hover:text-white transition-colors"
           >
-            <PlayCircle className="h-4 w-4 text-blue-400" />
+            <PlayCircle className="h-3.5 w-3.5 text-zinc-400" />
             <span>Watch Video Demo</span>
           </a>
         )}
 
         {!live && !video && (
-          <p className="text-sm text-slate-500 italic">The creator has not attached an interactive demo link.</p>
+          <p className="text-xs text-zinc-500 italic">The creator has not attached an interactive demo link.</p>
         )}
       </div>
     </section>

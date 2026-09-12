@@ -16,12 +16,12 @@ export function AccessPreviewControls({ publicationId, isUnlocked }: AccessPrevi
   ];
 
   return (
-    <aside aria-label="Development access preview" className="border-y border-slate-800 py-4">
-      <p className="text-sm font-medium text-slate-200">Development preview · Fictional content</p>
-      <p className="mt-1 text-sm text-slate-400">
+    <aside aria-label="Development access preview" className="border-y border-zinc-800/80 py-3">
+      <p className="text-xs font-medium text-zinc-300">Development preview · Fictional content</p>
+      <p className="mt-0.5 text-xs text-zinc-500">
         Choose a visual state. This does not purchase or verify a membership.
       </p>
-      <nav aria-label="Access preview state" className="mt-2 flex flex-wrap gap-4">
+      <nav aria-label="Access preview state" className="mt-2 flex flex-wrap gap-3">
         {scenarios.map(({ label, href, active }) => (
           <Link
             key={label}
@@ -29,8 +29,8 @@ export function AccessPreviewControls({ publicationId, isUnlocked }: AccessPrevi
             prefetch={false}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "inline-flex min-h-11 items-center rounded-sm text-sm underline underline-offset-4 transition-colors",
-              active ? "font-semibold text-blue-400" : "text-slate-400 hover:text-white",
+              "inline-flex items-center text-xs underline underline-offset-4 transition-colors",
+              active ? "font-semibold text-zinc-100" : "text-zinc-400 hover:text-zinc-200",
             )}
           >
             {label}

@@ -77,19 +77,19 @@ export default function CreatePublicationPage() {
   }
 
   const inputStyle =
-    'w-full rounded-xl border border-slate-800 bg-slate-950/80 px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all';
+    'w-full rounded-lg border border-zinc-800 bg-zinc-950/80 px-3.5 py-2 text-xs sm:text-sm text-zinc-100 placeholder-zinc-500 focus:border-zinc-600 focus:outline-none transition-colors';
 
   return (
-    <div className="max-w-3xl mx-auto space-y-8">
+    <div className="max-w-3xl mx-auto space-y-6">
       <div>
-        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-blue-400">
-          <Sparkles className="h-4 w-4" />
+        <div className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-zinc-400">
+          <Sparkles className="h-3.5 w-3.5 text-blue-400" />
           <span>Creator Studio</span>
         </div>
-        <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+        <h1 className="mt-1.5 text-2xl font-bold tracking-tight text-white sm:text-3xl">
           {project ? 'Manage project' : 'Create publication'}
         </h1>
-        <p className="mt-2 text-sm text-slate-400">
+        <p className="mt-1.5 text-xs text-zinc-400">
           Add a public showcase, upload private source, and publish when ready. HSKChain Testnet
           payments grant permanent source access.
         </p>
@@ -98,16 +98,16 @@ export default function CreatePublicationPage() {
       {message && (
         <div
           role="status"
-          className="flex items-start gap-3 rounded-2xl border border-blue-500/30 bg-blue-950/40 p-4 text-sm text-blue-200"
+          className="flex items-start gap-2.5 rounded-lg border border-zinc-800 bg-zinc-900/80 p-3 text-xs text-zinc-200"
         >
-          <AlertCircle className="h-5 w-5 shrink-0 text-blue-400 mt-0.5" />
+          <AlertCircle className="h-4 w-4 shrink-0 text-blue-400 mt-0.5" />
           <span>{message}</span>
         </div>
       )}
 
       {manageId && !project ? (
-        <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-8 text-center space-y-4">
-          <p className="text-slate-300 font-medium">Session authentication required to edit project.</p>
+        <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/30 p-6 text-center space-y-3">
+          <p className="text-zinc-300 text-xs font-medium">Session authentication required to edit project.</p>
           <Button
             disabled={busy || !isConnected}
             onClick={() => task(() => reload(manageId))}
@@ -117,7 +117,7 @@ export default function CreatePublicationPage() {
         </div>
       ) : !project ? (
         <form
-          className="space-y-6"
+          className="space-y-5"
           onSubmit={(e) => {
             e.preventDefault();
             void task(async () => {
@@ -141,9 +141,9 @@ export default function CreatePublicationPage() {
             });
           }}
         >
-          <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-6 space-y-5 shadow-sm">
-            <label className="block space-y-2">
-              <span className="text-sm font-semibold text-slate-300">Publication type</span>
+          <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/30 p-5 space-y-4 shadow-sm">
+            <label className="block space-y-1.5">
+              <span className="text-xs font-semibold text-zinc-300">Publication type</span>
               <select
                 className={inputStyle}
                 value={projectType}
@@ -154,8 +154,8 @@ export default function CreatePublicationPage() {
               </select>
             </label>
 
-            <label className="block space-y-2">
-              <span className="text-sm font-semibold text-slate-300">Title</span>
+            <label className="block space-y-1.5">
+              <span className="text-xs font-semibold text-zinc-300">Title</span>
               <input
                 required
                 maxLength={180}
@@ -166,8 +166,8 @@ export default function CreatePublicationPage() {
               />
             </label>
 
-            <label className="block space-y-2">
-              <span className="text-sm font-semibold text-slate-300">Short summary (public)</span>
+            <label className="block space-y-1.5">
+              <span className="text-xs font-semibold text-zinc-300">Short summary (public)</span>
               <input
                 maxLength={1000}
                 placeholder="Brief one-line overview of the publication..."
@@ -177,12 +177,12 @@ export default function CreatePublicationPage() {
               />
             </label>
 
-            <label className="block space-y-2">
-              <span className="text-sm font-semibold text-slate-300">Description (public)</span>
+            <label className="block space-y-1.5">
+              <span className="text-xs font-semibold text-zinc-300">Description (public)</span>
               <textarea
                 required
                 maxLength={50000}
-                rows={5}
+                rows={4}
                 placeholder="Detailed technical description, architecture, and features..."
                 className={inputStyle}
                 value={description}
@@ -191,16 +191,16 @@ export default function CreatePublicationPage() {
             </label>
           </div>
 
-          <section className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-6 space-y-5 shadow-sm">
+          <section className="rounded-xl border border-zinc-800/80 bg-zinc-900/30 p-5 space-y-4 shadow-sm">
             <div>
-              <h2 className="text-lg font-bold text-white">Demo & Showcase</h2>
-              <p className="text-xs text-slate-400 mt-1">
+              <h2 className="text-sm font-semibold text-white">Demo & Showcase</h2>
+              <p className="text-xs text-zinc-400">
                 Use public showcase URLs only. Upload the private source archive after saving this draft.
               </p>
             </div>
 
-            <label className="block space-y-2">
-              <span className="text-sm font-semibold text-slate-300">Live demo URL (optional)</span>
+            <label className="block space-y-1.5">
+              <span className="text-xs font-semibold text-zinc-300">Live demo URL (optional)</span>
               <input
                 type="url"
                 className={inputStyle}
@@ -210,8 +210,8 @@ export default function CreatePublicationPage() {
               />
             </label>
 
-            <label className="block space-y-2">
-              <span className="text-sm font-semibold text-slate-300">Video demo URL (optional)</span>
+            <label className="block space-y-1.5">
+              <span className="text-xs font-semibold text-zinc-300">Video demo URL (optional)</span>
               <input
                 type="url"
                 className={inputStyle}
@@ -221,8 +221,8 @@ export default function CreatePublicationPage() {
               />
             </label>
 
-            <label className="block space-y-2">
-              <span className="text-sm font-semibold text-slate-300">Public cover image URL (optional)</span>
+            <label className="block space-y-1.5">
+              <span className="text-xs font-semibold text-zinc-300">Public cover image URL (optional)</span>
               <input
                 type="url"
                 className={inputStyle}
@@ -233,17 +233,17 @@ export default function CreatePublicationPage() {
             </label>
           </section>
 
-          <section className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-6 space-y-5 shadow-sm">
+          <section className="rounded-xl border border-zinc-800/80 bg-zinc-900/30 p-5 space-y-4 shadow-sm">
             <div>
-              <h2 className="text-lg font-bold text-white">Pricing & Token Gating</h2>
-              <p className="text-xs text-slate-400 mt-1">
+              <h2 className="text-sm font-semibold text-white">Pricing & Token Gating</h2>
+              <p className="text-xs text-zinc-400">
                 Configure acquisition model and on-chain lock parameters on HSKChain Testnet.
               </p>
             </div>
 
             {projectType === 'software' && (
-              <label className="block space-y-2">
-                <span className="text-sm font-semibold text-slate-300">Acquisition Model</span>
+              <label className="block space-y-1.5">
+                <span className="text-xs font-semibold text-zinc-300">Acquisition Model</span>
                 <select
                   className={inputStyle}
                   value={acquisitionModel}
@@ -260,8 +260,8 @@ export default function CreatePublicationPage() {
             )}
 
             {projectType === 'software' ? (
-              <label className="block space-y-2">
-                <span className="text-sm font-semibold text-slate-300">Price in HSK</span>
+              <label className="block space-y-1.5">
+                <span className="text-xs font-semibold text-zinc-300">Price in HSK</span>
                 <input
                   required
                   inputMode="decimal"
@@ -273,19 +273,19 @@ export default function CreatePublicationPage() {
                 />
               </label>
             ) : (
-              <label className="block space-y-2">
-                <span className="text-sm font-semibold text-slate-300">Premium article content</span>
+              <label className="block space-y-1.5">
+                <span className="text-xs font-semibold text-zinc-300">Premium article content</span>
                 <textarea
                   className={inputStyle}
-                  rows={4}
+                  rows={3}
                   value={premiumContent}
                   onChange={(e) => setPremiumContent(e.target.value)}
                 />
               </label>
             )}
 
-            <label className="block space-y-2">
-              <span className="text-sm font-semibold text-slate-300">
+            <label className="block space-y-1.5">
+              <span className="text-xs font-semibold text-zinc-300">
                 Existing Unlock PublicLock v15 address on HSKChain Testnet
               </span>
               <input
@@ -295,49 +295,49 @@ export default function CreatePublicationPage() {
                 onChange={(e) => setLockAddress(e.target.value)}
                 placeholder="0x…"
               />
-              <p className="text-xs text-slate-400">
+              <p className="text-[11px] text-zinc-500">
                 For software, you must manage this lock and its current native HSK price must match.
                 The existing HSK lock tools remain available; no contract is deployed by this form.
               </p>
             </label>
           </section>
 
-          <Button type="submit" disabled={busy || !isConnected} className="w-full sm:w-auto">
+          <Button type="submit" disabled={busy || !isConnected}>
             {busy ? 'Saving...' : isConnected ? 'Save draft' : 'Connect wallet to create'}
           </Button>
         </form>
       ) : (
-        <div className="space-y-6">
-          <section className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-6 sm:p-8 space-y-4 shadow-sm">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <h2 className="text-2xl font-bold text-white">{project.title}</h2>
+        <div className="space-y-5">
+          <section className="rounded-xl border border-zinc-800/80 bg-zinc-900/30 p-5 space-y-3 shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <h2 className="text-xl font-bold text-white">{project.title}</h2>
               <span
-                className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wider border ${
+                className={`inline-flex items-center rounded px-2 py-0.5 text-[10px] font-mono uppercase tracking-wider border ${
                   project.status === 'PUBLISHED'
-                    ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
+                    ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
                     : project.status === 'DRAFT'
-                    ? 'border-amber-500/30 bg-amber-500/10 text-amber-400'
-                    : 'border-slate-700 bg-slate-800 text-slate-400'
+                    ? 'border-amber-500/20 bg-amber-500/10 text-amber-400'
+                    : 'border-zinc-800 bg-zinc-900 text-zinc-400'
                 }`}
               >
                 {project.status}
               </span>
             </div>
 
-            <p className="text-sm text-slate-300 leading-relaxed">{project.description}</p>
+            <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">{project.description}</p>
 
-            <div className="flex flex-wrap items-center gap-4 pt-2 border-t border-slate-800 text-sm">
+            <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-zinc-800/80 text-xs">
               {project.priceWei && (
                 <div className="font-semibold text-white">
                   {formatEther(BigInt(project.priceWei))} HSK{' '}
-                  <span className="text-xs font-normal text-slate-400">· HSKChain Testnet</span>
+                  <span className="text-[11px] font-normal text-zinc-400">· HSKChain Testnet</span>
                 </div>
               )}
 
               {project.projectType === 'software' && (
-                <div className="flex items-center gap-2">
-                  <span className="text-slate-400">Model:</span>
-                  <span className="rounded-full border border-slate-700 bg-slate-800 px-2.5 py-0.5 text-xs font-medium text-slate-200">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-zinc-500">Model:</span>
+                  <span className="rounded border border-zinc-800 bg-zinc-900 px-2 py-0.5 text-[10px] font-medium text-zinc-300">
                     {project.acquisitionModel === 'subscription'
                       ? 'Monthly Subscription'
                       : 'Lifetime Purchase'}
@@ -346,66 +346,66 @@ export default function CreatePublicationPage() {
               )}
             </div>
 
-            <div className="flex flex-wrap gap-4 pt-3 border-t border-slate-800">
+            <div className="flex flex-wrap gap-3 pt-2 border-t border-zinc-800/80">
               {project.demoUrl && (
                 <a
-                  className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-400 hover:text-blue-300 hover:underline"
+                  className="inline-flex items-center gap-1 text-xs font-medium text-zinc-300 hover:text-white hover:underline"
                   href={project.demoUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Preview live demo <ExternalLink className="h-3.5 w-3.5" />
+                  Preview live demo <ExternalLink className="h-3 w-3" />
                 </a>
               )}
               {project.demoVideoUrl && (
                 <a
-                  className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-400 hover:text-blue-300 hover:underline"
+                  className="inline-flex items-center gap-1 text-xs font-medium text-zinc-300 hover:text-white hover:underline"
                   href={project.demoVideoUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Preview video <ExternalLink className="h-3.5 w-3.5" />
+                  Preview video <ExternalLink className="h-3 w-3" />
                 </a>
               )}
               {project.avalancheTx && (
                 <a
-                  className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-400 hover:text-emerald-300 hover:underline"
+                  className="inline-flex items-center gap-1 text-xs font-medium text-emerald-400 hover:text-emerald-300 hover:underline"
                   href={getExplorerTxUrl(project.avalancheTx)}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <ShieldCheck className="h-3.5 w-3.5" /> Verified Fuji proof transaction{' '}
-                  <ExternalLink className="h-3.5 w-3.5" />
+                  <ShieldCheck className="h-3 w-3" /> Verified Fuji proof transaction{' '}
+                  <ExternalLink className="h-3 w-3" />
                 </a>
               )}
             </div>
           </section>
 
           {project.status === 'DRAFT' && (
-            <div className="space-y-6">
+            <div className="space-y-4">
               {project.projectType === 'software' && (
-                <section className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-6 space-y-4 shadow-sm">
+                <section className="rounded-xl border border-zinc-800/80 bg-zinc-900/30 p-5 space-y-3 shadow-sm">
                   <div className="flex items-center gap-2">
-                    <FolderArchive className="h-5 w-5 text-blue-400" />
-                    <h2 className="text-lg font-bold text-white">Private Source Archive</h2>
+                    <FolderArchive className="h-4 w-4 text-blue-400" />
+                    <h2 className="text-sm font-semibold text-white">Private Source Archive</h2>
                   </div>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-zinc-400">
                     ZIP only, up to 20 MiB. Remove secrets before upload. Uploaded archives are
                     immutable and encrypted on the server.
                   </p>
                   {hasSource ? (
-                    <div className="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm font-medium text-emerald-400">
-                      <CheckCircle2 className="h-4 w-4" />
+                    <div className="flex items-center gap-2 rounded border border-emerald-500/20 bg-emerald-500/10 p-2.5 text-xs font-medium text-emerald-400">
+                      <CheckCircle2 className="h-3.5 w-3.5" />
                       <span>Private source uploaded ✓</span>
                     </div>
                   ) : (
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 pt-2">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 pt-1">
                       <input
                         aria-label="Private source ZIP"
                         type="file"
                         accept=".zip,application/zip"
                         onChange={(e) => setFile(e.target.files?.[0] || null)}
-                        className="text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-200 hover:file:bg-slate-700 cursor-pointer"
+                        className="text-xs text-zinc-400 file:mr-2.5 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-medium file:bg-zinc-800 file:text-zinc-200 hover:file:bg-zinc-700 cursor-pointer"
                       />
                       <Button
                         disabled={busy || !file}
@@ -417,9 +417,9 @@ export default function CreatePublicationPage() {
                             await reload(project.id);
                           })
                         }
-                        className="gap-2"
+                        className="gap-1.5"
                       >
-                        <Upload className="h-4 w-4" />
+                        <Upload className="h-3.5 w-3.5" />
                         Upload private source
                       </Button>
                     </div>
@@ -427,7 +427,7 @@ export default function CreatePublicationPage() {
                 </section>
               )}
 
-              <div className="flex flex-wrap gap-4 pt-2">
+              <div className="flex flex-wrap gap-3 pt-1">
                 {CONTENT_PROOF_REGISTRY_ADDRESS !== zeroAddress &&
                   project.lockAddress &&
                   !project.avalancheTx && (
@@ -458,9 +458,9 @@ export default function CreatePublicationPage() {
                           await reload(project.id);
                         })
                       }
-                      className="gap-2"
+                      className="gap-1.5"
                     >
-                      <ShieldCheck className="h-4 w-4 text-blue-400" />
+                      <ShieldCheck className="h-3.5 w-3.5 text-zinc-400" />
                       Anchor content proof on Avalanche Fuji (optional)
                     </Button>
                   )}
@@ -483,17 +483,17 @@ export default function CreatePublicationPage() {
           )}
 
           {project.status === 'PUBLISHED' && (
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <Link
-                className="inline-flex items-center gap-1.5 font-semibold text-blue-400 hover:text-blue-300 hover:underline"
+                className="inline-flex items-center gap-1 text-xs sm:text-sm font-medium text-blue-400 hover:text-blue-300 hover:underline"
                 href={`/content/${project.id}`}
               >
-                Open published project <ArrowRight className="h-4 w-4" />
+                Open published project <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
           )}
 
-          <div className="flex flex-wrap items-center gap-4 pt-4 border-t border-slate-800">
+          <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-zinc-800/80">
             {project.status === 'PUBLISHED' && (
               <Button
                 variant="outline"
@@ -526,9 +526,9 @@ export default function CreatePublicationPage() {
 
             <Link
               href="/create"
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-400 hover:text-white transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-400 hover:text-white transition-colors"
             >
-              <PlusCircle className="h-4 w-4" /> Create another publication
+              <PlusCircle className="h-3.5 w-3.5" /> Create another publication
             </Link>
           </div>
         </div>

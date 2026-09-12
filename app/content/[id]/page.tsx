@@ -41,12 +41,12 @@ export default async function ContentDetailPage({ params, searchParams }: PagePr
   const hasConfirmedLock = publication.membership.lock.status === "confirmed";
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <Link
         href="/"
-        className="inline-flex min-h-10 items-center gap-2 text-sm font-medium text-slate-400 hover:text-white transition-colors"
+        className="inline-flex min-h-9 items-center gap-2 text-xs sm:text-sm font-medium text-zinc-400 hover:text-white transition-colors"
       >
-        <ArrowLeft aria-hidden="true" className="h-4 w-4" />
+        <ArrowLeft aria-hidden="true" className="h-3.5 w-3.5" />
         Back to Explore
       </Link>
 
@@ -56,64 +56,64 @@ export default async function ContentDetailPage({ params, searchParams }: PagePr
 
       <div
         className={cn(
-          "grid items-start gap-10 lg:gap-16",
+          "grid items-start gap-8 lg:gap-12",
           premiumPreview ? "mx-auto max-w-3xl" : "lg:grid-cols-[minmax(0,1fr)_340px]",
         )}
       >
         <article className="min-w-0">
-          <header className="border-b border-slate-800 pb-8">
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="rounded-md border border-slate-800 bg-slate-800/60 px-2.5 py-1 text-xs font-semibold text-slate-300 uppercase tracking-wider">
+          <header className="border-b border-zinc-800/80 pb-6">
+            <div className="flex flex-wrap items-center gap-2.5">
+              <span className="rounded border border-zinc-800 bg-zinc-900 px-2 py-0.5 text-[11px] font-medium text-zinc-300">
                 {publication.category}
               </span>
               {hasConfirmedProof && (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-400">
-                  <ShieldCheck className="h-3.5 w-3.5" />
+                <span className="inline-flex items-center gap-1.5 rounded border border-zinc-800 bg-zinc-900 px-2 py-0.5 text-[11px] font-medium text-zinc-300">
+                  <ShieldCheck className="h-3 w-3 text-emerald-400" />
                   <span>Fuji Proof Verified</span>
                 </span>
               )}
             </div>
 
-            <h1 className="mt-4 text-3xl font-extrabold leading-tight tracking-tight text-white sm:text-4xl lg:text-5xl">
+            <h1 className="mt-3.5 text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl">
               {publication.title}
             </h1>
 
-            <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-slate-400">
+            <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-zinc-400">
               <Link
                 href={`/profile/${creator.address}`}
-                className="flex items-center gap-2.5 rounded-lg text-slate-200 hover:text-blue-400 transition-colors"
+                className="flex items-center gap-2 rounded text-zinc-200 hover:text-white transition-colors"
               >
                 <span
                   aria-hidden="true"
-                  className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-700 bg-slate-800 text-xs font-bold"
+                  className="flex h-6 w-6 items-center justify-center rounded-full border border-zinc-700 bg-zinc-800 text-[10px] font-bold"
                 >
                   {creator.initials}
                 </span>
                 <span className="font-medium">{creator.name}</span>
               </Link>
-              <span className="text-slate-600">·</span>
+              <span className="text-zinc-600">·</span>
               <time dateTime={publication.publishedAt}>
                 {formatDate(new Date(publication.publishedAt))}
               </time>
-              <span className="text-slate-600">·</span>
-              <span className="inline-flex items-center gap-1.5">
-                <Clock3 aria-hidden="true" className="h-4 w-4 text-slate-500" />
+              <span className="text-zinc-600">·</span>
+              <span className="inline-flex items-center gap-1">
+                <Clock3 aria-hidden="true" className="h-3.5 w-3.5 text-zinc-500" />
                 {publication.readingMinutes} min read
               </span>
             </div>
 
             {(hasConfirmedProof || hasConfirmedLock) && (
-              <div className="mt-6 flex flex-wrap items-center gap-2.5 pt-2">
+              <div className="mt-4 flex flex-wrap items-center gap-2 pt-1">
                 {hasConfirmedProof && publication.proof.status === "confirmed" && (
                   <>
-                    <span className="inline-flex items-center gap-1 rounded-lg border border-slate-800 bg-slate-900/90 px-2.5 py-1 text-xs font-mono text-slate-300">
+                    <span className="inline-flex items-center gap-1 rounded border border-zinc-800 bg-zinc-900 px-2 py-0.5 text-xs font-mono text-zinc-300">
                       Proof: {publication.proof.contentHash.slice(0, 10)}...{publication.proof.contentHash.slice(-6)}
                     </span>
                     <a
                       href={getExplorerTxUrl(publication.proof.transactionHash)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 rounded-lg border border-slate-800 bg-slate-900/90 px-2.5 py-1 text-xs text-slate-400 hover:border-slate-700 hover:text-blue-400 transition-colors"
+                      className="inline-flex items-center gap-1 rounded border border-zinc-800 bg-zinc-900 px-2 py-0.5 text-xs text-zinc-400 hover:border-zinc-700 hover:text-white transition-colors"
                     >
                       <span>Snowtrace Tx</span>
                       <ExternalLink className="h-3 w-3" />
@@ -126,32 +126,34 @@ export default async function ContentDetailPage({ params, searchParams }: PagePr
                     href={getHskExplorerAddressUrl(publication.membership.lock.address)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 rounded-lg border border-blue-500/20 bg-blue-500/10 px-2.5 py-1 text-xs font-medium text-blue-400 hover:bg-blue-500/20 transition-colors"
+                    className="inline-flex items-center gap-1 rounded border border-zinc-800 bg-zinc-900 px-2 py-0.5 text-xs font-medium text-zinc-300 hover:border-zinc-700 hover:text-white transition-colors"
                   >
                     <span>HSK Lock: {formatAddress(publication.membership.lock.address)}</span>
-                    <ExternalLink className="h-3 w-3" />
+                    <ExternalLink className="h-3 w-3 text-zinc-400" />
                   </a>
                 )}
               </div>
             )}
           </header>
 
-          <section aria-labelledby="preview-heading" className="py-8">
-            <h2 id="preview-heading" className="text-sm font-semibold tracking-wider text-slate-400 uppercase">
+          <section aria-labelledby="preview-heading" className="py-6">
+            <h2 id="preview-heading" className="text-xs font-semibold tracking-wider text-zinc-400 uppercase">
               Public preview
             </h2>
-            <p className="mt-4 text-lg leading-relaxed text-slate-300">{publication.preview}</p>
+            <p className="mt-3 text-base leading-relaxed text-zinc-300">{publication.preview}</p>
           </section>
 
           {publication.description && publication.description !== publication.preview && (
-            <section className="py-6 border-t border-slate-800/80">
-              <h2 className="text-base font-bold text-white">About this project</h2>
-              <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-slate-400">{publication.description}</p>
+            <section className="py-5 border-t border-zinc-800/80">
+              <h2 className="text-sm font-semibold text-white">About this project</h2>
+              <p className="mt-2.5 whitespace-pre-wrap text-xs sm:text-sm leading-relaxed text-zinc-400">
+                {publication.description}
+              </p>
             </section>
           )}
 
           {/* Interactive Software Execution Sandbox & Functional Demo */}
-          <div className="my-8">
+          <div className="my-6">
             <SoftwareDemoRunner
               title={publication.title}
               demoUrl={publication.demoUrl}
@@ -162,7 +164,7 @@ export default async function ContentDetailPage({ params, searchParams }: PagePr
 
           {premiumPreview && <UnlockedContent content={premiumPreview} />}
 
-          <p className="border-t border-slate-800/80 pt-5 text-xs text-slate-500">
+          <p className="border-t border-zinc-800/80 pt-4 text-xs text-zinc-500">
             {hasConfirmedProof
               ? "Avalanche Fuji Proof Anchored · Immutable Content Commitment"
               : "Demo publication · Content proof pending"}

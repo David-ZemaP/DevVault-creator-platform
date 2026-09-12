@@ -25,13 +25,16 @@ export function MainNavigation() {
             href={href}
             aria-current={isActive ? "page" : undefined}
             className={cn(
-              "flex min-h-10 items-center justify-center gap-2 rounded-xl px-3.5 py-1.5 text-xs sm:text-sm font-medium transition-all",
+              "flex min-h-9 items-center justify-center gap-2 rounded-lg px-3 py-1.5 text-xs sm:text-sm font-medium transition-all",
               isActive
-                ? "bg-blue-600/15 text-blue-400 border border-blue-500/25 shadow-sm shadow-blue-500/10"
-                : "text-slate-400 hover:bg-slate-900/80 hover:text-slate-200 border border-transparent",
+                ? "bg-zinc-900 text-zinc-100 border border-zinc-800 shadow-sm"
+                : "text-zinc-400 hover:bg-zinc-900/60 hover:text-zinc-200 border border-transparent",
             )}
           >
-            <Icon aria-hidden="true" className={cn("h-4 w-4 shrink-0 transition-colors", isActive ? "text-blue-400" : "text-slate-400")} />
+            <Icon
+              aria-hidden="true"
+              className={cn("h-4 w-4 shrink-0 transition-colors", isActive ? "text-blue-400" : "text-zinc-400")}
+            />
             <span>{label}</span>
           </Link>
         );

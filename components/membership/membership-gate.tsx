@@ -55,24 +55,24 @@ export function MembershipGate({ lockAddress, isGated, children }: MembershipGat
     : "#";
 
   return (
-    <div className="relative rounded-2xl border border-slate-800/80 bg-slate-900/80 p-8 text-center backdrop-blur-sm shadow-sm">
-      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-400 mb-4 border border-blue-500/20">
-        <Lock className="h-7 w-7" />
+    <div className="relative rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-6 text-center shadow-sm">
+      <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 mb-3">
+        <Lock className="h-5 w-5" />
       </div>
 
-      <h2 className="text-xl font-bold text-white">Members-Only Content</h2>
-      <p className="mt-2 text-sm text-slate-400 max-w-md mx-auto">
+      <h2 className="text-lg font-bold text-white">Members-Only Content</h2>
+      <p className="mt-1.5 text-xs text-zinc-400 max-w-md mx-auto">
         This publication is token-gated with Unlock Protocol on HashKey Chain (HSK). You need an active
         membership key on HSK to unlock the full content.
       </p>
 
       {!isConnected ? (
-        <div className="mt-6 flex items-center justify-center gap-2 text-sm text-amber-400">
-          <ShieldAlert className="h-4 w-4" />
+        <div className="mt-4 flex items-center justify-center gap-2 text-xs text-amber-400">
+          <ShieldAlert className="h-3.5 w-3.5" />
           <span>Connect your wallet to verify access on HashKey</span>
         </div>
       ) : (
-        <div className="mt-6 flex justify-center">
+        <div className="mt-5 flex justify-center">
           <a href={checkoutUrl} target="_blank" rel="noopener noreferrer">
             <Button variant="primary">Unlock Access with HSK Key</Button>
           </a>

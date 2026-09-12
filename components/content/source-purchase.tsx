@@ -129,49 +129,49 @@ export function SourcePurchase({
     finally { setPending(false); }
   }
   return (
-    <section className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-6 sm:p-7 space-y-5 backdrop-blur-sm shadow-xl shadow-slate-950/40" aria-label="Source code">
-      <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">
-        <h2 className="text-lg font-bold text-white">Source code</h2>
-        <span className="inline-flex items-center rounded-md bg-blue-500/10 border border-blue-500/20 px-2.5 py-0.5 text-xs font-semibold text-blue-400">
+    <section className="rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-6 space-y-4" aria-label="Source code">
+      <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3">
+        <h2 className="text-base font-semibold text-white">Source code</h2>
+        <span className="inline-flex items-center rounded border border-zinc-800 bg-zinc-900 px-2 py-0.5 text-xs font-mono text-zinc-400">
           HSKChain (133)
         </span>
       </div>
 
-      <p className="text-sm text-slate-400 leading-relaxed">
+      <p className="text-xs text-zinc-400 leading-relaxed">
         {isSubscription
           ? 'Monthly subscription (30 days) · Access to code & updates while subscribed'
           : 'Private archive · permanent access after verified purchase'}
       </p>
 
-      <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-4">
-        <span className="text-xs text-slate-500 block">Required Payment</span>
-        <p className="text-2xl font-extrabold text-white mt-0.5">
-          {priceEth} <span className="text-sm font-semibold text-slate-400">HSK</span>
+      <div className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-3.5">
+        <span className="text-[11px] text-zinc-500 block">Required Payment</span>
+        <p className="text-xl font-bold text-white mt-0.5">
+          {priceEth} <span className="text-xs font-normal text-zinc-400">HSK</span>
         </p>
-        <p className="text-[11px] text-slate-500 mt-1">{priceEth} HSK · HSKChain Testnet (133)</p>
+        <p className="text-[10px] text-zinc-500 mt-0.5">{priceEth} HSK · HSKChain Testnet (133)</p>
       </div>
 
       {state === 'creator' ? (
-        <div className="rounded-xl border border-blue-500/20 bg-blue-500/10 p-3 text-xs text-blue-300">
-          Your project · <Link href={`/create?id=${id}`} className="font-semibold text-blue-400 hover:text-blue-300 underline">Manage project</Link>
+        <div className="rounded-lg border border-zinc-800 bg-zinc-900/60 p-2.5 text-xs text-zinc-300">
+          Your project · <Link href={`/create?id=${id}`} className="font-medium text-blue-400 hover:underline">Manage project</Link>
         </div>
       ) : isSubscription ? (
         access.hasActiveMembership ? (
-          <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3 text-xs font-semibold text-emerald-400">
+          <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-2.5 text-xs font-medium text-emerald-400">
             Subscribed · Active (30 days) ✓
           </div>
         ) : access.purchased ? (
-          <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 p-3 text-xs font-semibold text-amber-400">
+          <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 p-2.5 text-xs font-medium text-amber-400">
             Subscription Expired
           </div>
         ) : null
       ) : state === 'purchased' ? (
-        <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3 text-xs font-semibold text-emerald-400">
+        <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-2.5 text-xs font-medium text-emerald-400">
           Purchased ✓
         </div>
       ) : null}
 
-      <div className="flex flex-col gap-2.5">
+      <div className="flex flex-col gap-2 pt-1">
         <Button disabled={pending} onClick={() => run(canDownload)} className="w-full">
           {buttonText()}
         </Button>
@@ -183,19 +183,19 @@ export function SourcePurchase({
       </div>
 
       {message && (
-        <div role="status" className="rounded-xl border border-slate-800 bg-slate-800/40 p-3 text-xs text-slate-300">
+        <div role="status" className="rounded-lg border border-zinc-800 bg-zinc-900/80 p-2.5 text-xs text-zinc-300">
           {message}
         </div>
       )}
 
-      <div className="flex flex-col gap-1.5 border-t border-slate-800/80 pt-4 text-xs">
+      <div className="flex flex-col gap-1.5 border-t border-zinc-800/80 pt-3 text-xs">
         {tx && (
-          <a href={getHskExplorerTxUrl(tx)} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 font-medium">
+          <a href={getHskExplorerTxUrl(tx)} target="_blank" rel="noopener noreferrer" className="text-zinc-400 hover:text-zinc-200 font-medium transition-colors">
             View transaction ↗
           </a>
         )}
         {state === 'purchased' && (
-          <Link href="/purchases" className="text-blue-400 hover:text-blue-300 font-medium">
+          <Link href="/purchases" className="text-blue-400 hover:text-blue-300 font-medium transition-colors">
             My Purchases →
           </Link>
         )}
