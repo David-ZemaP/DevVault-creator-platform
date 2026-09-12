@@ -1,0 +1,41 @@
+{
+  "name": "creator-platform",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "test": "hardhat test",
+    "compile": "hardhat compile",
+    "deploy": "hardhat deploy"
+  },
+  "dependencies": {
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "wagmi": "latest",
+    "viem": "latest",
+    "@rainbow-me/rainbowkit": "latest",
+    "@tanstack/react-query": "latest",
+    "clsx": "latest",
+    "tailwind-merge": "latest",
+    "lucide-react": "latest"
+  },
+  "devDependencies": {
+    "typescript": "latest",
+    "hardhat": "latest",
+    "@nomicfoundation/hardhat-toolbox": "latest",
+    "@openzeppelin/contracts": "latest",
+    "eslint": "latest",
+    "eslint-config-next": "latest",
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "postcss": "latest",
+    "tailwindcss": "latest",
+    "autoprefixer": "latest"
+  }
+}
