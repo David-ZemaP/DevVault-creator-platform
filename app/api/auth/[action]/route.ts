@@ -21,7 +21,8 @@ export async function POST(request: Request, props: { params: Promise<{ action: 
       if (!isAddress(body.wallet)) throw new HttpError(400, 'Invalid wallet');
       const challenge = token(), wallet = body.wallet.toLowerCase();
       const expires = new Date(Date.now() + 5 * 60_000).toISOString();
-      const message = `${new URL(process.env.APP_ORIGIN!).host} requests a DevVault wallet sign-in.\nWallet: ${wallet}\nURI: ${process.env.APP_ORIGIN}\nNonce: ${challenge}\nExpires: ${expires}\nThis signature authenticates your wallet; it does not authorize a payment.`;
+      const origin = process.env.APP_ORIGIN || 'http://localhost:3000';
+      const message = `${new URL(origin).host} requests a DevVault wallet sign-in.\nWallet: ${wallet}\nURI: ${origin}\nNonce: ${challenge}\nExpires: ${expires}\nThis signature authenticates your wallet; it does not authorize a payment.`;
       checked(await db.from('wallet_challenges').insert({ token_hash: digest(challenge), wallet, message, expires_at: expires }));
       jar.set(nonceCookie, challenge, { ...cookieOptions, maxAge: 300 });
       return privateJson({ message });

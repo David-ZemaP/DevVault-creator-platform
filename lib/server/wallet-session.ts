@@ -7,7 +7,7 @@ export const digest = (value: string) => createHash('sha256').update(value).dige
 export const token = () => randomBytes(32).toString('hex');
 export const cookieOptions = { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict' as const, path: '/' };
 export function sameOrigin(request: Request) {
-  const expected = process.env.APP_ORIGIN;
+  const expected = process.env.APP_ORIGIN || (process.env.NODE_ENV !== 'production' ? 'http://localhost:3000' : undefined);
   if (!expected) throw new HttpError(503, 'APP_ORIGIN must be configured');
   if (request.headers.get('origin') !== new URL(expected).origin) throw new HttpError(403, 'Invalid request origin');
 }
