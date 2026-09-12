@@ -2,12 +2,18 @@
 
 Decentralized content platform for creators built with Next.js, TypeScript, Tailwind CSS, Hardhat, Solidity, OpenZeppelin, wagmi, viem, and RainbowKit.
 
+**Frontend checkpoint:** [Architecture, verified stack and known blockers](docs/frontend-architecture.md) · [Tasks 1–10 and manual checks](docs/frontend-checkpoint.md).
+
+**Task 11:** [Development-only Unlocked preview and validation](docs/task-11-unlocked.md). In development, use the Locked/Unlocked selector on a publication page. The production build ignores this selector.
+
+Explore and content previews use shared mocks. Subscribe is intentionally disabled; the existing Create screen calculates a local hash only. Membership purchases, publication transactions and protected backend delivery are not implemented yet.
+
 ## Tech Stack
 
-- **Frontend**: Next.js 14+ (App Router), React, TypeScript, Tailwind CSS
+- **Frontend**: Next.js 16 (App Router), React 19, strict TypeScript, Tailwind CSS 4
 - **Web3 Integration**: Wagmi, Viem, RainbowKit, Unlock Protocol
 - **Smart Contracts**: Solidity ^0.8.24, Hardhat, OpenZeppelin Contracts
-- **Network**: Avalanche (C-Chain Mainnet & Fuji Testnet)
+- **Target networks**: HashKey Chain for memberships; Avalanche Fuji for content proofs. The inherited wallet configuration is still Avalanche-only until the network integration task.
 
 ## Project Structure
 
@@ -75,18 +81,20 @@ creator-platform/
 ### 1. Install Dependencies
 
 ```bash
-pnpm install
+pnpm install --frozen-lockfile
 ```
 
 ### 2. Environment Configuration
 
-Copy the sample environment file and populate the variables:
+Environment variables are optional for the current frontend preview. Copy the sample only when configuring an integration, and keep private values out of public variables and Git:
 
 ```bash
 cp .env.example .env.local
 ```
 
 ### 3. Smart Contracts (Hardhat)
+
+The inherited Hardhat configuration currently has compatibility errors; see the frontend architecture note above. This frontend checkpoint does not validate contract compilation, tests or deployment.
 
 ```bash
 # Compile contracts

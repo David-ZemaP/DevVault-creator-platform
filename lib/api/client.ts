@@ -16,12 +16,12 @@ export class ApiClient {
       const res = await fetch(`${this.baseUrl}${path}`);
       const data = await res.json();
       return { data, status: res.status };
-    } catch (err: any) {
-      return { error: err.message || "Network error", status: 500 };
+    } catch (err: unknown) {
+      return { error: err instanceof Error ? err.message : "Network error", status: 500 };
     }
   }
 
-  async post<T>(path: string, body: any): Promise<ApiResponse<T>> {
+  async post<T>(path: string, body: unknown): Promise<ApiResponse<T>> {
     try {
       const res = await fetch(`${this.baseUrl}${path}`, {
         method: "POST",
@@ -30,8 +30,8 @@ export class ApiClient {
       });
       const data = await res.json();
       return { data, status: res.status };
-    } catch (err: any) {
-      return { error: err.message || "Network error", status: 500 };
+    } catch (err: unknown) {
+      return { error: err instanceof Error ? err.message : "Network error", status: 500 };
     }
   }
 }

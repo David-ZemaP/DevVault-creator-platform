@@ -1,10 +1,26 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../tailwind.config.ts";
 
 :root {
   --background: #0a0a0a;
   --foreground: #ededed;
+  color-scheme: dark;
+}
+
+@layer base {
+  :focus-visible {
+    outline: 2px solid #f87171;
+    outline-offset: 4px;
+  }
+
+  ::selection {
+    background: #991b1b;
+    color: #fff;
+  }
+
+  h1, h2, h3, p {
+    overflow-wrap: break-word;
+  }
 }
 
 body {

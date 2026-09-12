@@ -1,62 +1,26 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Web3Provider } from "@/components/wallet/web3-provider";
-import { CustomConnectButton } from "@/components/wallet/connect-button";
-import Link from "next/link";
-import { Sparkles, PlusCircle, LayoutDashboard } from "lucide-react";
+import { SiteHeader } from "@/components/layout/site-header";
 
 export const metadata: Metadata = {
-  title: "DevVault Creator Platform",
-  description: "Decentralized creator economy & content provenance on Avalanche",
+  title: { default: "DevVault — Independent creators, shared knowledge", template: "%s | DevVault" },
+  description: "Discover independent creators and preview premium publications. A membership platform in development for HashKey Chain and Avalanche Fuji.",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body className="antialiased bg-neutral-950 text-neutral-100 flex flex-col min-h-screen">
+      <body className="flex min-h-screen flex-col bg-neutral-950 text-neutral-100 antialiased">
+        <a href="#main-content" className="sr-only fixed top-3 left-3 z-[100] rounded-lg bg-white px-4 py-3 text-neutral-950 focus:not-sr-only">Skip to content</a>
         <Web3Provider>
-          <header className="sticky top-0 z-50 border-b border-neutral-800/80 bg-neutral-950/80 backdrop-blur-md">
-            <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5 sm:px-6 lg:px-8">
-              <div className="flex items-center gap-8">
-                <Link href="/" className="flex items-center gap-2 font-bold text-lg text-white">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-600 text-white font-mono">
-                    DV
-                  </div>
-                  <span>DevVault</span>
-                </Link>
-
-                <nav className="hidden md:flex items-center gap-6 text-sm text-neutral-300">
-                  <Link href="/" className="hover:text-white transition-colors flex items-center gap-1.5">
-                    <Sparkles className="h-4 w-4" />
-                    Explore
-                  </Link>
-                  <Link href="/create" className="hover:text-white transition-colors flex items-center gap-1.5">
-                    <PlusCircle className="h-4 w-4" />
-                    Create
-                  </Link>
-                  <Link href="/dashboard" className="hover:text-white transition-colors flex items-center gap-1.5">
-                    <LayoutDashboard className="h-4 w-4" />
-                    Dashboard
-                  </Link>
-                </nav>
-              </div>
-
-              <div className="flex items-center gap-4">
-                <CustomConnectButton />
-              </div>
-            </div>
-          </header>
-
-          <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8 sm:px-6 lg:px-8">
-            {children}
-          </main>
-
-          <footer className="border-t border-neutral-800/60 py-6 text-center text-xs text-neutral-500">
-            DevVault Creator Platform • Built with Next.js, Wagmi & Avalanche
+          <SiteHeader />
+          <div className="border-b border-neutral-800/60 bg-neutral-900/40">
+            <p className="mx-auto max-w-7xl px-4 py-2.5 text-xs leading-relaxed text-neutral-400 sm:px-6 lg:px-8"><span className="mr-2 font-semibold text-red-300">DEMO PREVIEW</span>Sample creators and publications. Memberships and content proofs are not live.</p>
+          </div>
+          <main id="main-content" tabIndex={-1} className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 outline-none sm:px-6 sm:py-12 lg:px-8">{children}</main>
+          <footer className="border-t border-neutral-800/60">
+            <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-6 text-xs text-neutral-500 sm:flex-row sm:justify-between sm:px-6 lg:px-8"><span>DevVault · Made for independent creators</span><span>Ethereum Bolivia · Hackathon preview</span></div>
           </footer>
         </Web3Provider>
       </body>

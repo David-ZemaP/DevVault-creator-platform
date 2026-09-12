@@ -1,71 +1,28 @@
 import Link from "next/link";
-import { ContentCard } from "@/components/content/content-card";
-import { Button } from "@/components/ui/button";
-import { PlusCircle, Compass } from "lucide-react";
-
-const SAMPLE_PUBLICATIONS = [
-  {
-    id: "0xabc1230000000000000000000000000000000000000000000000000000000001",
-    title: "Building High-Throughput Subnets on Avalanche",
-    description:
-      "A deep architectural dive into customizing EVM execution runtimes and gas parameters on dedicated Avalanche subnets.",
-    author: "0x71C8343e3C8432a688D37A33eC55f4175b9fF835",
-    createdAt: Math.floor(Date.now() / 1000) - 3600,
-    isGated: false,
-  },
-  {
-    id: "0xabc1230000000000000000000000000000000000000000000000000000000002",
-    title: "Token-Gated Creator Monetization with Unlock Protocol",
-    description:
-      "Full guide and contract templates to tokenize your newsletter or video vault with self-sovereign NFT keys.",
-    author: "0x9812A4F9901fB9189280a82B8bfa4E06A2665972",
-    createdAt: Math.floor(Date.now() / 1000) - 86400,
-    isGated: true,
-    lockAddress: "0x1234567890123456789012345678901234567890",
-  },
-  {
-    id: "0xabc1230000000000000000000000000000000000000000000000000000000003",
-    title: "Content Provenance & Proof Registries on EVM",
-    description:
-      "How keccak256 hashes anchored on-chain protect creators against unauthorized AI scrapers and impersonation.",
-    author: "0x3344556677889900112233445566778899001122",
-    createdAt: Math.floor(Date.now() / 1000) - 172800,
-    isGated: false,
-  },
-];
+import { ArrowUpRight, Compass } from "lucide-react";
+import { PublicationList } from "@/components/content/publication-list";
+import { listPublications } from "@/features/publications/repository";
 
 export default function ExplorePage() {
+  const publications = listPublications();
+
   return (
     <div className="space-y-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-neutral-800 pb-6">
-        <div>
-          <div className="flex items-center gap-2 text-xs font-semibold tracking-wider text-red-500 uppercase">
-            <Compass className="h-4 w-4" />
-            Decentralized Feed
-          </div>
-          <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-            Explore Publications
-          </h1>
-          <p className="mt-2 text-sm text-neutral-400">
-            Verifiable on-chain creator proofs and token-gated content powered by Avalanche.
-          </p>
+      <header className="flex flex-col justify-between gap-6 border-b border-neutral-800 pb-8 sm:flex-row sm:items-end">
+        <div className="max-w-2xl">
+          <p className="flex items-center gap-2 text-xs font-semibold tracking-widest text-red-400 uppercase"><Compass aria-hidden="true" className="h-4 w-4" />Independent voices. Shared knowledge.</p>
+          <h1 className="mt-4 text-4xl font-semibold tracking-tight text-white sm:text-5xl">Find your next deep dive.</h1>
+          <p className="mt-4 text-base leading-relaxed text-neutral-400">Discover ideas from independent creators. Read a preview, find your community, and explore what membership unlocks.</p>
         </div>
-
-        <div>
-          <Link href="/create">
-            <Button variant="primary" className="gap-2">
-              <PlusCircle className="h-4 w-4" />
-              Publish Content
-            </Button>
-          </Link>
+        <Link href="/create" className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-red-600 px-5 text-sm font-semibold text-white transition-colors hover:bg-red-700">Create a publication <ArrowUpRight aria-hidden="true" className="h-4 w-4" /></Link>
+      </header>
+      <section aria-labelledby="publications-heading" className="space-y-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 id="publications-heading" className="text-lg font-semibold text-neutral-100">Latest publications</h2>
+          <span className="text-sm text-neutral-500">{publications.length} stories to explore</span>
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {SAMPLE_PUBLICATIONS.map((pub) => (
-          <ContentCard key={pub.id} {...pub} />
-        ))}
-      </div>
+        <PublicationList publications={publications} />
+      </section>
     </div>
   );
 }

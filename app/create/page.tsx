@@ -3,11 +3,11 @@
 import React, { useState } from "react";
 import { useAccount } from "wagmi";
 import { Button } from "@/components/ui/button";
-import { keccak256, toUtf8Bytes } from "viem";
+import { createPublicationPreview } from "@/features/publications/create-preview";
 import { Sparkles, Lock, Globe, ShieldCheck } from "lucide-react";
 
 export default function CreatePublicationPage() {
-  const { address, isConnected } = useAccount();
+  const { isConnected } = useAccount();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -23,12 +23,7 @@ export default function CreatePublicationPage() {
 
     setIsSubmitting(true);
     try {
-      // Generate content proof hash
-      const contentHash = keccak256(toUtf8Bytes(content));
-      console.log("Calculated Content Hash:", contentHash);
-
-      // Simulating on-chain transaction or call to ContentProofRegistry
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const contentHash = await createPublicationPreview(content);
       setSuccessHash(contentHash);
     } catch (err) {
       console.error("Publication error:", err);
@@ -42,7 +37,7 @@ export default function CreatePublicationPage() {
       <div className="border-b border-neutral-800 pb-6">
         <h1 className="text-3xl font-bold tracking-tight text-white">Create Publication</h1>
         <p className="mt-2 text-sm text-neutral-400">
-          Publish content with cryptographic proof of authorship anchored on Avalanche.
+          Prepare your title, public summary, and member-only content. Publishing is not available in this preview.
         </p>
       </div>
 
@@ -50,10 +45,10 @@ export default function CreatePublicationPage() {
         <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-6 text-neutral-200">
           <div className="flex items-center gap-2 font-semibold text-emerald-400">
             <ShieldCheck className="h-5 w-5" />
-            Publication Proof Registered!
+            Local proof preview ready
           </div>
           <p className="mt-2 text-sm text-neutral-300">
-            Your content proof hash has been recorded:
+            This hash was calculated locally. It has not been registered on-chain or published:
           </p>
           <div className="mt-3 overflow-x-auto rounded bg-neutral-900 p-3 font-mono text-xs text-emerald-300">
             {successHash}
@@ -156,7 +151,7 @@ export default function CreatePublicationPage() {
               className="gap-2"
             >
               <Sparkles className="h-4 w-4" />
-              {isSubmitting ? "Registering Proof..." : isConnected ? "Publish & Anchor Proof" : "Connect Wallet to Publish"}
+              {isSubmitting ? "Preparing Preview..." : isConnected ? "Preview Content Hash" : "Connect Wallet to Preview"}
             </Button>
           </div>
         </form>
