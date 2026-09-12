@@ -4,53 +4,38 @@ on:
   workflow_dispatch:
     inputs:
       network:
-        description: "Network to deploy"
+        description: "Network to deploy to"
         required: true
+        default: "avalancheFuji"
         type: choice
         options:
-          - hsk-testnet
-          - avalanche-fuji
-
-permissions:
-  contents: read
+          - avalancheFuji
+          - avalancheMainnet
 
 jobs:
   deploy:
-    name: Deploy to ${{ inputs.network }}
     runs-on: ubuntu-latest
-
-    environment: ${{ inputs.network }}
-
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
         with:
-          version: 11.3.0
-          run_install: false
+          version: 9
 
-      - name: Setup Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
-          cache: pnpm
+          node-version: 20
+          cache: "pnpm"
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile=false
 
-      - name: Compile contracts
-        run: pnpm hardhat compile
-
-      - name: Deploy
+      - name: Deploy Contract
         env:
-          DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
-          HSK_RPC_URL: ${{ secrets.HSK_RPC_URL }}
-          AVALANCHE_RPC_URL: ${{ secrets.AVALANCHE_RPC_URL }}
-        run: |
-          if [ "${{ inputs.network }}" = "hsk-testnet" ]; then
-            pnpm hardhat deploy --network hsk-testnet
-          elif [ "${{ inputs.network }}" = "avalanche-fuji" ]; then
-            pnpm hardhat deploy --network avalanche-fuji
-          fi
+          PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+          AVALANCHE_FUJI_RPC_URL: ${{ secrets.AVALANCHE_FUJI_RPC_URL }}
+          AVALANCHE_MAINNET_RPC_URL: ${{ secrets.AVALANCHE_MAINNET_RPC_URL }}
+        run: pnpm hardhat run scripts/deploy.ts --network ${{ inputs.network }}
