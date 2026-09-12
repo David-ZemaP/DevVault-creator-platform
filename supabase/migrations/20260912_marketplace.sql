@@ -47,8 +47,15 @@ INSERT INTO storage.buckets(id, name, public, file_size_limit, allowed_mime_type
 VALUES ('source-artifacts', 'source-artifacts', false, 20971520, ARRAY['application/zip'])
 ON CONFLICT(id) DO UPDATE SET public = false, file_size_limit = 20971520, allowed_mime_types = ARRAY['application/zip'];
 -- Restrictive policies also deny access if another permissive storage policy exists.
+DROP POLICY IF EXISTS source_private_select ON storage.objects;
 CREATE POLICY source_private_select ON storage.objects AS RESTRICTIVE FOR SELECT TO anon, authenticated USING(bucket_id <> 'source-artifacts');
+
+DROP POLICY IF EXISTS source_private_insert ON storage.objects;
 CREATE POLICY source_private_insert ON storage.objects AS RESTRICTIVE FOR INSERT TO anon, authenticated WITH CHECK(bucket_id <> 'source-artifacts');
+
+DROP POLICY IF EXISTS source_private_update ON storage.objects;
 CREATE POLICY source_private_update ON storage.objects AS RESTRICTIVE FOR UPDATE TO anon, authenticated USING(bucket_id <> 'source-artifacts') WITH CHECK(bucket_id <> 'source-artifacts');
+
+DROP POLICY IF EXISTS source_private_delete ON storage.objects;
 CREATE POLICY source_private_delete ON storage.objects AS RESTRICTIVE FOR DELETE TO anon, authenticated USING(bucket_id <> 'source-artifacts');
 COMMIT;
