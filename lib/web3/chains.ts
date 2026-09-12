@@ -1,7 +1,69 @@
 import { defineChain } from "viem";
-import { avalanche, avalancheFuji, hashkey, hashkeyTestnet } from "viem/chains";
+import { avalanche, hashkey } from "viem/chains";
 
-export { hashkey, hashkeyTestnet, avalanche, avalancheFuji };
+export const avalancheFuji = defineChain({
+  id: 43113,
+  name: "Avalanche Fuji",
+  nativeCurrency: {
+    decimals: 18,
+    name: "Avalanche",
+    symbol: "AVAX",
+  },
+  rpcUrls: {
+    default: {
+      http: [
+        "https://api.avax-test.network/ext/bc/C/rpc",
+        "https://avalanche-fuji-c-chain-rpc.publicnode.com",
+      ],
+    },
+    public: {
+      http: [
+        "https://api.avax-test.network/ext/bc/C/rpc",
+        "https://avalanche-fuji-c-chain-rpc.publicnode.com",
+      ],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: "SnowScan",
+      url: "https://testnet.snowscan.xyz",
+    },
+  },
+  contracts: {
+    multicall3: {
+      address: "0xca11bde05977b3631167028862be2a173976ca11",
+      blockCreated: 7096959,
+    },
+  },
+  testnet: true,
+});
+
+export const hashkeyTestnet = defineChain({
+  id: 133,
+  name: "HashKey Chain Testnet",
+  nativeCurrency: {
+    decimals: 18,
+    name: "HSK",
+    symbol: "HSK",
+  },
+  rpcUrls: {
+    default: {
+      http: ["https://testnet.hsk.xyz"],
+    },
+    public: {
+      http: ["https://testnet.hsk.xyz"],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: "HashKey Explorer",
+      url: "https://testnet-explorer.hskchain.net",
+    },
+  },
+  testnet: true,
+});
+
+export { hashkey, avalanche };
 
 export const hardhatLocal = defineChain({
   id: 31337,
@@ -17,9 +79,7 @@ export const hardhatLocal = defineChain({
 });
 
 export const supportedChains = [
-  avalanche,
   avalancheFuji,
-  hashkey,
   hashkeyTestnet,
   hardhatLocal,
 ] as const;
@@ -29,7 +89,7 @@ export const supportedChains = [
  * - Content Proof -> Avalanche Fuji (anchors ContentProofRegistry)
  * - Membership -> HashKey Chain / HSK (verifies Unlock Protocol keys)
  */
-export const CONTENT_PROOF_CHAIN = process.env.NODE_ENV === "production" ? avalanche : avalancheFuji;
-export const MEMBERSHIP_CHAIN = process.env.NODE_ENV === "production" ? hashkey : hashkeyTestnet;
+export const CONTENT_PROOF_CHAIN = avalancheFuji;
+export const MEMBERSHIP_CHAIN = hashkeyTestnet;
 export const defaultChain = CONTENT_PROOF_CHAIN;
 
