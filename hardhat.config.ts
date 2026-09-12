@@ -16,6 +16,7 @@ const config: HardhatUserConfig = {
       chainId: 31337,
     },
     avalancheFuji: {
+      chainId: 43113,
       url: process.env.AVALANCHE_FUJI_RPC_URL || "https://api.avax-test.network/ext/bc/C/rpc",
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
     },

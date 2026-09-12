@@ -21,6 +21,7 @@ describe("Dual-Service Integration: unlock-hashkey + creator-platform", function
   let lockDeployer: any;
 
   const keyPrice = ethers.parseEther("10"); // 10 HSK
+  const HSK_CHAIN_ID = 133n;
 
   beforeEach(async function () {
     [lockDeployer, creator, subscriber, nonSubscriber] = await ethers.getSigners();
@@ -49,23 +50,26 @@ describe("Dual-Service Integration: unlock-hashkey + creator-platform", function
     const lockAddress = await hskPublicLock.getAddress();
     const content = "Secret engineering architecture notes and blueprint";
     const contentHash = ethers.keccak256(ethers.toUtf8Bytes(content));
-    const metadataUri = "ipfs://bafybeiblk3s89architecturenotes";
 
     // Creator anchors content proof on Fuji
     const tx = await contentProofRegistry
       .connect(creator)
-      .registerContent(contentHash, metadataUri, lockAddress, true);
+      .registerContent(contentHash, lockAddress, HSK_CHAIN_ID);
     const receipt = await tx.wait();
 
-    // Verify registration event
-    const authorContent = await contentProofRegistry.getContentByAuthor(creator.address);
-    expect(authorContent.length).to.equal(1);
+    // Verify registration
+    const contentId = 1n;
+    expect(await contentProofRegistry.contentExists(contentId)).to.be.true;
 
-    const proof = await contentProofRegistry.getProof(authorContent[0]);
-    expect(proof.author).to.equal(creator.address);
+    const metadata = await contentProofRegistry.getContentMetadata(contentId);
+    expect(metadata.creator).to.equal(creator.address);
+    expect(metadata.latestVersion).to.equal(1n);
+
+    const proof = await contentProofRegistry.getLatestProof(contentId);
     expect(proof.contentHash).to.equal(contentHash);
-    expect(proof.lockAddress).to.equal(lockAddress);
-    expect(proof.isGated).to.be.true;
+    expect(proof.membershipLock).to.equal(lockAddress);
+    expect(proof.membershipChainId).to.equal(HSK_CHAIN_ID);
+    expect(proof.version).to.equal(1n);
     expect(receipt.status).to.equal(1);
   });
 
@@ -110,10 +114,9 @@ describe("Dual-Service Integration: unlock-hashkey + creator-platform", function
 
     await contentProofRegistry
       .connect(creator)
-      .registerContent(contentHash, "ipfs://v1", lock1Address, true);
+      .registerContent(contentHash, lock1Address, HSK_CHAIN_ID);
 
-    const authorContent = await contentProofRegistry.getContentByAuthor(creator.address);
-    const contentId = authorContent[0];
+    const contentId = 1n;
 
     // Second lock on HSK (e.g. upgraded tier in unlock-hashkey)
     const MockLockFactory = await ethers.getContractFactory("MockPublicLock");
@@ -121,14 +124,15 @@ describe("Dual-Service Integration: unlock-hashkey + creator-platform", function
     await hskTier2Lock.waitForDeployment();
     const lock2Address = await hskTier2Lock.getAddress();
 
-    // Update publication to point to new HSK lock
+    // Update publication to point to new HSK lock via version registration
+    const newContentHash = ethers.keccak256(ethers.toUtf8Bytes("evolving-post-v2"));
     await contentProofRegistry
       .connect(creator)
-      .updateContent(contentId, "ipfs://v2", lock2Address, true);
+      .registerVersion(contentId, newContentHash, lock2Address, HSK_CHAIN_ID);
 
-    const updatedProof = await contentProofRegistry.getProof(contentId);
-    expect(updatedProof.lockAddress).to.equal(lock2Address);
-    expect(updatedProof.metadataUri).to.equal("ipfs://v2");
-    expect(updatedProof.isGated).to.be.true;
+    const updatedProof = await contentProofRegistry.getLatestProof(contentId);
+    expect(updatedProof.membershipLock).to.equal(lock2Address);
+    expect(updatedProof.contentHash).to.equal(newContentHash);
+    expect(updatedProof.version).to.equal(2n);
   });
 });

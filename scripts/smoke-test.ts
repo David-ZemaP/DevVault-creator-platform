@@ -52,7 +52,7 @@ async function runSmokeTests() {
   // Step 2: Contract ABIs and Artifacts Sanity
   console.log("\nPhase 2: Validating Contract ABIs & Artifacts...");
   try {
-    const requiredFujiFunctions = ["registerContent", "getProof", "getContentByAuthor"];
+    const requiredFujiFunctions = ["registerContent", "getProof", "getContentMetadata", "getLatestProof"];
     for (const fn of requiredFujiFunctions) {
       const exists = CONTENT_PROOF_REGISTRY_ABI.some((item: any) => item.name === fn);
       if (!exists) throw new Error(`Missing expected function in Fuji ABI: ${fn}`);
@@ -123,7 +123,7 @@ async function runSmokeTests() {
 
     // 2. Service 2 (creator-platform): Deploy Registry on Fuji
     const RegistryFactory = await ethers.getContractFactory("ContentProofRegistry");
-    const registry = await RegistryFactory.connect(creator).deploy();
+    const registry: any = await RegistryFactory.connect(creator).deploy();
     await registry.waitForDeployment();
 
     // 3. Register Content Proof on Fuji referencing HSK Lock
@@ -131,7 +131,7 @@ async function runSmokeTests() {
     const contentHash = keccak256(toUtf8Bytes(content));
     const tx = await registry
       .connect(creator)
-      .registerContent(contentHash, "ipfs://QmSmokeTest", hskLockAddress, true);
+      .registerContent(contentHash, hskLockAddress, 133n);
     await tx.wait();
 
     // 4. Test Gating Check Before Key

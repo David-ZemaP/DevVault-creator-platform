@@ -27,15 +27,15 @@ describe("Storage & Cross-Chain State Integration", function () {
     const rawContent = "Decentralized content protected across Fuji and HSK";
     const contentHash = ethers.keccak256(ethers.toUtf8Bytes(rawContent));
     const hskLockAddress = await mockHskLock.getAddress();
-    const metadataUri = "ipfs://QmStorageIntegrationTest";
+    const HSK_CHAIN_ID = 133n;
 
     // 1. On-chain Fuji Proof Registration
-    const tx = await registry.connect(creator).registerContent(contentHash, metadataUri, hskLockAddress, true);
+    const tx = await registry.connect(creator).registerContent(contentHash, hskLockAddress, HSK_CHAIN_ID);
     const receipt = await tx.wait();
     expect(receipt.status).to.equal(1);
 
-    const authorContent = await registry.getContentByAuthor(creator.address);
-    const contentId = authorContent[0];
+    const contentId = "1";
+    expect(await registry.contentExists(contentId)).to.be.true;
 
     // 2. Off-chain Storage Creation (Supabase / In-Memory resilient fallback)
     const pub = await serverDb.publications.create({

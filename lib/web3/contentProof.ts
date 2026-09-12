@@ -2,41 +2,44 @@ export const CONTENT_PROOF_REGISTRY_ABI = [
   {
     inputs: [
       { internalType: "bytes32", name: "contentHash", type: "bytes32" },
-      { internalType: "string", name: "metadataUri", type: "string" },
-      { internalType: "address", name: "lockAddress", type: "address" },
-      { internalType: "bool", name: "isGated", type: "bool" },
+      { internalType: "address", name: "membershipLock", type: "address" },
+      { internalType: "uint256", name: "membershipChainId", type: "uint256" },
     ],
     name: "registerContent",
-    outputs: [{ internalType: "bytes32", name: "contentId", type: "bytes32" }],
+    outputs: [{ internalType: "uint256", name: "contentId", type: "uint256" }],
     stateMutability: "nonpayable",
     type: "function",
   },
   {
     inputs: [
-      { internalType: "bytes32", name: "contentId", type: "bytes32" },
-      { internalType: "string", name: "metadataUri", type: "string" },
-      { internalType: "address", name: "lockAddress", type: "address" },
-      { internalType: "bool", name: "isGated", type: "bool" },
+      { internalType: "uint256", name: "contentId", type: "uint256" },
+      { internalType: "bytes32", name: "newContentHash", type: "bytes32" },
+      { internalType: "address", name: "membershipLock", type: "address" },
+      { internalType: "uint256", name: "membershipChainId", type: "uint256" },
     ],
-    name: "updateContent",
-    outputs: [],
+    name: "registerVersion",
+    outputs: [{ internalType: "uint256", name: "version", type: "uint256" }],
     stateMutability: "nonpayable",
     type: "function",
   },
   {
-    inputs: [{ internalType: "bytes32", name: "contentId", type: "bytes32" }],
-    name: "getProof",
+    inputs: [{ internalType: "uint256", name: "contentId", type: "uint256" }],
+    name: "contentExists",
+    outputs: [{ internalType: "bool", name: "", type: "bool" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "uint256", name: "contentId", type: "uint256" }],
+    name: "getContentMetadata",
     outputs: [
       {
         components: [
-          { internalType: "bytes32", name: "contentHash", type: "bytes32" },
-          { internalType: "address", name: "author", type: "address" },
-          { internalType: "string", name: "metadataUri", type: "string" },
-          { internalType: "address", name: "lockAddress", type: "address" },
+          { internalType: "address", name: "creator", type: "address" },
+          { internalType: "uint256", name: "latestVersion", type: "uint256" },
           { internalType: "uint256", name: "createdAt", type: "uint256" },
-          { internalType: "bool", name: "isGated", type: "bool" },
         ],
-        internalType: "struct ContentProofRegistry.ContentProof",
+        internalType: "struct ContentProofRegistry.ContentMetadata",
         name: "",
         type: "tuple",
       },
@@ -45,37 +48,91 @@ export const CONTENT_PROOF_REGISTRY_ABI = [
     type: "function",
   },
   {
-    inputs: [{ internalType: "address", name: "author", type: "address" }],
-    name: "getContentByAuthor",
-    outputs: [{ internalType: "bytes32[]", name: "", type: "bytes32[]" }],
+    inputs: [
+      { internalType: "uint256", name: "contentId", type: "uint256" },
+      { internalType: "uint256", name: "version", type: "uint256" },
+    ],
+    name: "getProof",
+    outputs: [
+      {
+        components: [
+          { internalType: "bytes32", name: "contentHash", type: "bytes32" },
+          { internalType: "address", name: "membershipLock", type: "address" },
+          { internalType: "uint256", name: "membershipChainId", type: "uint256" },
+          { internalType: "uint256", name: "version", type: "uint256" },
+          { internalType: "uint256", name: "timestamp", type: "uint256" },
+        ],
+        internalType: "struct ContentProofRegistry.Proof",
+        name: "",
+        type: "tuple",
+      },
+    ],
     stateMutability: "view",
     type: "function",
   },
   {
-    inputs: [],
-    name: "getAllContentIds",
-    outputs: [{ internalType: "bytes32[]", name: "", type: "bytes32[]" }],
+    inputs: [{ internalType: "uint256", name: "contentId", type: "uint256" }],
+    name: "getLatestProof",
+    outputs: [
+      {
+        components: [
+          { internalType: "bytes32", name: "contentHash", type: "bytes32" },
+          { internalType: "address", name: "membershipLock", type: "address" },
+          { internalType: "uint256", name: "membershipChainId", type: "uint256" },
+          { internalType: "uint256", name: "version", type: "uint256" },
+          { internalType: "uint256", name: "timestamp", type: "uint256" },
+        ],
+        internalType: "struct ContentProofRegistry.Proof",
+        name: "",
+        type: "tuple",
+      },
+    ],
     stateMutability: "view",
     type: "function",
   },
   {
-    inputs: [],
-    name: "totalContent",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
+    anonymous: false,
+    inputs: [
+      { indexed: true, internalType: "uint256", name: "contentId", type: "uint256" },
+      { indexed: true, internalType: "address", name: "creator", type: "address" },
+      { indexed: true, internalType: "address", name: "membershipLock", type: "address" },
+      { indexed: false, internalType: "bytes32", name: "contentHash", type: "bytes32" },
+      { indexed: false, internalType: "uint256", name: "membershipChainId", type: "uint256" },
+      { indexed: false, internalType: "uint256", name: "version", type: "uint256" },
+      { indexed: false, internalType: "uint256", name: "timestamp", type: "uint256" },
+    ],
+    name: "ContentRegistered",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: true, internalType: "uint256", name: "contentId", type: "uint256" },
+      { indexed: true, internalType: "address", name: "creator", type: "address" },
+      { indexed: true, internalType: "address", name: "membershipLock", type: "address" },
+      { indexed: false, internalType: "bytes32", name: "contentHash", type: "bytes32" },
+      { indexed: false, internalType: "uint256", name: "membershipChainId", type: "uint256" },
+      { indexed: false, internalType: "uint256", name: "version", type: "uint256" },
+      { indexed: false, internalType: "uint256", name: "timestamp", type: "uint256" },
+    ],
+    name: "VersionRegistered",
+    type: "event",
   },
 ] as const;
 
 export const CONTENT_PROOF_REGISTRY_ADDRESS = (process.env.NEXT_PUBLIC_CONTENT_PROOF_REGISTRY_ADDRESS ||
   "0x0000000000000000000000000000000000000000") as `0x${string}`;
 
+export interface ContentMetadataItem {
+  creator: string;
+  latestVersion: bigint;
+  createdAt: bigint;
+}
+
 export interface ContentProofItem {
-  id: string;
   contentHash: string;
-  author: string;
-  metadataUri: string;
-  lockAddress: string;
-  createdAt: number;
-  isGated: boolean;
+  membershipLock: string;
+  membershipChainId: bigint;
+  version: bigint;
+  timestamp: bigint;
 }
