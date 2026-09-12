@@ -12,12 +12,12 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       "inline-flex items-center justify-center font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none";
 
     const variantStyles = {
-      primary: "bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500",
-      secondary: "bg-neutral-800 text-white hover:bg-neutral-700 focus-visible:ring-neutral-600",
+      primary: "bg-blue-600 text-white hover:bg-blue-500 active:bg-blue-700 focus-visible:ring-blue-500 shadow-sm shadow-blue-500/10",
+      secondary: "bg-slate-800 text-slate-100 hover:bg-slate-700 active:bg-slate-800/90 focus-visible:ring-slate-500 border border-slate-700/60",
       outline:
-        "border border-neutral-700 bg-transparent text-neutral-100 hover:bg-neutral-800 focus-visible:ring-neutral-500",
-      ghost: "bg-transparent text-neutral-200 hover:bg-neutral-800/60 focus-visible:ring-neutral-500",
-      danger: "bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/30",
+        "border border-slate-700/80 bg-transparent text-slate-200 hover:bg-slate-800/80 hover:text-white hover:border-slate-600 focus-visible:ring-blue-500",
+      ghost: "bg-transparent text-slate-300 hover:bg-slate-800/60 hover:text-slate-100 focus-visible:ring-blue-500",
+      danger: "bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/30 focus-visible:ring-rose-500",
     };
 
     const sizeStyles = {
