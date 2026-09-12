@@ -1,29 +1,108 @@
 import Link from "next/link";
-import { ArrowUpRight, Lock } from "lucide-react";
+import { ArrowUpRight, Code2, FileText, Lock, ShieldCheck } from "lucide-react";
 import type { PublicationSummary } from "@/features/publications/repository";
 import { formatDate } from "@/lib/utils";
 
 export function ContentCard({ publication, creator }: PublicationSummary) {
+  const isSoftware = publication.projectType === "software";
+  const isSubscription = publication.acquisitionModel === "subscription";
+
   return (
-    <article className="flex min-w-0 flex-col rounded-2xl border border-neutral-800 bg-neutral-900/40 p-6 transition-colors hover:border-neutral-600">
-      {publication.coverImage && <img src={publication.coverImage} alt="" className="mb-4 aspect-video w-full rounded-lg object-cover" />}
-      <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
-        <span className="font-medium text-neutral-400">{publication.category}</span>
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-red-400/20 bg-red-400/10 px-2.5 py-1 font-medium text-red-300">
-          <Lock aria-hidden="true" className="h-3 w-3" /> Locked
-        </span>
+    <article className="group flex min-w-0 flex-col justify-between rounded-2xl border border-slate-800/80 bg-slate-900/50 p-6 backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-700 hover:bg-slate-900/90 hover:shadow-xl hover:shadow-blue-950/20">
+      <div>
+        {publication.coverImage && (
+          <div className="mb-4 overflow-hidden rounded-xl border border-slate-800">
+            <img
+              src={publication.coverImage}
+              alt=""
+              className="aspect-video w-full object-cover transition-transform duration-300 group-hover:scale-102"
+            />
+          </div>
+        )}
+
+        <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+          <div className="flex items-center gap-1.5">
+            <span className="inline-flex items-center gap-1 rounded-md border border-slate-800 bg-slate-800/60 px-2 py-0.5 font-medium text-slate-300">
+              {isSoftware ? (
+                <>
+                  <Code2 className="h-3 w-3 text-blue-400" />
+                  <span>Software</span>
+                </>
+              ) : (
+                <>
+                  <FileText className="h-3 w-3 text-slate-400" />
+                  <span>Article</span>
+                </>
+              )}
+            </span>
+
+            {isSubscription ? (
+              <span className="rounded-md border border-indigo-500/20 bg-indigo-500/10 px-2 py-0.5 font-medium text-indigo-300">
+                Subscription
+              </span>
+            ) : (
+              <span className="rounded-md border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 font-medium text-emerald-300">
+                Lifetime
+              </span>
+            )}
+          </div>
+
+          <span className="inline-flex items-center gap-1 rounded-full border border-slate-700/60 bg-slate-800/40 px-2 py-0.5 text-[11px] font-medium text-slate-400">
+            <Lock aria-hidden="true" className="h-3 w-3 text-slate-400" />
+            <span>Gated</span>
+          </span>
+        </div>
+
+        <h3 className="mt-4 text-xl font-bold tracking-tight text-white transition-colors group-hover:text-blue-400">
+          <Link href={`/content/${publication.id}`} className="focus-visible:outline-none">
+            {publication.title}
+          </Link>
+        </h3>
+
+        <p className="mt-2.5 text-sm leading-relaxed text-slate-400 line-clamp-3">
+          {publication.preview}
+        </p>
       </div>
-      <h2 className="mt-6 text-2xl leading-tight font-semibold tracking-tight text-white">
-        <Link href={`/content/${publication.id}`} className="hover:text-red-300">{publication.title}</Link>
-      </h2>
-      <p className="mt-4 flex-1 text-base leading-relaxed text-neutral-400">{publication.preview}</p>
-      <Link href={`/profile/${creator.address}`} className="mt-7 flex w-fit items-center gap-3 rounded-lg text-sm text-neutral-200 hover:text-white">
-        <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-neutral-700 bg-neutral-800 text-xs font-semibold">{creator.initials}</span>
-        <span>{creator.name}<span className="mt-0.5 block text-xs text-neutral-500"><time dateTime={publication.publishedAt}>{formatDate(new Date(publication.publishedAt))}</time> · {publication.readingMinutes} min read</span></span>
-      </Link>
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-neutral-800 pt-5">
-        <p className="text-sm font-medium text-neutral-200">{publication.membership.price} {publication.membership.currency}{publication.projectType !== "software" && <span className="font-normal text-neutral-500"> / {publication.membership.durationDays} days</span>}</p>
-        <Link href={`/content/${publication.id}`} aria-label={`Read preview: ${publication.title}`} className="inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-red-400 hover:text-red-300">{publication.projectType === "software" ? "View Demo" : "Read preview"} <ArrowUpRight aria-hidden="true" className="h-4 w-4" /></Link>
+
+      <div className="mt-6">
+        <Link
+          href={`/profile/${creator.address}`}
+          className="flex w-fit items-center gap-2.5 rounded-lg text-xs text-slate-300 hover:text-white transition-colors"
+        >
+          <span
+            aria-hidden="true"
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-slate-700 bg-slate-800 font-mono text-[10px] font-bold text-slate-200"
+          >
+            {creator.initials}
+          </span>
+          <div>
+            <span className="font-medium text-slate-200">{creator.name}</span>
+            <span className="block text-[11px] text-slate-500">
+              <time dateTime={publication.publishedAt}>{formatDate(new Date(publication.publishedAt))}</time>
+              {" · "}
+              {isSoftware ? "Software package" : `${publication.readingMinutes} min read`}
+            </span>
+          </div>
+        </Link>
+
+        <div className="mt-5 flex items-center justify-between border-t border-slate-800/80 pt-4">
+          <div>
+            <span className="text-xs text-slate-500 block">Access price</span>
+            <p className="text-sm font-bold text-slate-100">
+              {publication.membership.price} {publication.membership.currency}
+              {isSubscription && <span className="text-xs font-normal text-slate-400"> / 30d</span>}
+            </p>
+          </div>
+
+          <Link
+            href={`/content/${publication.id}`}
+            aria-label={`View ${publication.title}`}
+            className="inline-flex items-center gap-1 rounded-lg border border-slate-800 bg-slate-800/60 px-3 py-1.5 text-xs font-semibold text-blue-400 transition-colors hover:border-blue-500/40 hover:bg-blue-600/10 hover:text-blue-300"
+          >
+            <span>{isSoftware ? "View Demo" : "Preview"}</span>
+            <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
+          </Link>
+        </div>
       </div>
     </article>
   );
