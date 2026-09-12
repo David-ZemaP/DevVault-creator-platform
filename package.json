@@ -10,11 +10,15 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test": "hardhat test",
+    "test:contracts": "hardhat test test/ContentProofRegistry.test.ts",
+    "test:integration": "hardhat test test/DualChainIntegration.test.ts test/StorageAndCrossChain.test.ts",
+    "smoke": "hardhat run scripts/smoke-test.ts",
     "compile": "hardhat compile",
     "deploy": "hardhat deploy"
   },
   "dependencies": {
     "@rainbow-me/rainbowkit": "latest",
+    "@supabase/supabase-js": "^2.116.0",
     "@tanstack/react-query": "latest",
     "clsx": "latest",
     "lucide-react": "latest",

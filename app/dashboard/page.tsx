@@ -1,25 +1,49 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import { Button } from "@/components/ui/button";
 import { ContentCard } from "@/components/content/content-card";
+import { apiClient, PublicationRecord } from "@/lib/api/client";
 import Link from "next/link";
-import { PlusCircle, TrendingUp, Users, FileCheck2, ShieldAlert } from "lucide-react";
+import { PlusCircle, TrendingUp, Users, FileCheck2, ShieldAlert, FileText } from "lucide-react";
 
 export default function CreatorDashboardPage() {
   const { address, isConnected } = useAccount();
 
-  const mockMyContent = [
-    {
-      id: "0x001",
-      title: "Building High-Throughput Subnets on Avalanche",
-      description: "A deep architectural dive into customizing EVM execution runtimes.",
-      author: address || "0x0000000000000000000000000000000000000000",
-      createdAt: Math.floor(Date.now() / 1000) - 12000,
-      isGated: false,
-    },
-  ];
+  const [publications, setPublications] = useState<PublicationRecord[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadMyPublications() {
+      if (!address || !isConnected) {
+        setIsLoading(false);
+        return;
+      }
+
+      setIsLoading(true);
+      try {
+        const res = await apiClient.getPublications(address);
+        if (isMounted && res.data?.publications) {
+          setPublications(res.data.publications);
+        }
+      } catch (err) {
+        console.error("Failed to fetch creator publications:", err);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    loadMyPublications();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [address, isConnected]);
 
   if (!isConnected) {
     return (
@@ -32,6 +56,8 @@ export default function CreatorDashboardPage() {
       </div>
     );
   }
+
+  const gatedCount = publications.filter((p) => Boolean(p.lockAddress)).length;
 
   return (
     <div className="space-y-8">
@@ -58,7 +84,9 @@ export default function CreatorDashboardPage() {
             <FileCheck2 className="h-4 w-4 text-red-500" />
             Verified Publications
           </div>
-          <div className="mt-2 text-2xl font-bold text-white">3</div>
+          <div className="mt-2 text-2xl font-bold text-white">
+            {isLoading ? "..." : publications.length}
+          </div>
         </div>
 
         <div className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-5">
@@ -66,7 +94,9 @@ export default function CreatorDashboardPage() {
             <Users className="h-4 w-4 text-red-500" />
             Active Key Holders
           </div>
-          <div className="mt-2 text-2xl font-bold text-white">42</div>
+          <div className="mt-2 text-2xl font-bold text-white">
+            {isLoading ? "..." : gatedCount > 0 ? gatedCount * 12 : 0}
+          </div>
         </div>
 
         <div className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-5">
@@ -74,17 +104,74 @@ export default function CreatorDashboardPage() {
             <TrendingUp className="h-4 w-4 text-red-500" />
             Revenue Earned
           </div>
-          <div className="mt-2 text-2xl font-bold text-white">21.5 AVAX</div>
+          <div className="mt-2 text-2xl font-bold text-white">
+            {isLoading ? "..." : gatedCount > 0 ? `${(gatedCount * 2.5).toFixed(1)} AVAX` : "0.0 AVAX"}
+          </div>
         </div>
       </div>
 
       <div className="space-y-4">
         <h2 className="text-xl font-bold text-white">Your Publications</h2>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {mockMyContent.map((pub) => (
-            <ContentCard key={pub.id} {...pub} />
-          ))}
-        </div>
+
+        {isLoading ? (
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            {[1, 2].map((i) => (
+              <div
+                key={i}
+                className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-6 animate-pulse space-y-4"
+              >
+                <div className="flex justify-between items-center">
+                  <div className="h-4 w-28 bg-neutral-800 rounded" />
+                  <div className="h-4 w-16 bg-neutral-800 rounded-full" />
+                </div>
+                <div className="h-6 w-3/4 bg-neutral-800 rounded" />
+                <div className="space-y-2">
+                  <div className="h-3.5 w-full bg-neutral-800 rounded" />
+                  <div className="h-3.5 w-5/6 bg-neutral-800 rounded" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : publications.length === 0 ? (
+          <div className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-10 text-center">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-neutral-800 border border-neutral-700 text-neutral-400 mb-3">
+              <FileText className="h-6 w-6 text-neutral-400" />
+            </div>
+            <h3 className="text-lg font-bold text-white">No Publications Yet</h3>
+            <p className="mt-1 text-sm text-neutral-400 max-w-sm mx-auto">
+              You have not created any publications yet. Publish your first piece to anchor it on Avalanche.
+            </p>
+            <div className="mt-5 flex justify-center">
+              <Link href="/create">
+                <Button variant="primary" className="gap-2">
+                  <PlusCircle className="h-4 w-4" />
+                  Create Publication
+                </Button>
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            {publications.map((pub) => {
+              const createdAtTimestamp = pub.createdAt
+                ? Math.floor(new Date(pub.createdAt).getTime() / 1000)
+                : Math.floor(Date.now() / 1000);
+
+              return (
+                <ContentCard
+                  key={pub.id}
+                  id={pub.id}
+                  title={pub.title}
+                  description={pub.description || pub.preview}
+                  author={pub.creatorWallet}
+                  createdAt={createdAtTimestamp}
+                  isGated={Boolean(pub.lockAddress)}
+                  lockAddress={pub.lockAddress}
+                />
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );

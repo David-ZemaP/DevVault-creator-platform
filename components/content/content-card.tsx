@@ -6,9 +6,9 @@ import { Lock, FileText, CheckCircle2 } from "lucide-react";
 export interface ContentCardProps {
   id: string;
   title: string;
-  description: string;
+  description?: string;
   author: string;
-  createdAt: number;
+  createdAt: number | string;
   isGated: boolean;
   lockAddress?: string;
 }
@@ -21,6 +21,10 @@ export function ContentCard({
   createdAt,
   isGated,
 }: ContentCardProps) {
+  const timestamp =
+    typeof createdAt === "string"
+      ? Math.floor(new Date(createdAt).getTime() / 1000) || Math.floor(Date.now() / 1000)
+      : createdAt;
   return (
     <article className="group relative rounded-xl border border-neutral-800 bg-neutral-900/50 p-6 transition-all hover:border-neutral-700 hover:bg-neutral-900">
       <div className="flex items-start justify-between">
@@ -32,8 +36,8 @@ export function ContentCard({
             {formatAddress(author)}
           </Link>
           <span>•</span>
-          <time dateTime={new Date(createdAt * 1000).toISOString()}>
-            {formatDate(createdAt)}
+          <time dateTime={new Date(timestamp * 1000).toISOString()}>
+            {formatDate(timestamp)}
           </time>
         </div>
 
