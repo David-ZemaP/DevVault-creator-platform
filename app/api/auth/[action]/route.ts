@@ -18,7 +18,7 @@ export async function POST(request: Request, props: { params: Promise<{ action: 
     }
     const body = await request.json();
     if (action === 'nonce') {
-      if (!isAddress(body.wallet)) throw new HttpError(400, 'Invalid wallet');
+      if (!isAddress(body.wallet, { strict: false })) throw new HttpError(400, 'Invalid wallet');
       const challenge = token(), wallet = body.wallet.toLowerCase();
       const expires = new Date(Date.now() + 5 * 60_000).toISOString();
       const origin = process.env.APP_ORIGIN || 'http://localhost:3000';
