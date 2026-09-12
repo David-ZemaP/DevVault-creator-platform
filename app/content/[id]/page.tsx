@@ -161,7 +161,9 @@ export default async function ContentDetailPage({ params, searchParams }: PagePr
         </article>
 
         <div className="space-y-6">
-          {publication.projectType === "software" && <SourcePurchase id={id} priceWei={publication.priceWei} />}
+          {publication.projectType === "software" && (
+            <SourcePurchase id={id} priceWei={publication.priceWei} acquisitionModel={publication.acquisitionModel} />
+          )}
 
           {publication.projectType !== "software" && !premiumPreview && (
             <LockedContent creatorName={creator.name} membership={publication.membership} />

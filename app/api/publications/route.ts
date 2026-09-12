@@ -36,6 +36,7 @@ export async function POST(request: Request) {
       content_hash: keccak256(stringToBytes(body.description)), project_type: body.projectType === 'software' ? 'software' : 'article',
       demo_url: safeUrl(body.demoUrl), demo_video_url: safeUrl(body.demoVideoUrl), cover_image: safeUrl(body.coverImage),
       lock_address: body.lockAddress?.toLowerCase(), price_wei: body.priceWei, status: 'DRAFT',
+      acquisition_model: body.acquisitionModel === 'subscription' ? 'subscription' : 'lifetime',
     }).select().single());
     return privateJson({ publication: publicPublication(dbRowToPublicationRecord(row)) });
   } catch (e) { return apiError(e); }

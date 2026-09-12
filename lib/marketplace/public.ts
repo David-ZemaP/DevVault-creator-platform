@@ -21,6 +21,7 @@ export function publicPublication(p: PublicationRecord): PublicationRecord {
     demoVideoUrl: safeUrl(p.demoVideoUrl), coverImage: safeUrl(p.coverImage),
     status: p.status, publishedAt: p.publishedAt, priceWei: p.priceWei,
     isHidden: p.isHidden, isGated: p.isGated,
+    acquisitionModel: p.acquisitionModel || 'lifetime',
   };
 }
 export function purchaseState(connected: boolean, creator: boolean, purchased: boolean, pending: boolean) {

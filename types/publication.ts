@@ -41,6 +41,7 @@ export interface Publication {
   readonly demoUrl?: string;
   readonly demoPreviewCode?: string;
   readonly isHidden?: boolean;
+  readonly acquisitionModel?: "lifetime" | "subscription";
 }
 
 /** Delivered separately after authorization once the backend is integrated. */

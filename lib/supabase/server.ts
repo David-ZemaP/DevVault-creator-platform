@@ -300,6 +300,7 @@ export const serverDb = {
         demoUrl: input.demoUrl,
         demoPreviewCode: input.demoPreviewCode,
         isHidden: Boolean(input.isHidden),
+        acquisitionModel: input.acquisitionModel || "lifetime",
         createdAt,
         author: creatorWallet,
         isGated: Boolean(input.lockAddress && input.lockAddress.trim() !== ""),

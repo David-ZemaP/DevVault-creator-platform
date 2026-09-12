@@ -20,6 +20,7 @@ export default function CreatePublicationPage() {
   const [demoUrl, setDemoUrl] = useState(''), [demoVideoUrl, setDemoVideoUrl] = useState(''), [coverImage, setCoverImage] = useState('');
   const [price, setPrice] = useState(''), [lockAddress, setLockAddress] = useState('');
   const [projectType, setProjectType] = useState<'software' | 'article'>('software');
+  const [acquisitionModel, setAcquisitionModel] = useState<'lifetime' | 'subscription'>('lifetime');
   const [premiumContent, setPremiumContent] = useState('');
   const [file, setFile] = useState<File | null>(null), [busy, setBusy] = useState(false), [message, setMessage] = useState('');
   const [manageId, setManageId] = useState('');
@@ -33,6 +34,7 @@ export default function CreatePublicationPage() {
   async function reload(id: string) {
     const result = await marketplaceRequest(`/publications/${id}/manage`);
     setProject(result.publication); setHasSource(result.hasSource);
+    if (result.publication?.acquisitionModel) setAcquisitionModel(result.publication.acquisitionModel);
   }
   const field = 'w-full rounded-lg border border-neutral-800 bg-neutral-900 px-4 py-3 text-sm text-white';
   return <div className="max-w-3xl mx-auto space-y-6">
@@ -40,7 +42,7 @@ export default function CreatePublicationPage() {
     <p className="text-neutral-400">Add a public showcase, upload private source, and publish when ready. HSKChain Testnet payments grant permanent source access.</p>
     {message && <p role="status" className="rounded-lg border border-neutral-700 p-4">{message}</p>}
     {manageId && !project ? <Button disabled={busy || !isConnected} onClick={() => task(() => reload(manageId))}>Sign in to manage project</Button> : !project ? <form className="space-y-5" onSubmit={e => { e.preventDefault(); void task(async () => {
-      const result = await marketplaceRequest('/publications', { title, description, preview: preview || description.slice(0, 180), demoUrl, demoVideoUrl, coverImage, priceWei: projectType === 'software' ? parseEther(price).toString() : undefined, lockAddress: lockAddress || undefined, projectType, premiumContent });
+      const result = await marketplaceRequest('/publications', { title, description, preview: preview || description.slice(0, 180), demoUrl, demoVideoUrl, coverImage, priceWei: projectType === 'software' ? parseEther(price).toString() : undefined, lockAddress: lockAddress || undefined, projectType, premiumContent, acquisitionModel: projectType === 'software' ? acquisitionModel : 'lifetime' });
       setProject(result.publication); setManageId(result.publication.id);
       window.history.replaceState(null, '', `/create?id=${result.publication.id}`);
       setMessage('Draft saved. Upload source and review before publishing.');
@@ -55,11 +57,22 @@ export default function CreatePublicationPage() {
         <label className="block space-y-2"><span>Public cover image URL (optional)</span><input type="url" className={field} value={coverImage} onChange={e => setCoverImage(e.target.value)} /></label>
         <p className="text-sm text-neutral-400">Use public showcase URLs only. Upload the private source archive after saving this draft.</p>
       </section>
+      {projectType === 'software' && (
+        <label className="block space-y-2"><span>Acquisition Model</span><select className={field} value={acquisitionModel} onChange={e => setAcquisitionModel(e.target.value as 'lifetime' | 'subscription')}><option value="lifetime">Lifetime Purchase · One-time permanent access</option><option value="subscription">Monthly Subscription · 30-day recurring access via Unlock</option></select></label>
+      )}
       {projectType === 'software' ? <label className="block space-y-2"><span>Price in HSK</span><input required inputMode="decimal" pattern="[0-9]+(\.[0-9]{1,18})?" className={field} value={price} onChange={e => setPrice(e.target.value)} /></label> : <label className="block space-y-2"><span>Premium article content</span><textarea className={field} value={premiumContent} onChange={e => setPremiumContent(e.target.value)} /></label>}
       <label className="block space-y-2"><span>Existing Unlock PublicLock v15 address on HSKChain Testnet</span><input required={projectType === 'software'} className={field} value={lockAddress} onChange={e => setLockAddress(e.target.value)} placeholder="0x…" /><p className="text-sm text-neutral-400">For software, you must manage this lock and its current native HSK price must match. The existing HSK lock tools remain available; no contract is deployed by this form.</p></label>
       <Button type="submit" disabled={busy || !isConnected}>{busy ? 'Saving...' : isConnected ? 'Save draft' : 'Connect wallet to create'}</Button>
     </form> : <div className="space-y-6">
       <section className="rounded-xl border border-neutral-800 p-6 space-y-3"><h2 className="text-xl font-semibold">{project.title}</h2><p>{project.description}</p><p>Status: {project.status}</p><p>{project.priceWei && `${formatEther(BigInt(project.priceWei))} HSK · HSKChain Testnet`}</p>
+        {project.projectType === 'software' && (
+          <p className="flex items-center gap-2">
+            <span>Acquisition Model:</span>
+            <span className="inline-flex items-center rounded-full border border-neutral-700 bg-neutral-800 px-2.5 py-0.5 text-xs font-medium text-neutral-300">
+              {project.acquisitionModel === 'subscription' ? 'Monthly Subscription' : 'Lifetime Purchase'}
+            </span>
+          </p>
+        )}
         {project.demoUrl && <a className="block text-red-400" href={project.demoUrl} target="_blank" rel="noopener noreferrer">Preview live demo ↗</a>}
         {project.demoVideoUrl && <a className="block text-red-400" href={project.demoVideoUrl} target="_blank" rel="noopener noreferrer">Preview video ↗</a>}
         {project.avalancheTx && <a className="block text-red-400" href={getExplorerTxUrl(project.avalancheTx)} target="_blank" rel="noopener noreferrer">Verified Fuji proof transaction ↗</a>}

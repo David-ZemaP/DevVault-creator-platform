@@ -88,6 +88,7 @@ export function publicationRecordToSummary(pub: PublicationRecord): PublicationS
     demoUrl: pub.demoUrl,
     demoPreviewCode: pub.demoPreviewCode,
     isHidden: pub.isHidden,
+    acquisitionModel: pub.acquisitionModel || "lifetime",
   };
 
   return { publication, creator };

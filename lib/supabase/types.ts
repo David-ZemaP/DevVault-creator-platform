@@ -34,6 +34,7 @@ export interface PublicationRecord {
   demoUrl?: string;
   demoPreviewCode?: string;
   isHidden?: boolean;
+  acquisitionModel?: 'lifetime' | 'subscription';
   // Optional convenience aliases for UI compatibility
   author?: string;
   isGated?: boolean;
@@ -62,6 +63,7 @@ export interface CreatePublicationInput {
   demoUrl?: string;
   demoPreviewCode?: string;
   isHidden?: boolean;
+  acquisitionModel?: 'lifetime' | 'subscription';
 }
 
 export interface CreateUserInput {
@@ -98,6 +100,7 @@ export interface DatabasePublicationRow {
   demo_video_url?: string | null;
   cover_image?: string | null;
   project_type?: string | null;
+  acquisition_model?: string | null;
   repository_url?: string | null;
   zip_url?: string | null;
   demo_url?: string | null;
@@ -143,6 +146,7 @@ export function dbRowToPublicationRecord(row: DatabasePublicationRow): Publicati
     avalancheTx: row.avalanche_tx ?? undefined,
     version: row.version ?? 1,
     projectType: (row.project_type as "article" | "software") || "article",
+    acquisitionModel: (row.acquisition_model as "lifetime" | "subscription") || "lifetime",
     repositoryUrl: row.repository_url ?? undefined,
     zipUrl: row.zip_url ?? undefined,
     demoUrl: row.demo_url ?? undefined,
@@ -172,6 +176,7 @@ export function publicationRecordToDbRow(
     avalanche_tx: record.avalancheTx || null,
     version: record.version ?? 1,
     project_type: record.projectType || "article",
+    acquisition_model: record.acquisitionModel || "lifetime",
     repository_url: record.repositoryUrl || null,
     zip_url: record.zipUrl || null,
     demo_url: record.demoUrl || null,

@@ -35,6 +35,10 @@ describe('Marketplace public boundaries', () => {
     expect(purchaseState(true, false, false, true)).eq('pending');
     expect(purchaseState(true, false, false, false)).eq('buy');
   });
+  it('projects acquisitionModel defaulting to lifetime', () => {
+    expect(publicPublication(project).acquisitionModel).eq('lifetime');
+    expect(publicPublication({ ...project, acquisitionModel: 'subscription' }).acquisitionModel).eq('subscription');
+  });
   it('source access URL lifetime is ten minutes', () => expect(SOURCE_TTL_SECONDS).eq(600));
 });
 describe('Independent payment evidence verification', () => {
@@ -66,7 +70,7 @@ describe('Marketplace routes', () => {
   const server = require('../lib/supabase/server');
   const actions = require('../app/api/publications/[id]/[action]/route');
   const detail = require('../app/api/publications/[id]/route');
-  const original = { wallet: auth.authenticatedWallet, origin: auth.sameOrigin, load: dbModule.loadProject, entitlement: dbModule.entitlement, db: dbModule.commerceDb, verify: verifier.verifyPayment, download: storage.sourceStorage.download, get: server.serverDb.publications.getById };
+  const original = { wallet: auth.authenticatedWallet, origin: auth.sameOrigin, load: dbModule.loadProject, entitlement: dbModule.entitlement, db: dbModule.commerceDb, verify: verifier.verifyPayment, check: verifier.checkPaymentConfig, download: storage.sourceStorage.download, get: server.serverDb.publications.getById };
   let session: string | null, records: any[], downloads: number;
   const props = (action: string) => ({ params: Promise.resolve({ id: project.id, action }) });
   const request = () => new Request('http://localhost/api', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ transactionHash: hash, buyerWallet: seller }) });
@@ -78,10 +82,11 @@ describe('Marketplace routes', () => {
     dbModule.entitlement = async (id: string, wallet: string) => records.find(r => r.project_id === id && r.buyer_wallet === wallet);
     dbModule.commerceDb = () => ({ from: () => ({ insert: async (row: any) => { if (records.some(r => r.transaction_hash === row.transaction_hash)) return { error: { code: '23505' } }; records.push(row); return { error: null }; } }) });
     verifier.verifyPayment = async (p: any, wallet: string) => validatePaymentEvidence(p, wallet, evidence());
+    verifier.checkPaymentConfig = async () => {};
     storage.sourceStorage.download = async () => { downloads++; return { url: 'https://storage.example.com/signed?token=temporary', expiresIn: 600 }; };
     server.serverDb.publications.getById = async () => project;
   });
-  after(() => { auth.authenticatedWallet = original.wallet; auth.sameOrigin = original.origin; dbModule.loadProject = original.load; dbModule.entitlement = original.entitlement; dbModule.commerceDb = original.db; verifier.verifyPayment = original.verify; storage.sourceStorage.download = original.download; server.serverDb.publications.getById = original.get; });
+  after(() => { auth.authenticatedWallet = original.wallet; auth.sameOrigin = original.origin; dbModule.loadProject = original.load; dbModule.entitlement = original.entitlement; dbModule.commerceDb = original.db; verifier.verifyPayment = original.verify; verifier.checkPaymentConfig = original.check; storage.sourceStorage.download = original.download; server.serverDb.publications.getById = original.get; });
   it('public endpoint exposes demos and excludes every source field', async () => { const res = await detail.GET(request(), props('')); expect(res.status).eq(200); expect(await res.text()).not.match(/SECRET|PRIVATE|object_key/); });
   it('draft detail returns 404', async () => { server.serverDb.publications.getById = async () => ({ ...project, status: 'DRAFT' }); expect((await detail.GET(request(), props(''))).status).eq(404); });
   it('unauthenticated verification is rejected', async () => { session = null; expect((await actions.POST(request(), props('verify'))).status).eq(401); expect(records).length(0); });
@@ -100,6 +105,40 @@ describe('Marketplace routes', () => {
   it('creator gets access without buying', async () => { session = seller; expect((await actions.GET(request(), props('source'))).status).eq(200); });
   it('another wallet cannot manage a creator project', async () => { expect((await actions.POST(request(), props('publish'))).status).eq(403); });
   it('already purchased checkout returns access instead of requesting another payment', async () => { records.push({ project_id: project.id, buyer_wallet: buyer }); const response = await actions.POST(request(), props('checkout')); expect((await response.json()).purchased).eq(true); });
+  it('checkout returns acquisitionModel', async () => {
+    const response = await actions.POST(request(), props('checkout'));
+    expect(response.status).eq(200);
+    const body = await response.json();
+    expect(body.acquisitionModel).eq('lifetime');
+  });
+  it('access and source handle subscription model and onchain membership', async () => {
+    const resLifetime = await actions.GET(request(), props('access'));
+    expect(resLifetime.status).eq(200);
+    expect((await resLifetime.json()).isSubscription).eq(false);
+
+    const subProject = { ...project, acquisitionModel: 'subscription' as const };
+    dbModule.loadProject = async () => subProject;
+    const membership = require('../lib/web3/membership');
+    const origHasMembership = membership.hasMembership;
+    membership.hasMembership = async () => true;
+    try {
+      const resSub = await actions.GET(request(), props('access'));
+      expect(resSub.status).eq(200);
+      const subBody = await resSub.json();
+      expect(subBody.isSubscription).eq(true);
+      expect(subBody.hasActiveMembership).eq(true);
+
+      const sourceRes = await actions.GET(request(), props('source'));
+      expect(sourceRes.status).eq(200);
+
+      membership.hasMembership = async () => false;
+      const deniedSource = await actions.GET(request(), props('source'));
+      expect(deniedSource.status).eq(403);
+      expect((await deniedSource.json()).error).contains('Active subscription required');
+    } finally {
+      membership.hasMembership = origHasMembership;
+    }
+  });
 });
 
 describe('Wallet authentication binding', () => {
@@ -180,6 +219,25 @@ describe('Rendered marketplace UI states', () => {
   it('hides source access for visitors and non-buyers', () => { connected = false; let html = render(SourcePurchase, { id: project.id, priceWei: '100' }); expect(html).contains('Connect wallet to purchase'); expect(html).not.contains('Access source code'); connected = true; cursor = 0; html = render(SourcePurchase, { id: project.id }); expect(html).contains('Buy source code'); expect(html).not.contains('Access source code'); });
   it('shows waiting state without source access', () => { stateValues = [{ creator: false, purchased: false }, true, '', '']; const html = render(SourcePurchase, { id: project.id }); expect(html).contains('Waiting for confirmation'); expect(html).contains('disabled'); expect(html).not.contains('Access source code'); });
   it('confirmed buyer sees purchased badge and access', () => { stateValues = [{ creator: false, purchased: true }, false, '', hash]; const html = render(SourcePurchase, { id: project.id }); expect(html).contains('Purchased'); expect(html).contains('Access source code'); expect(html).contains('My Purchases'); expect(html).not.contains('Buy source code'); });
+  it('renders subscription model states: unsubscribed, active, and expired', () => {
+    let html = render(SourcePurchase, { id: project.id, priceWei: '10000000000000000000', acquisitionModel: 'subscription' });
+    expect(html).contains('Monthly subscription (30 days)');
+    expect(html).contains('Access to code &amp; updates while subscribed');
+    expect(html).contains('Subscribe (10 HSK / 30 days)');
+
+    cursor = 0;
+    stateValues = [{ creator: false, purchased: true, isSubscription: true, hasActiveMembership: true }, false, '', hash];
+    html = render(SourcePurchase, { id: project.id, priceWei: '10000000000000000000', acquisitionModel: 'subscription' });
+    expect(html).contains('Subscribed · Active (30 days)');
+    expect(html).contains('Access source code');
+    expect(html).contains('Extend / Renew Subscription');
+
+    cursor = 0;
+    stateValues = [{ creator: false, purchased: true, isSubscription: true, hasActiveMembership: false }, false, '', ''];
+    html = render(SourcePurchase, { id: project.id, priceWei: '10000000000000000000', acquisitionModel: 'subscription' });
+    expect(html).contains('Subscription Expired');
+    expect(html).contains('Subscription Expired · Renew (10 HSK)');
+  });
   it('My Purchases displays project, price, transaction and source action', () => { stateValues = [[{ id: 'p1', project_id: project.id, publication: project, seller_wallet: seller, buyer_wallet: buyer, amount: '100', purchased_at: project.createdAt, transaction_hash: hash }], buyer, true, '', false]; const html = render(PurchaseLibrary, {}); expect(html).contains('Example'); expect(html).contains('View transaction'); expect(html).contains('Access source code'); expect(html).contains('Open project'); });
 });
 
