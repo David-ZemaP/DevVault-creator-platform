@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useAccount } from "wagmi";
 import { Button } from "@/components/ui/button";
-import { keccak256, toUtf8Bytes } from "viem";
+import { keccak256, stringToBytes } from "viem";
 import { Sparkles, Lock, Globe, ShieldCheck } from "lucide-react";
 
 export default function CreatePublicationPage() {
@@ -24,7 +24,7 @@ export default function CreatePublicationPage() {
     setIsSubmitting(true);
     try {
       // Generate content proof hash
-      const contentHash = keccak256(toUtf8Bytes(content));
+      const contentHash = keccak256(stringToBytes(content));
       console.log("Calculated Content Hash:", contentHash);
 
       // Simulating on-chain transaction or call to ContentProofRegistry
