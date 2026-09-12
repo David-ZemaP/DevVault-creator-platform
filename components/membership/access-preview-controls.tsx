@@ -16,9 +16,9 @@ export function AccessPreviewControls({ publicationId, isUnlocked }: AccessPrevi
   ];
 
   return (
-    <aside aria-label="Development access preview" className="border-y border-neutral-800 py-4">
-      <p className="text-sm font-medium text-neutral-200">Development preview · Fictional content</p>
-      <p className="mt-1 text-sm text-neutral-400">
+    <aside aria-label="Development access preview" className="border-y border-slate-800 py-4">
+      <p className="text-sm font-medium text-slate-200">Development preview · Fictional content</p>
+      <p className="mt-1 text-sm text-slate-400">
         Choose a visual state. This does not purchase or verify a membership.
       </p>
       <nav aria-label="Access preview state" className="mt-2 flex flex-wrap gap-4">
@@ -29,8 +29,8 @@ export function AccessPreviewControls({ publicationId, isUnlocked }: AccessPrevi
             prefetch={false}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "inline-flex min-h-11 items-center rounded-sm text-sm underline underline-offset-4",
-              active ? "font-semibold text-red-300" : "text-neutral-400 hover:text-white",
+              "inline-flex min-h-11 items-center rounded-sm text-sm underline underline-offset-4 transition-colors",
+              active ? "font-semibold text-blue-400" : "text-slate-400 hover:text-white",
             )}
           >
             {label}

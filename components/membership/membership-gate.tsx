@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import { checkUnlockMembership, getUnlockCheckoutUrl } from "@/lib/web3/unlock";
-import { Button } from "@/lib/../components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Lock, ShieldAlert } from "lucide-react";
 
 interface MembershipGateProps {
@@ -55,13 +55,13 @@ export function MembershipGate({ lockAddress, isGated, children }: MembershipGat
     : "#";
 
   return (
-    <div className="relative rounded-2xl border border-neutral-800 bg-neutral-900/80 p-8 text-center backdrop-blur-sm">
-      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-500/10 text-red-400 mb-4 border border-red-500/20">
+    <div className="relative rounded-2xl border border-slate-800/80 bg-slate-900/80 p-8 text-center backdrop-blur-sm shadow-sm">
+      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-400 mb-4 border border-blue-500/20">
         <Lock className="h-7 w-7" />
       </div>
 
       <h2 className="text-xl font-bold text-white">Members-Only Content</h2>
-      <p className="mt-2 text-sm text-neutral-400 max-w-md mx-auto">
+      <p className="mt-2 text-sm text-slate-400 max-w-md mx-auto">
         This publication is token-gated with Unlock Protocol on HashKey Chain (HSK). You need an active
         membership key on HSK to unlock the full content.
       </p>
