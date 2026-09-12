@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowUpRight, Compass } from "lucide-react";
 import { PublicationList } from "@/components/content/publication-list";
-import { resolveAllPublications } from "@/features/publications/repository";
+import { resolveAllPublications } from "@/features/publications/server-repository";
 
 export const dynamic = "force-dynamic";
 

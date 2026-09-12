@@ -23,6 +23,11 @@ export interface PublicationRecord {
   avalancheTx?: string;
   version: number;
   createdAt: string;
+  status?: "DRAFT" | "PUBLISHED" | "ARCHIVED";
+  publishedAt?: string;
+  priceWei?: string;
+  demoVideoUrl?: string;
+  coverImage?: string;
   projectType?: "article" | "software";
   repositoryUrl?: string;
   zipUrl?: string;
@@ -46,6 +51,11 @@ export interface CreatePublicationInput {
   proofId?: string;
   avalancheTx?: string;
   version?: number;
+  status?: "DRAFT" | "PUBLISHED" | "ARCHIVED";
+  publishedAt?: string;
+  priceWei?: string;
+  demoVideoUrl?: string;
+  coverImage?: string;
   projectType?: "article" | "software";
   repositoryUrl?: string;
   zipUrl?: string;
@@ -82,6 +92,11 @@ export interface DatabasePublicationRow {
   proof_id: string | null;
   avalanche_tx: string | null;
   version: number;
+  status?: "DRAFT" | "PUBLISHED" | "ARCHIVED";
+  published_at?: string | null;
+  price_wei?: string | null;
+  demo_video_url?: string | null;
+  cover_image?: string | null;
   project_type?: string | null;
   repository_url?: string | null;
   zip_url?: string | null;
@@ -115,6 +130,7 @@ export function userRecordToDbRow(record: Partial<UserRecord> & { wallet: string
 export function dbRowToPublicationRecord(row: DatabasePublicationRow): PublicationRecord {
   const isGated = Boolean(row.lock_address && row.lock_address.trim() !== "");
   return {
+    status: row.status, publishedAt: row.published_at ?? undefined, priceWei: row.price_wei ?? undefined, demoVideoUrl: row.demo_video_url ?? undefined, coverImage: row.cover_image ?? undefined,
     id: row.id,
     creatorWallet: row.creator_wallet,
     title: row.title,
@@ -143,6 +159,7 @@ export function publicationRecordToDbRow(
   record: Partial<PublicationRecord> & { id: string; creatorWallet: string; title: string; preview: string; contentHash: string }
 ): DatabasePublicationRow {
   return {
+    status: record.status, published_at: record.publishedAt, price_wei: record.priceWei, demo_video_url: record.demoVideoUrl, cover_image: record.coverImage,
     id: record.id,
     creator_wallet: record.creatorWallet,
     title: record.title,

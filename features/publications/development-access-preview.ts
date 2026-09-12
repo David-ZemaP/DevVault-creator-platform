@@ -14,17 +14,5 @@ export async function getDevelopmentAccessPreview(
   const found = mockPremiumContent.find((content) => content.publicationId === publicationId);
   if (found) return found;
 
-  try {
-    const { serverDb } = await import("@/lib/supabase/server");
-    const dbRecord = await serverDb.publications.getById(publicationId);
-    if (dbRecord?.premiumContent) {
-      return {
-        publicationId,
-        body: `Premium demo:\n\n${dbRecord.premiumContent}`,
-        format: "text",
-      };
-    }
-  } catch {}
-
   return undefined;
 }

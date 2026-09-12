@@ -1,5 +1,7 @@
 "use client";
 
+import { PurchaseLibrary } from "@/components/content/purchase-library";
+import { CreatorDrafts } from "@/components/content/creator-drafts";
 import React, { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import { Button } from "@/components/ui/button";
@@ -59,10 +61,12 @@ export default function CreatorDashboardPage() {
     );
   }
 
-  const gatedCount = publications.filter((p) => p.publication.membership.lock.status === "confirmed").length;
+
 
   return (
     <div className="space-y-8">
+      <CreatorDrafts />
+      <PurchaseLibrary sales />
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-neutral-800 pb-6">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-white">Creator Dashboard</h1>
@@ -84,7 +88,7 @@ export default function CreatorDashboardPage() {
         <div className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-5">
           <div className="flex items-center gap-2 text-xs font-medium text-neutral-400">
             <FileCheck2 className="h-4 w-4 text-red-500" />
-            Verified Publications
+            Published Publications
           </div>
           <div className="mt-2 text-2xl font-bold text-white">
             {isLoading ? "..." : publications.length}
@@ -97,7 +101,7 @@ export default function CreatorDashboardPage() {
             Active Key Holders
           </div>
           <div className="mt-2 text-2xl font-bold text-white">
-            {isLoading ? "..." : gatedCount > 0 ? gatedCount * 8 : "—"}
+            {isLoading ? "..." : "—"}
           </div>
         </div>
 
@@ -107,7 +111,7 @@ export default function CreatorDashboardPage() {
             Revenue Earned
           </div>
           <div className="mt-2 text-2xl font-bold text-white">
-            {isLoading ? "..." : gatedCount > 0 ? `${(gatedCount * 10).toFixed(0)} HSK` : "0 HSK"}
+            {isLoading ? "..." : "See confirmed sales above"}
           </div>
         </div>
       </div>

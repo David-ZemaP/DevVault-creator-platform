@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Clock3, ShieldCheck, ExternalLink } from "lucide-react";
-import { resolvePublication } from "@/features/publications/repository";
+import { resolvePublication } from "@/features/publications/server-repository";
 import { LockedContent } from "@/components/membership/locked-content";
 import { UnlockedContent } from "@/components/content/unlocked-content";
 import { AccessPreviewControls } from "@/components/membership/access-preview-controls";
@@ -11,7 +11,7 @@ import { cn, formatDate, formatAddress } from "@/lib/utils";
 import { getExplorerTxUrl } from "@/lib/web3/avalanche";
 import { getHskExplorerAddressUrl } from "@/lib/web3/hashkey";
 import { SoftwareDemoRunner } from "@/components/content/software-demo-runner";
-import { SoftwareAssetsCard } from "@/components/content/software-assets-card";
+import { SourcePurchase } from "@/components/content/source-purchase";
 
 export const dynamic = "force-dynamic";
 
@@ -141,11 +141,13 @@ export default async function ContentDetailPage({ params, searchParams }: PagePr
             <p className="mt-4 text-lg leading-loose text-neutral-300">{publication.preview}</p>
           </section>
 
+          {publication.description && publication.description !== publication.preview && <section className="py-6"><h2 className="text-lg font-semibold">About this project</h2><p className="mt-4 whitespace-pre-wrap text-neutral-300">{publication.description}</p></section>}
+
           {/* Interactive Software Execution Sandbox & Functional Demo */}
           <SoftwareDemoRunner
             title={publication.title}
             demoUrl={publication.demoUrl}
-            demoPreviewCode={publication.demoPreviewCode}
+            demoVideoUrl={publication.demoVideoUrl}
             projectType={publication.projectType}
           />
 
@@ -159,16 +161,9 @@ export default async function ContentDetailPage({ params, searchParams }: PagePr
         </article>
 
         <div className="space-y-6">
-          {/* Software Source Code & .zip Package Card */}
-          <SoftwareAssetsCard
-            isUnlocked={Boolean(premiumPreview)}
-            zipUrl={publication.zipUrl}
-            repositoryUrl={publication.repositoryUrl}
-            creatorAddress={creator.address}
-            publicationTitle={publication.title}
-          />
+          {publication.projectType === "software" && <SourcePurchase id={id} priceWei={publication.priceWei} />}
 
-          {!premiumPreview && (
+          {publication.projectType !== "software" && !premiumPreview && (
             <LockedContent creatorName={creator.name} membership={publication.membership} />
           )}
         </div>

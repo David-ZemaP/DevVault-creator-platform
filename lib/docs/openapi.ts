@@ -30,11 +30,22 @@ export const openApiSpec = {
     },
   ],
   paths: {
+    "/auth/nonce": { post: { summary: "Issue wallet challenge (same-origin)", responses: { 200: { description: "Sign returned message with the requested wallet" } } } },
+    "/auth/verify": { post: { summary: "Consume signed challenge and create HTTP-only session", responses: { 200: { description: "Authenticated wallet session" }, 401: { description: "Invalid signature or nonce" } } } },
+    "/purchases": { get: { summary: "Authenticated permanent buyer library; sales=true for creator sales", responses: { 200: { description: "Confirmed purchases and public project metadata" }, 401: { description: "Wallet sign-in required" } } } },
+    "/publications/{id}/{action}": {
+      parameters: [
+        { name: "id", in: "path", required: true, schema: { type: "string" } },
+        { name: "action", in: "path", required: true, schema: { type: "string", enum: ["manage", "access", "source", "upload", "publish", "archive", "proof", "checkout", "verify"] } },
+      ],
+      get: { summary: "Authenticated manage/access/source; source requires creator or confirmed entitlement", responses: { 200: { description: "Private no-store response; source URL expires in 600 seconds" }, 401: { description: "Sign-in required" }, 403: { description: "Access denied" } } },
+      post: { summary: "Authenticated project action. See docs/MARKETPLACE.md for request schemas", responses: { 200: { description: "Action completed" }, 400: { description: "Invalid input or payment evidence" }, 401: { description: "Sign-in required" }, 403: { description: "Creator authorization required" }, 409: { description: "Pending confirmation, conflicting state or replay" } } },
+    },
     "/publications": {
       get: {
         tags: ["Publications"],
         summary: "List all publications",
-        description: "Returns all publications ordered by creation date, optionally filtered by creator wallet address.",
+        description: "Returns published, visible metadata only. Source references and premium content are excluded. Use mine=true with a wallet session for creator drafts.",
         parameters: [
           {
             name: "creatorWallet",
@@ -82,7 +93,7 @@ export const openApiSpec = {
         tags: ["Publications"],
         summary: "Create a new publication",
         description:
-          "Stores a new publication with cryptographic proof hash (anchored on Fuji) and optional Unlock Protocol lockAddress (on HSK).",
+          "Creates an authenticated draft. Creator identity and content hash are derived on the server. Upload private source and explicitly publish afterwards; see docs/MARKETPLACE.md.",
         requestBody: {
           required: true,
           content: {
@@ -94,7 +105,7 @@ export const openApiSpec = {
           },
         },
         responses: {
-          201: {
+          200: {
             description: "Publication created successfully",
             content: {
               "application/json": {
@@ -303,7 +314,7 @@ export const openApiSpec = {
     schemas: {
       PublicationRecord: {
         type: "object",
-        required: ["id", "creatorWallet", "title", "preview", "contentHash", "version", "createdAt", "author", "isGated"],
+        required: ["id", "creatorWallet", "title", "preview", "contentHash", "version", "createdAt"],
         properties: {
           id: {
             type: "string",
@@ -327,11 +338,6 @@ export const openApiSpec = {
           preview: {
             type: "string",
             example: "Avalanche Subnets allow anyone to launch purpose-built blockchains...",
-          },
-          premiumContent: {
-            type: "string",
-            nullable: true,
-            description: "Protected content decrypted or gated by Unlock Protocol on HSK",
           },
           contentHash: {
             type: "string",
@@ -377,52 +383,18 @@ export const openApiSpec = {
         },
       },
       CreatePublicationInput: {
-        type: "object",
-        required: ["creatorWallet", "title", "preview", "contentHash"],
+        type: "object", required: ["title", "description"],
         properties: {
-          id: {
-            type: "string",
-            description: "Optional pre-calculated publication ID",
-          },
-          creatorWallet: {
-            type: "string",
-            example: "0x71C8343e3C8432a688D37A33eC55f4175b9fF835",
-          },
-          title: {
-            type: "string",
-            example: "Scaling Modular Subnets",
-          },
-          description: {
-            type: "string",
-            example: "Brief overview for cards",
-          },
-          preview: {
-            type: "string",
-            example: "Public preview excerpt...",
-          },
-          premiumContent: {
-            type: "string",
-            description: "Protected text visible only to HSK Unlock key holders",
-          },
-          contentHash: {
-            type: "string",
-            example: "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
-          },
-          lockAddress: {
-            type: "string",
-            example: "0x1234567890123456789012345678901234567890",
-            description: "Unlock Lock address on HashKey Chain from unlock-hashkey",
-          },
-          proofId: {
-            type: "string",
-          },
-          avalancheTx: {
-            type: "string",
-          },
-          version: {
-            type: "integer",
-            default: 1,
-          },
+          title: { type: "string", maxLength: 180 },
+          description: { type: "string", maxLength: 50000 },
+          preview: { type: "string", maxLength: 1000 },
+          projectType: { type: "string", enum: ["software", "article"] },
+          demoUrl: { type: "string", format: "uri" },
+          demoVideoUrl: { type: "string", format: "uri" },
+          coverImage: { type: "string", format: "uri" },
+          priceWei: { type: "string", description: "Positive native HSK amount in wei; required for software" },
+          lockAddress: { type: "string", description: "Creator-managed HSK native PublicLock v15" },
+          premiumContent: { type: "string", description: "Private article content only; never returned by public reads" },
         },
       },
       UserRecord: {

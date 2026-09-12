@@ -27,6 +27,7 @@ export interface Publication {
   readonly id: string;
   readonly title: string;
   readonly preview: string;
+  readonly description?: string;
   readonly creatorAddress: WalletAddress;
   readonly publishedAt: string;
   readonly category: string;
@@ -34,8 +35,9 @@ export interface Publication {
   readonly membership: MembershipOffer;
   readonly proof: ProofReference;
   readonly projectType?: "article" | "software";
-  readonly repositoryUrl?: string;
-  readonly zipUrl?: string;
+  readonly priceWei?: string;
+  readonly demoVideoUrl?: string;
+  readonly coverImage?: string;
   readonly demoUrl?: string;
   readonly demoPreviewCode?: string;
   readonly isHidden?: boolean;

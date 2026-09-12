@@ -106,3 +106,23 @@ pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Software marketplace: creator and buyer flow
+
+The integrated software flow now uses private Supabase ZIP storage and permanent purchase entitlements. See [Marketplace setup, API and security model](docs/MARKETPLACE.md) for the required migration and exact testnet demo steps. These instructions supersede earlier descriptions of public ZIP links, simulated execution and frontend-only gating.
+
+### Creator Flow
+
+Create → Upload private source → Add public demo → Set matching HSK lock price → Review → Publish. Draft metadata is collected before upload; drafts can be resumed from the dashboard.
+
+### Buyer Flow
+
+View demo → Connect wallet → Sign wallet challenge → Buy → Blockchain confirmation → Backend verification → Permanent entitlement → Secure source access. Return through **My Purchases** to download again.
+
+### Security Model
+
+Demo metadata is public; source is private. The frontend cannot authorize access. The backend binds the authenticated wallet to a signed challenge and independently verifies HSK payment. Database uniqueness prevents transaction replay. Purchase entitlement is permanent; each signed download URL expires after ten minutes. Apply the migration before enabling this flow.
+
+### Current Testnet
+
+HSKChain Testnet (133) uses existing Unlock PublicLock v15 payments. Optional content provenance uses the existing Avalanche Fuji (43113) registry. This is a testnet integration, not a mainnet or production-readiness claim.

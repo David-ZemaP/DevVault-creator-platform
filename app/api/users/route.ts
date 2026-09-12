@@ -1,9 +1,13 @@
+import { authenticatedWallet, sameOrigin } from "@/lib/server/wallet-session";
+import { apiError } from "@/lib/server/marketplace-db";
 import { NextRequest, NextResponse } from "next/server";
 import { serverDb } from "@/lib/supabase/server";
 import type { CreateUserInput } from "@/lib/supabase/types";
 
 export async function POST(request: NextRequest) {
   try {
+    sameOrigin(request);
+    const authenticated = await authenticatedWallet();
     let body: any;
     try {
       body = await request.json();
@@ -14,7 +18,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { wallet } = body;
+    const wallet = authenticated;
 
     if (!wallet || typeof wallet !== "string") {
       return NextResponse.json(
@@ -32,10 +36,6 @@ export async function POST(request: NextRequest) {
     const user = await serverDb.users.upsert(input);
     return NextResponse.json({ user, ...user }, { status: 200 });
   } catch (err: any) {
-    console.error("Error in POST /api/users:", err);
-    return NextResponse.json(
-      { error: err?.message || "Failed to upsert user" },
-      { status: 500 }
-    );
+    return apiError(err);
   }
 }
