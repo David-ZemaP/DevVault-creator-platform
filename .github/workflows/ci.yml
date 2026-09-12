@@ -9,6 +9,9 @@ on:
 jobs:
   lint-and-test:
     runs-on: ubuntu-latest
+    env:
+      CI: "true"
+      HARDHAT_TELEMETRY_DISABLED: "1"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -28,8 +31,11 @@ jobs:
       - name: Compile contracts
         run: pnpm compile
 
-      - name: Run smart contract tests
+      - name: Run smart contract & integration tests
         run: pnpm test
+
+      - name: Run automated smoke test
+        run: pnpm smoke
 
       - name: Run TypeScript typecheck
         run: pnpm typecheck
