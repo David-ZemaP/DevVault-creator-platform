@@ -4,6 +4,7 @@ import { UNLOCK_HASHKEY_LOCK_ABI, HASHKEY_CONFIG } from "../lib/web3/hashkey";
 import { CONTENT_PROOF_REGISTRY_ABI } from "../lib/web3/contentProof";
 import { AVALANCHE_CONFIG } from "../lib/web3/avalanche";
 import { serverDb } from "../lib/supabase/server";
+import { openApiSpec } from "../lib/docs/openapi";
 
 const { ethers } = hre;
 
@@ -152,6 +153,22 @@ async function runSmokeTests() {
     );
   } catch (err) {
     recordFail("Dual-Chain Workflow", err);
+  }
+
+  // Step 6: OpenAPI & Swagger Documentation Sanity
+  console.log("\nPhase 6: Validating OpenAPI 3.0 & Swagger Spec...");
+  try {
+    if (!openApiSpec.openapi || !openApiSpec.openapi.startsWith("3.")) {
+      throw new Error("Invalid OpenAPI version");
+    }
+    const paths = Object.keys(openApiSpec.paths);
+    const requiredPaths = ["/publications", "/publications/{id}", "/users", "/users/{wallet}"];
+    for (const p of requiredPaths) {
+      if (!paths.includes(p)) throw new Error(`Missing required path in OpenAPI spec: ${p}`);
+    }
+    recordPass("OpenAPI & Swagger", `Verified ${paths.length} endpoints, tags: [${openApiSpec.tags.map(t => t.name).join(", ")}]`);
+  } catch (err) {
+    recordFail("OpenAPI & Swagger", err);
   }
 
   // Summary
