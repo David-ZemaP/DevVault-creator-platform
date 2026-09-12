@@ -5,7 +5,6 @@ import "@rainbow-me/rainbowkit/styles.css";
 import { getDefaultConfig, RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
 import {
   metaMaskWallet,
-  coinbaseWallet,
   rabbyWallet,
   phantomWallet,
   rainbowWallet,
@@ -28,7 +27,6 @@ const config = getDefaultConfig({
       groupName: "Popular Wallets",
       wallets: [
         metaMaskWallet,
-        coinbaseWallet,
         rabbyWallet,
         phantomWallet,
       ],
