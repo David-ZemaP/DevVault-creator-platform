@@ -1,77 +1,28 @@
-import React from "react";
 import Link from "next/link";
-import { formatAddress, formatDate } from "@/lib/utils";
-import { Lock, FileText, CheckCircle2 } from "lucide-react";
+import { ArrowUpRight, Lock } from "lucide-react";
+import type { PublicationSummary } from "@/features/publications/repository";
+import { formatDate } from "@/lib/utils";
 
-export interface ContentCardProps {
-  id: string;
-  title: string;
-  description?: string;
-  author: string;
-  createdAt: number | string;
-  isGated: boolean;
-  lockAddress?: string;
-}
-
-export function ContentCard({
-  id,
-  title,
-  description,
-  author,
-  createdAt,
-  isGated,
-}: ContentCardProps) {
-  const timestamp =
-    typeof createdAt === "string"
-      ? Math.floor(new Date(createdAt).getTime() / 1000) || Math.floor(Date.now() / 1000)
-      : createdAt;
+export function ContentCard({ publication, creator }: PublicationSummary) {
   return (
-    <article className="group relative rounded-xl border border-neutral-800 bg-neutral-900/50 p-6 transition-all hover:border-neutral-700 hover:bg-neutral-900">
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-2 text-xs text-neutral-400">
-          <Link
-            href={`/profile/${author}`}
-            className="hover:text-red-400 font-mono transition-colors"
-          >
-            {formatAddress(author)}
-          </Link>
-          <span>•</span>
-          <time dateTime={new Date(timestamp * 1000).toISOString()}>
-            {formatDate(timestamp)}
-          </time>
-        </div>
-
-        {isGated ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-red-500/10 px-2.5 py-0.5 text-xs font-medium text-red-400 border border-red-500/20">
-            <Lock className="h-3 w-3" />
-            Members Only
-          </span>
-        ) : (
-          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-400 border border-emerald-500/20">
-            <CheckCircle2 className="h-3 w-3" />
-            Public
-          </span>
-        )}
+    <article className="flex min-w-0 flex-col rounded-2xl border border-neutral-800 bg-neutral-900/40 p-6 transition-colors hover:border-neutral-600">
+      <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
+        <span className="font-medium text-neutral-400">{publication.category}</span>
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-red-400/20 bg-red-400/10 px-2.5 py-1 font-medium text-red-300">
+          <Lock aria-hidden="true" className="h-3 w-3" /> Locked
+        </span>
       </div>
-
-      <div className="mt-4">
-        <h3 className="text-lg font-semibold text-neutral-100 group-hover:text-red-400 transition-colors">
-          <Link href={`/content/${id}`}>{title}</Link>
-        </h3>
-        <p className="mt-2 text-sm text-neutral-400 line-clamp-2">{description}</p>
-      </div>
-
-      <div className="mt-6 flex items-center justify-between border-t border-neutral-800/80 pt-4 text-xs text-neutral-500">
-        <div className="flex items-center gap-1">
-          <FileText className="h-3.5 w-3.5" />
-          <span>Proof Verified</span>
-        </div>
-        <Link
-          href={`/content/${id}`}
-          className="text-xs font-medium text-red-400 hover:text-red-300"
-        >
-          View details →
-        </Link>
+      <h2 className="mt-6 text-2xl leading-tight font-semibold tracking-tight text-white">
+        <Link href={`/content/${publication.id}`} className="hover:text-red-300">{publication.title}</Link>
+      </h2>
+      <p className="mt-4 flex-1 text-base leading-relaxed text-neutral-400">{publication.preview}</p>
+      <Link href={`/profile/${creator.address}`} className="mt-7 flex w-fit items-center gap-3 rounded-lg text-sm text-neutral-200 hover:text-white">
+        <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-neutral-700 bg-neutral-800 text-xs font-semibold">{creator.initials}</span>
+        <span>{creator.name}<span className="mt-0.5 block text-xs text-neutral-500"><time dateTime={publication.publishedAt}>{formatDate(new Date(publication.publishedAt))}</time> · {publication.readingMinutes} min read</span></span>
+      </Link>
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-neutral-800 pt-5">
+        <p className="text-sm font-medium text-neutral-200">{publication.membership.price} {publication.membership.currency}<span className="font-normal text-neutral-500"> / {publication.membership.durationDays} days</span></p>
+        <Link href={`/content/${publication.id}`} aria-label={`Read preview: ${publication.title}`} className="inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-red-400 hover:text-red-300">Read preview <ArrowUpRight aria-hidden="true" className="h-4 w-4" /></Link>
       </div>
     </article>
   );

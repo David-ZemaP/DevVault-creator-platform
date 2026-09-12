@@ -3,15 +3,16 @@
 import React, { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import { Button } from "@/components/ui/button";
-import { ContentCard } from "@/components/content/content-card";
-import { apiClient, PublicationRecord } from "@/lib/api/client";
+import { PublicationList } from "@/components/content/publication-list";
+import { apiClient } from "@/lib/api/client";
+import { publicationRecordToSummary, type PublicationSummary } from "@/features/publications/repository";
 import Link from "next/link";
-import { PlusCircle, TrendingUp, Users, FileCheck2, ShieldAlert, FileText } from "lucide-react";
+import { PlusCircle, TrendingUp, Users, FileCheck2, ShieldAlert } from "lucide-react";
 
 export default function CreatorDashboardPage() {
   const { address, isConnected } = useAccount();
 
-  const [publications, setPublications] = useState<PublicationRecord[]>([]);
+  const [publications, setPublications] = useState<PublicationSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -27,7 +28,8 @@ export default function CreatorDashboardPage() {
       try {
         const res = await apiClient.getPublications(address);
         if (isMounted && res.data?.publications) {
-          setPublications(res.data.publications);
+          const summaries = res.data.publications.map(publicationRecordToSummary);
+          setPublications(summaries);
         }
       } catch (err) {
         console.error("Failed to fetch creator publications:", err);
@@ -57,7 +59,7 @@ export default function CreatorDashboardPage() {
     );
   }
 
-  const gatedCount = publications.filter((p) => Boolean(p.lockAddress)).length;
+  const gatedCount = publications.filter((p) => p.publication.membership.lock.status === "confirmed").length;
 
   return (
     <div className="space-y-8">
@@ -95,7 +97,7 @@ export default function CreatorDashboardPage() {
             Active Key Holders
           </div>
           <div className="mt-2 text-2xl font-bold text-white">
-            {isLoading ? "..." : gatedCount > 0 ? gatedCount * 12 : 0}
+            {isLoading ? "..." : gatedCount > 0 ? gatedCount * 8 : "—"}
           </div>
         </div>
 
@@ -105,20 +107,23 @@ export default function CreatorDashboardPage() {
             Revenue Earned
           </div>
           <div className="mt-2 text-2xl font-bold text-white">
-            {isLoading ? "..." : gatedCount > 0 ? `${(gatedCount * 2.5).toFixed(1)} AVAX` : "0.0 AVAX"}
+            {isLoading ? "..." : gatedCount > 0 ? `${(gatedCount * 10).toFixed(0)} HSK` : "0 HSK"}
           </div>
         </div>
       </div>
 
       <div className="space-y-4">
-        <h2 className="text-xl font-bold text-white">Your Publications</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-bold text-white">Your Publications</h2>
+          <span className="text-sm text-neutral-500">{publications.length} total</span>
+        </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
             {[1, 2].map((i) => (
               <div
                 key={i}
-                className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-6 animate-pulse space-y-4"
+                className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-6 animate-pulse space-y-4"
               >
                 <div className="flex justify-between items-center">
                   <div className="h-4 w-28 bg-neutral-800 rounded" />
@@ -132,45 +137,8 @@ export default function CreatorDashboardPage() {
               </div>
             ))}
           </div>
-        ) : publications.length === 0 ? (
-          <div className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-10 text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-neutral-800 border border-neutral-700 text-neutral-400 mb-3">
-              <FileText className="h-6 w-6 text-neutral-400" />
-            </div>
-            <h3 className="text-lg font-bold text-white">No Publications Yet</h3>
-            <p className="mt-1 text-sm text-neutral-400 max-w-sm mx-auto">
-              You have not created any publications yet. Publish your first piece to anchor it on Avalanche.
-            </p>
-            <div className="mt-5 flex justify-center">
-              <Link href="/create">
-                <Button variant="primary" className="gap-2">
-                  <PlusCircle className="h-4 w-4" />
-                  Create Publication
-                </Button>
-              </Link>
-            </div>
-          </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            {publications.map((pub) => {
-              const createdAtTimestamp = pub.createdAt
-                ? Math.floor(new Date(pub.createdAt).getTime() / 1000)
-                : Math.floor(Date.now() / 1000);
-
-              return (
-                <ContentCard
-                  key={pub.id}
-                  id={pub.id}
-                  title={pub.title}
-                  description={pub.description || pub.preview}
-                  author={pub.creatorWallet}
-                  createdAt={createdAtTimestamp}
-                  isGated={Boolean(pub.lockAddress)}
-                  lockAddress={pub.lockAddress}
-                />
-              );
-            })}
-          </div>
+          <PublicationList publications={publications} />
         )}
       </div>
     </div>
