@@ -9,6 +9,7 @@ import { hashkeyTestnet } from '@/lib/web3/chains';
 import { UNLOCK_ABI_VIEM } from '@/lib/web3/abis';
 import { encodeMembershipInitializer, extractNewLock } from '@/lib/web3/membership';
 import { Button } from '@/components/ui/button';
+import { useConfirm } from '@/components/ui/confirm-modal';
 import type { PublicationRecord } from '@/lib/supabase/types';
 
 type LockPhase =
@@ -60,6 +61,7 @@ export function CreateLockSection({ project, onLockSaved, mode = 'membership' }:
   const { data: wallet } = useWalletClient();
   const { switchChainAsync } = useSwitchChain();
   const auth = useAuth();
+  const { confirm } = useConfirm();
 
   const [phase, setPhase] = useState<LockPhase>('idle');
   const [lockPrice, setLockPrice] = useState('0.0001');
@@ -108,6 +110,26 @@ export function CreateLockSection({ project, onLockSaved, mode = 'membership' }:
         priceWei,
         maxMembers: BigInt(maxNum),
       }) as `0x${string}`;
+
+      const ok = await confirm({
+        title: `Deploy ${kind} Contract`,
+        description: `Deploy an on-chain PublicLock contract on HSKChain Testnet for "${project.title}".`,
+        details: [
+          { label: 'Key Price', value: `${lockPrice} HSK` },
+          { label: 'Duration', value: `${lockDurationDays} days` },
+          { label: 'Max Members', value: lockMaxMembers === '0' ? 'Unlimited' : lockMaxMembers },
+          { label: 'Network', value: 'HSKChain Testnet (133)' },
+        ],
+        notice: 'This will broadcast a smart contract deployment transaction and requires gas.',
+        confirmText: `Deploy ${kind} Contract`,
+        cancelText: 'Cancel',
+        variant: 'primary',
+        icon: 'lock',
+      });
+      if (!ok) {
+        setPhase('idle');
+        return;
+      }
 
       setPhase('awaiting_signature');
       const hash = await wallet.writeContract({

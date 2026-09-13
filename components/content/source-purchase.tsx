@@ -14,6 +14,7 @@ import { getHskExplorerTxUrl } from '@/lib/web3/hashkey';
 import { marketplaceRequest, useWalletSession } from '@/lib/marketplace/client';
 import { purchaseState } from '@/lib/marketplace/public';
 import { Button } from '@/components/ui/button';
+import { useConfirm } from '@/components/ui/confirm-modal';
 
 interface AccessState {
   creator: boolean;
@@ -43,6 +44,7 @@ function useProjectPurchase({ id, priceWei, acquisitionModel = 'lifetime' }: Pur
   const authenticate = useWalletSession();
   const auth = useAuth();
   const config = useConfig();
+  const { confirm } = useConfirm();
   const [access, setAccess] = useState<AccessState>({
     creator: false,
     purchased: false,
@@ -127,10 +129,24 @@ function useProjectPurchase({ id, priceWei, acquisitionModel = 'lifetime' }: Pur
         const checkout = await marketplaceRequest(`/publications/${id}/checkout`, {});
         if (!activeSubscription && (checkout.purchased || checkout.creator)) { setAccess(checkout); setPhase('idle'); return; }
         if (activeSubscription && checkout.creator) { setAccess(checkout); setPhase('idle'); return; }
-        const confirmMsg = activeSubscription
-          ? `Subscribe to "${checkout.title}" for ${formatEther(BigInt(checkout.priceWei))} HSK on HSKChain Testnet?\n\n30-day recurring access via Unlock Protocol. Gas is additional.`
-          : `Buy source code for "${checkout.title}" for ${formatEther(BigInt(checkout.priceWei))} HSK on HSKChain Testnet?\n\nPermanent access. Gas is additional.`;
-        if (!window.confirm(confirmMsg)) { setPhase('idle'); return; }
+        const ok = await confirm({
+          title: activeSubscription ? 'Confirm Subscription' : 'Confirm Purchase',
+          description: activeSubscription
+            ? `Subscribe to "${checkout.title}" with recurring 30-day access via Unlock Protocol.`
+            : `Purchase permanent source code access for "${checkout.title}".`,
+          details: [
+            { label: 'Item', value: checkout.title },
+            { label: 'Price', value: `${formatEther(BigInt(checkout.priceWei))} HSK` },
+            { label: 'Network', value: 'HSKChain Testnet (133)' },
+            { label: 'Access Model', value: activeSubscription ? '30-Day Recurring' : 'Permanent Source' },
+          ],
+          notice: 'Gas fees are additional and calculated by your connected wallet upon signature.',
+          confirmText: activeSubscription ? 'Subscribe & Pay' : 'Confirm Purchase',
+          cancelText: 'Cancel',
+          variant: 'primary',
+          icon: 'shopping',
+        });
+        if (!ok) { setPhase('idle'); return; }
         assertWallet();
         setPhase('awaiting_signature');
         if (!wallet || !address) throw new Error('Wallet unavailable');

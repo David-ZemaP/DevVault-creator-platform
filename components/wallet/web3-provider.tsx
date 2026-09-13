@@ -2,6 +2,7 @@
 
 import { AuthProvider } from "@/lib/auth/use-auth";
 import { AuthModalProvider } from "./auth-modal";
+import { ConfirmProvider } from "@/components/ui/confirm-modal";
 import React, { useState } from "react";
 import "@rainbow-me/rainbowkit/styles.css";
 import { getDefaultConfig, RainbowKitProvider, darkTheme, lightTheme } from "@rainbow-me/rainbowkit";
@@ -69,7 +70,9 @@ function RainbowKitThemedWrapper({ children }: { children: React.ReactNode }) {
       }
     >
       <AuthProvider>
-        <AuthModalProvider>{children}</AuthModalProvider>
+        <AuthModalProvider>
+          <ConfirmProvider>{children}</ConfirmProvider>
+        </AuthModalProvider>
       </AuthProvider>
     </RainbowKitProvider>
   );

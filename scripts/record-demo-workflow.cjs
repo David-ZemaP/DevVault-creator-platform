@@ -425,7 +425,16 @@ async function smoothScroll(page, targetY, durationMs = 750) {
 
   const purchaseBtn = await page.waitForSelector('section[aria-label="Source code"] button');
   await smoothClick(page, purchaseBtn);
-  await wait(1800);
+  await wait(1000);
+
+  // Handle custom UI confirmation modal
+  const confirmModalBtn = await page.$('div[role="dialog"] button:has-text("Confirm")');
+  if (confirmModalBtn) {
+    await updateHUD(page, 'CONFIRM ORDER', 'Reviewing Terms & Approving Purchase Modal');
+    await wait(1200);
+    await smoothClick(page, confirmModalBtn);
+    await wait(1600);
+  }
 
   // Upsert purchase record to ensure permanent access unlocks and appears in library
   await supabase.from('purchases').upsert({

@@ -10,6 +10,7 @@ import { hashkeyTestnet } from '@/lib/web3/chains';
 import { PUBLIC_LOCK_ABI, PURCHASE_SIGNATURE } from '@/lib/web3/abis';
 import { nativePurchaseArgs } from '@/lib/web3/membership';
 import { Button } from '@/components/ui/button';
+import { useConfirm } from '@/components/ui/confirm-modal';
 
 type Phase =
   | 'idle'
@@ -60,6 +61,7 @@ export function RealMembershipPurchase({ publicationId, lockAddress }: Props) {
   const { data: wallet } = useWalletClient();
   const { switchChainAsync } = useSwitchChain();
   const auth = useAuth();
+  const { confirm } = useConfirm();
 
   const [phase, setPhase] = useState<Phase>('idle');
   const [price, setPrice] = useState<bigint>();
@@ -133,6 +135,29 @@ export function RealMembershipPurchase({ publicationId, lockAddress }: Props) {
       }
 
       if (!wallet || price === undefined) throw new Error('HashKey network is temporarily unavailable');
+
+      const durationText = duration
+        ? `${Math.round(Number(duration) / 86400)} days recurring`
+        : '30 days recurring';
+
+      const ok = await confirm({
+        title: 'Confirm Membership Subscription',
+        description: 'Subscribe to access token-gated content for this publication.',
+        details: [
+          { label: 'Price', value: `${formatEther(price)} HSK` },
+          { label: 'Network', value: 'HSKChain Testnet (133)' },
+          { label: 'Duration', value: durationText },
+        ],
+        notice: 'Gas fees are additional and will be calculated by your wallet on signature.',
+        confirmText: 'Subscribe & Pay',
+        cancelText: 'Cancel',
+        variant: 'primary',
+        icon: 'lock',
+      });
+      if (!ok) {
+        setPhase('idle');
+        return;
+      }
 
       // Encode and send the PublicLock purchase() transaction.
       setPhase('awaiting_signature');

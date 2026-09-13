@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useAccount, useSwitchChain, useWalletClient } from 'wagmi';
 import { createPublicClient, http, parseEther, formatEther, zeroAddress } from 'viem';
 import { Button } from '@/components/ui/button';
+import { useConfirm } from '@/components/ui/confirm-modal';
 import { marketplaceRequest, useWalletSession } from '@/lib/marketplace/client';
 import { useAuth } from '@/lib/auth/use-auth';
 import type { PublicationRecord } from '@/lib/supabase/types';
@@ -30,6 +31,7 @@ export default function CreatePublicationPage() {
   const { switchChainAsync } = useSwitchChain();
   const authenticate = useWalletSession();
   const { authenticatedAddress } = useAuth();
+  const { confirm } = useConfirm();
 
   const [project, setProject] = useState<PublicationRecord | null>(null);
   const [hasSource, setHasSource] = useState(false);
@@ -541,6 +543,15 @@ export default function CreatePublicationPage() {
                   }
                   onClick={() =>
                     task(async () => {
+                      const ok = await confirm({
+                        title: 'Publish Project',
+                        description: `Publish "${project.title}" to the DevVault marketplace? Your showcase demo will be visible to everyone and buyers will be able to purchase source access.`,
+                        confirmText: 'Publish Project',
+                        cancelText: 'Keep Editing',
+                        variant: 'primary',
+                        icon: 'help',
+                      });
+                      if (!ok) return;
                       await marketplaceRequest(`/publications/${project.id}/publish`, {});
                       await reload(project.id);
                       setMessage('Published. Demo is public; source remains private.');
@@ -572,6 +583,15 @@ export default function CreatePublicationPage() {
                 disabled={busy}
                 onClick={() =>
                   task(async () => {
+                    const ok = await confirm({
+                      title: 'Archive Project',
+                      description: `Are you sure you want to archive "${project.title}"? It will no longer be listed on the public marketplace and purchases will be disabled.`,
+                      confirmText: 'Archive Project',
+                      cancelText: 'Cancel',
+                      variant: 'danger',
+                      icon: 'trash',
+                    });
+                    if (!ok) return;
                     await marketplaceRequest(`/publications/${project.id}/archive`, {});
                     await reload(project.id);
                   })
