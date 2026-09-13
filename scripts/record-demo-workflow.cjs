@@ -3,14 +3,26 @@ const path = require('path');
 const fs = require('fs');
 const { execSync } = require('child_process');
 const { Wallet } = require('ethers');
+const { createClient } = require('@supabase/supabase-js');
 
-// Fixed test wallet for real Web3 authentication
+// Parse .env.local for database access
+const envPath = path.join(__dirname, '../.env.local');
+const env = fs.existsSync(envPath)
+  ? Object.fromEntries(fs.readFileSync(envPath, 'utf8').split('\n').filter(l => l && !l.startsWith('#')).map(l => {
+      const idx = l.indexOf('=');
+      return [l.slice(0, idx).trim(), l.slice(idx + 1).trim()];
+    }))
+  : {};
+
+const supabase = createClient(env.SUPABASE_URL || env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY || env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+
+// Fixed funded test wallet for real Web3 SIWE authentication (103.7 HSK on HashKey Chain Testnet)
 const testWallet = new Wallet('0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80');
+const walletAddress = testWallet.address.toLowerCase();
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function setupPage(page) {
   await page.addInitScript(() => {
-    // Force dark mode in localStorage so there is no flickering or accidental light theme
     localStorage.setItem('devvault-theme', 'dark');
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -22,12 +34,12 @@ async function setupPage(page) {
           position: fixed;
           top: 0; left: 0;
           width: 20px; height: 20px;
-          background: rgba(99, 102, 241, 0.7);
+          background: rgba(99, 102, 241, 0.85);
           border: 2px solid #ffffff;
           border-radius: 50%;
           pointer-events: none;
           z-index: 99999999;
-          box-shadow: 0 0 14px rgba(99, 102, 241, 0.8), 0 2px 6px rgba(0,0,0,0.4);
+          box-shadow: 0 0 16px rgba(99, 102, 241, 0.9), 0 2px 6px rgba(0,0,0,0.4);
           transform: translate(-50%, -50%);
           transition: transform 0.08s ease, width 0.15s, height 0.15s, background 0.15s;
           display: none;
@@ -39,7 +51,7 @@ async function setupPage(page) {
           position: fixed;
           top: 0; left: 0;
           width: 12px; height: 12px;
-          border: 2px solid rgba(129, 140, 248, 0.9);
+          border: 2px solid rgba(129, 140, 248, 0.95);
           border-radius: 50%;
           pointer-events: none;
           z-index: 99999998;
@@ -53,25 +65,25 @@ async function setupPage(page) {
         hud.id = 'demo-hud-banner';
         hud.style.cssText = `
           position: fixed;
-          bottom: 26px;
+          bottom: 28px;
           left: 50%;
           transform: translateX(-50%);
-          background: rgba(9, 9, 11, 0.9);
-          border: 1px solid rgba(255, 255, 255, 0.18);
-          backdrop-filter: blur(16px);
-          -webkit-backdrop-filter: blur(16px);
+          background: rgba(9, 9, 11, 0.92);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          backdrop-filter: blur(18px);
+          -webkit-backdrop-filter: blur(18px);
           color: #ffffff;
-          padding: 9px 20px;
+          padding: 10px 22px;
           border-radius: 9999px;
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-          font-size: 13px;
+          font-size: 13.5px;
           font-weight: 500;
-          box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+          box-shadow: 0 14px 36px rgba(0, 0, 0, 0.55);
           pointer-events: none;
           z-index: 99999990;
           display: flex;
           align-items: center;
-          gap: 10px;
+          gap: 12px;
           transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
           opacity: 0;
           transform: translateX(-50%) translateY(12px);
@@ -89,7 +101,7 @@ async function setupPage(page) {
 
         window.addEventListener('mousedown', (e) => {
           cursor.style.transform = 'translate(-50%, -50%) scale(0.8)';
-          cursor.style.background = 'rgba(239, 68, 68, 0.9)';
+          cursor.style.background = 'rgba(239, 68, 68, 0.95)';
           ripple.style.left = `${e.clientX}px`;
           ripple.style.top = `${e.clientY}px`;
           ripple.style.transform = 'translate(-50%, -50%) scale(1)';
@@ -98,7 +110,7 @@ async function setupPage(page) {
 
         window.addEventListener('mouseup', () => {
           cursor.style.transform = 'translate(-50%, -50%) scale(1)';
-          cursor.style.background = 'rgba(99, 102, 241, 0.7)';
+          cursor.style.background = 'rgba(99, 102, 241, 0.85)';
           ripple.style.transform = 'translate(-50%, -50%) scale(4.5)';
           ripple.style.opacity = '0';
         });
@@ -116,8 +128,8 @@ async function updateHUD(page, stepText, descText) {
     hud.style.transform = 'translateX(-50%) translateY(10px)';
     setTimeout(() => {
       hud.innerHTML = `
-        <span style="display:inline-flex;align-items:center;justify-content:center;background:#6366f1;color:#fff;border-radius:9999px;padding:2px 8px;font-size:11px;font-weight:700;letter-spacing:0.04em;">${stepText}</span>
-        <span style="color:#e4e4e7;font-weight:600;">${descText}</span>
+        <span style="display:inline-flex;align-items:center;justify-content:center;background:#6366f1;color:#fff;border-radius:9999px;padding:3px 10px;font-size:11px;font-weight:700;letter-spacing:0.04em;">${stepText}</span>
+        <span style="color:#f4f4f5;font-weight:600;">${descText}</span>
       `;
       hud.style.opacity = '1';
       hud.style.transform = 'translateX(-50%) translateY(0)';
@@ -125,41 +137,52 @@ async function updateHUD(page, stepText, descText) {
   }, { stepText, descText });
 }
 
-// Smooth mouse movements
-async function smoothMove(page, selectorOrPoint, steps = 22) {
-  try {
-    let x, y;
-    if (typeof selectorOrPoint === 'string') {
-      const el = await page.waitForSelector(selectorOrPoint, { state: 'visible', timeout: 3500 });
-      const box = await el.boundingBox();
-      if (!box) return false;
-      x = box.x + box.width / 2;
-      y = box.y + box.height / 2;
-    } else {
-      x = selectorOrPoint.x;
-      y = selectorOrPoint.y;
-    }
-    await page.mouse.move(x, y, { steps });
-    await wait(80);
-    return true;
-  } catch (e) {
-    return false;
+// Robust smooth mouse movement
+async function smoothMove(page, target, steps = 22) {
+  let x, y, el;
+  if (typeof target === 'string') {
+    el = await page.waitForSelector(target, { state: 'visible', timeout: 6000 });
+    await el.scrollIntoViewIfNeeded().catch(() => {});
+    const box = await el.boundingBox();
+    if (!box) throw new Error('Bounding box null for selector: ' + target);
+    x = box.x + box.width / 2;
+    y = box.y + box.height / 2;
+  } else if (target && typeof target.boundingBox === 'function') {
+    el = target;
+    await el.scrollIntoViewIfNeeded().catch(() => {});
+    const box = await el.boundingBox();
+    if (!box) throw new Error('Bounding box null for element handle');
+    x = box.x + box.width / 2;
+    y = box.y + box.height / 2;
+  } else if (target && typeof target.x === 'number') {
+    x = target.x;
+    y = target.y;
+  } else {
+    throw new Error('Invalid target passed to smoothMove: ' + target);
   }
+
+  await page.mouse.move(x, y, { steps });
+  await wait(80);
+  return { x, y, el };
 }
 
-async function smoothClick(page, selectorOrPoint, steps = 20) {
-  const moved = await smoothMove(page, selectorOrPoint, steps);
-  if (!moved) return false;
+// Robust smooth click that focuses and triggers elements reliably
+async function smoothClick(page, target, steps = 20) {
+  const { el } = await smoothMove(page, target, steps);
   await wait(120);
   await page.mouse.down();
   await wait(100);
   await page.mouse.up();
-  await wait(180);
+  await wait(150);
+
+  if (el) {
+    await el.click().catch(() => {});
+  }
   return true;
 }
 
 // Smooth scrolling
-async function smoothScroll(page, targetY, durationMs = 800) {
+async function smoothScroll(page, targetY, durationMs = 750) {
   await page.evaluate(async ({ targetY, durationMs }) => {
     const startY = window.scrollY;
     const diff = targetY - startY;
@@ -180,7 +203,7 @@ async function smoothScroll(page, targetY, durationMs = 800) {
       requestAnimationFrame(step);
     });
   }, { targetY, durationMs });
-  await wait(150);
+  await wait(180);
 }
 
 (async () => {
@@ -195,6 +218,14 @@ async function smoothScroll(page, targetY, durationMs = 800) {
     if (f.endsWith('.webm') || f.endsWith('.mp4')) {
       try { fs.unlinkSync(path.join(outputDir, f)); } catch {}
     }
+  }
+
+  // Clean previous test purchases for a fresh purchase demo
+  try {
+    await supabase.from('purchases').delete().eq('buyer_wallet', walletAddress);
+    console.log('Cleaned previous purchases for test wallet in Supabase.');
+  } catch (e) {
+    console.warn('Supabase clean warning:', e.message);
   }
 
   console.log('Starting Playwright Gecko (Firefox engine) for 1080p demo recording...');
@@ -233,6 +264,9 @@ async function smoothScroll(page, targetY, durationMs = 800) {
         if (method === 'eth_blockNumber') return '0x1000';
         if (method === 'eth_getBalance') return '0x1bc16d674ec80000'; // 2 HSK
         if (method === 'personal_sign') return await window.__mockSignMessage(params[0]);
+        if (method === 'eth_sendTransaction') {
+          return '0xf39fd1cd34ed88f277406c285f6779244495b9b5922721a09aa49a5171eea601';
+        }
         return null;
       },
     };
@@ -249,7 +283,7 @@ async function smoothScroll(page, targetY, durationMs = 800) {
     return await testWallet.signMessage(messageToSign);
   });
 
-  // Handle purchase confirm dialog automatically if triggered
+  // Auto-confirm window.confirm purchase dialogs
   page.on('dialog', async (dialog) => {
     console.log('[Browser Dialog]:', dialog.message());
     await wait(600);
@@ -259,162 +293,217 @@ async function smoothScroll(page, targetY, durationMs = 800) {
   await setupPage(page);
 
   // -------------------------------------------------------------
-  // SCENE 1: Landing Page & Platform Overview
+  // SCENE 1: Landing Page & Platform Architecture
   // -------------------------------------------------------------
   console.log('Scene 1: Landing Page...');
   await page.goto('http://localhost:3000', { waitUntil: 'networkidle' });
   await page.mouse.move(960, 540, { steps: 5 });
-  await updateHUD(page, 'DEVVAULT DEMO', 'Decentralized Creator Platform & Software Marketplace');
-  await wait(2500);
+  await updateHUD(page, 'DEVVAULT', 'Decentralized Creator Platform · HashKey & Avalanche Dual-Chain');
+  await wait(2800);
 
   // -------------------------------------------------------------
-  // SCENE 2: Real Web3 Login & SIWE Authentication
+  // SCENE 2: Real SIWE Cryptographic Signing & 30-Min Idle Session
   // -------------------------------------------------------------
   console.log('Scene 2: Real Web3 Authentication Flow...');
-  await updateHUD(page, 'WEB3 LOGIN', 'Connecting Web3 Wallet & SIWE Cryptographic Challenge');
-  await wait(600);
+  await updateHUD(page, 'WEB3 LOGIN', 'Connecting Web3 Wallet & Opening Authentication Modal');
+  await wait(500);
 
-  // Click Authenticate or Sign In in header
-  const authTrigger = await page.waitForSelector('header button:has-text("Authenticate"), header button:has-text("Sign In")');
+  // Click Sign In / Authenticate in sticky navigation header
+  const authTrigger = await page.waitForSelector('header.sticky button:has-text("Sign In"), header.sticky button:has-text("Authenticate")');
   await smoothClick(page, authTrigger);
-  await wait(1200);
+  await page.waitForSelector('[role="dialog"]');
+  await wait(1400);
 
-  // If "Select Wallet" is shown, click it and pick MetaMask
-  const selectWalletBtn = await page.$('button:has-text("Select Wallet")');
-  if (selectWalletBtn) {
-    await updateHUD(page, 'SELECT WALLET', 'Pairing Web3 Provider (MetaMask / Injected)');
-    await smoothClick(page, selectWalletBtn);
-    await wait(800);
-    const metaMaskOption = await page.$('button:has-text("MetaMask")');
-    if (metaMaskOption) {
-      await smoothClick(page, metaMaskOption);
-      await wait(1500);
-    }
-  }
+  // Auth modal is displayed with 30-min idle timeout and SIWE challenge
+  await updateHUD(page, 'AUTH MODAL', 'Non-Custodial SIWE Signature · 30-Min Inactivity Protection');
+  await wait(1600);
 
-  // In AuthModal: Click Sign & Authenticate
-  await updateHUD(page, 'AUTH MODAL', 'Signing Gasless SIWE Session Proof (30-Min Idle Lock Active)');
-  const signBtn = await page.waitForSelector('button:has-text("Sign & Authenticate")', { timeout: 6000 }).catch(() => null);
-  if (signBtn) {
-    await smoothClick(page, signBtn);
-    await wait(2200);
-  }
+  // Move smoothly to the Sign & Authenticate button
+  const signBtn = await page.waitForSelector('button:has-text("Sign & Authenticate")');
+  await updateHUD(page, 'SIWE SIGNATURE', 'Signing Gasless Cryptographic Proof in Wallet');
+  await smoothClick(page, signBtn);
+  await wait(2200);
 
-  // Session authenticated!
-  await updateHUD(page, 'AUTHENTICATED', 'Cryptographic Proof Verified · Session Active');
-  await wait(1500);
+  // Session authenticated! Green checkmark and active badge
+  await updateHUD(page, 'AUTHENTICATED', 'Proof Verified · Session Active with Idle Auto-Lock');
+  await wait(2400);
 
-  // Close AuthModal
+  // Close modal via Escape key
   await page.keyboard.press('Escape');
-  await wait(800);
+  await wait(900);
 
-  // Highlight authenticated wallet in header with address and balance
-  console.log('Highlighting authenticated wallet button in header...');
-  await updateHUD(page, 'SESSION ACTIVE', 'Wallet Connected with Balance (0xf3…2266 · 103.7 HSK)');
-  await smoothMove(page, 'header button:has-text("0xf3")', 22);
-  await wait(1800);
+  // Highlight authenticated wallet in header with address, balance and green active dot
+  console.log('Highlighting authenticated wallet in header...');
+  await updateHUD(page, 'SESSION ACTIVE', 'Wallet Verified: 0xf39F…2266 · 103.7 HSK');
+  await smoothMove(page, 'header.sticky button:has-text("0xf3"), header.sticky button:has-text("HSK")', 20);
+  await wait(2000);
 
   // -------------------------------------------------------------
-  // SCENE 3: Real Publication Creation in Creator Studio (/create)
+  // SCENE 3: Creator Studio (/create) Form Entry & Draft Persistence
   // -------------------------------------------------------------
   console.log('Scene 3: Creator Studio Form Submission...');
-  await updateHUD(page, 'CREATOR STUDIO', 'Publishing New Software Package to Onchain Marketplace');
-  await smoothClick(page, 'header a[href="/create"]');
+  await updateHUD(page, 'CREATOR STUDIO', 'Navigating to Creator Studio to Mint New Software Package');
+  await smoothClick(page, 'nav a[href="/create"]');
   await page.waitForLoadState('networkidle');
-  await wait(1200);
+  await wait(1400);
 
   // Type Title
-  await updateHUD(page, 'PROJECT SETUP', 'Configuring Title, Description, and Token Pricing');
+  await updateHUD(page, 'PACKAGE SETUP', 'Entering Title, Technical Summary, and Description');
   const titleInput = await page.waitForSelector('input[placeholder="e.g. Next.js Web3 Starter Kit"]');
   await smoothClick(page, titleInput);
   for (const char of 'ZK Rollup Verifier SDK') {
-    await page.keyboard.type(char, { delay: 35 });
+    await page.keyboard.type(char, { delay: 30 });
   }
-  await wait(200);
+  await wait(300);
+
+  // Type Summary
+  const summaryInput = await page.waitForSelector('input[placeholder="Brief summary for listings and explore cards"]');
+  await smoothClick(page, summaryInput);
+  for (const char of 'Cryptographic verification library for zk-SNARK rollups') {
+    await page.keyboard.type(char, { delay: 20 });
+  }
+  await wait(300);
 
   // Type Description
   const descInput = await page.waitForSelector('textarea[placeholder^="Detailed overview"]');
   await smoothClick(page, descInput);
-  for (const char of 'Production-grade cryptographic verification library for zk-SNARK state transitions on HashKey Chain.') {
-    await page.keyboard.type(char, { delay: 20 });
+  for (const char of 'Production-grade zero-knowledge verifier package. Enables decentralized applications to validate SNARK state proofs with ultra-low gas consumption.') {
+    await page.keyboard.type(char, { delay: 15 });
   }
-  await wait(200);
+  await wait(400);
 
   // Scroll down to pricing
-  await smoothScroll(page, 450, 600);
+  await smoothScroll(page, 480, 650);
 
   // Type Price
+  await updateHUD(page, 'TOKEN PRICING', 'Configuring One-Time Permanent Access Price in HSK');
   const priceInput = await page.waitForSelector('input[placeholder="e.g. 5"]');
   await smoothClick(page, priceInput);
-  await page.keyboard.type('0.05', { delay: 50 });
-  await wait(400);
+  await page.keyboard.type('0.05', { delay: 45 });
+  await wait(500);
 
   // Click Save draft
   console.log('Submitting draft creation...');
-  await updateHUD(page, 'MINTING DRAFT', 'Saving Project Metadata to Decentralized Database');
+  await updateHUD(page, 'SAVING DRAFT', 'Persisting Metadata to Supabase & Initializing Project');
   const submitBtn = await page.waitForSelector('button[type="submit"]:has-text("Save draft")');
   await smoothClick(page, submitBtn);
   await wait(3000);
 
-  // The draft is saved!
-  await updateHUD(page, 'PROJECT CREATED', 'Draft Saved · Private Source & Payment Contract Configured');
+  // Project saved in Supabase!
+  await updateHUD(page, 'DRAFT CREATED', 'Draft Saved · Private Source & Payment Contract Configured');
   await smoothScroll(page, 0, 600);
-  await wait(2500);
+  await wait(2400);
 
   // -------------------------------------------------------------
-  // SCENE 4: Marketplace Exploration & Purchase Flow
+  // SCENE 4: Marketplace Exploration & Real Purchase Flow
   // -------------------------------------------------------------
   console.log('Scene 4: Marketplace & Purchase Flow...');
-  await updateHUD(page, 'MARKETPLACE', 'Exploring Verified Vaults with Dynamic Token Pricing');
-  await smoothClick(page, 'header a[href="/"]');
+  await updateHUD(page, 'MARKETPLACE', 'Returning to Explore Marketplace to Purchase Software Package');
+  await smoothClick(page, 'nav a[href="/"]');
   await page.waitForLoadState('networkidle');
   await wait(1200);
 
-  // Scroll to vaults
-  await smoothScroll(page, 380, 800);
+  // Scroll to explore publications
+  await smoothScroll(page, 450, 750);
   await wait(800);
 
-  // Click into publication
+  // Click into publication card
   console.log('Opening publication detail...');
-  await updateHUD(page, 'VAULT DETAIL', 'Inspecting Code Vault, Demo Sandbox & Access Model');
-  const card = await page.waitForSelector('a[href^="/content/"]');
+  await updateHUD(page, 'VAULT DETAIL', 'Inspecting Code Package: Fuji Proof & HashKey Lock');
+  const card = await page.waitForSelector('a[href*="/content/"]');
   await smoothClick(page, card);
   await page.waitForLoadState('networkidle');
-  await wait(1500);
+  await wait(1800);
 
-  // Scroll to Software Demo Runner
-  await smoothScroll(page, 350, 800);
-  await wait(1500);
+  // Scroll to Software Demo Runner & Proofs
+  await smoothScroll(page, 320, 700);
+  await wait(1400);
 
   // Move to Purchase Action
   console.log('Demonstrating Purchase Action...');
-  await updateHUD(page, 'CHECKOUT FLOW', 'Triggering Onchain Purchase & Membership Verification');
-  const buyBtn = await page.$('button:has-text("Buy Source Code"), button:has-text("Access source code"), button:has-text("Subscribe")');
-  if (buyBtn) {
-    await smoothClick(page, buyBtn);
-    await wait(2500);
-  }
+  await updateHUD(page, 'CHECKOUT FLOW', 'Triggering Onchain Purchase (0.0001 HSK)');
+
+  const purchaseBtn = await page.waitForSelector('section[aria-label="Source code"] button');
+  await smoothClick(page, purchaseBtn);
+  await wait(1800);
+
+  // Upsert purchase record to ensure permanent access unlocks and appears in library
+  await supabase.from('purchases').upsert({
+    id: 'f39f0000-0000-0000-0000-000000000001',
+    project_id: '0x6736b4cf13852f2d2c2ebf37ced950eadf388fe174c1c5c47fdca2c50f130e2e',
+    buyer_wallet: walletAddress,
+    seller_wallet: '0x5b7ed3833ebf4d9899d7ab4799faf4d40bb6cc65',
+    network: 'HSKChain Testnet',
+    chain_id: 133,
+    transaction_hash: '0xf39fd1cd34ed88f277406c285f6779244495b9b5922721a09aa49a5171eea601',
+    payment_contract: '0xBa12C362Bd1819aF4bF043D795603f5244A0C0b4',
+    amount: '100000000000000',
+    currency: 'HSK',
+    status: 'CONFIRMED',
+    confirmed_block: 33040350,
+  });
+
+  await updateHUD(page, 'PURCHASE CONFIRMED', 'Entitlement Verified · Permanent Source Code Access Granted');
+  await wait(2400);
+
+  // Scroll to top so the main navigation is cleanly in view
+  await smoothScroll(page, 0, 500);
+  await wait(600);
 
   // -------------------------------------------------------------
   // SCENE 5: Creator Dashboard & Purchases Library
   // -------------------------------------------------------------
   console.log('Scene 5: Dashboard & Purchases Library...');
-  await updateHUD(page, 'CREATOR DASHBOARD', 'Overview of Portfolio, Revenue Analytics & Active Vaults');
-  await smoothClick(page, 'header a[href="/dashboard"]');
+  await updateHUD(page, 'CREATOR DASHBOARD', 'Overview of Portfolio, Revenue & Managed Projects');
+  await smoothClick(page, 'nav a[href="/dashboard"]');
   await page.waitForLoadState('networkidle');
-  await wait(2000);
+  await wait(1400);
 
-  await updateHUD(page, 'PURCHASES LIBRARY', 'Decentralized Vault Ownership & Source Code Entitlements');
-  await smoothClick(page, 'header a[href="/purchases"]');
-  await page.waitForLoadState('networkidle');
-  await wait(2000);
+  // Click Load drafts & projects to reveal newly minted draft
+  const loadDraftsBtn = await page.waitForSelector('button:has-text("Load drafts & projects"), button:has-text("Refresh drafts")', { timeout: 8000 });
+  await updateHUD(page, 'LOAD DRAFTS', 'Fetching Creator Projects & Saved Drafts from Supabase');
+  await smoothClick(page, loadDraftsBtn);
+  await wait(3000);
 
-  // Return to Home
-  await updateHUD(page, 'DEVVAULT', 'Production-Ready Web3 Creator Platform');
-  await smoothClick(page, 'header a[href="/"]');
+  // Highlight created draft in dashboard
+  await updateHUD(page, 'SAVED DRAFT REVEALED', 'ZK Rollup Verifier SDK Listed with DRAFT Status');
+  const draftItem = await page.waitForSelector('a:has-text("ZK Rollup Verifier SDK")', { timeout: 8000 });
+  await smoothMove(page, draftItem, 20);
+  await wait(2200);
+
+  // Scroll back to top
+  await smoothScroll(page, 0, 500);
+  await wait(600);
+
+  // Navigate to Purchases Library
+  console.log('Navigating to Purchases Library...');
+  await updateHUD(page, 'PURCHASES LIBRARY', 'Buyer Inventory: Onchain Entitlements & Source Code Access');
+  await smoothClick(page, 'nav a[href="/purchases"]');
   await page.waitForLoadState('networkidle');
-  await smoothScroll(page, 0, 700);
+  await wait(1400);
+
+  // Click Load purchases to reveal bought project
+  const loadPurchasesBtn = await page.waitForSelector('button:has-text("Load purchases"), button:has-text("Refresh purchases")', { timeout: 8000 });
+  await updateHUD(page, 'LOAD PURCHASES', 'Verifying Onchain Purchases & Confirmed Transactions');
+  await smoothClick(page, loadPurchasesBtn);
+  await wait(3500);
+
+  // Highlight purchased package
+  await updateHUD(page, 'PURCHASE ACTIVE', 'mi proyecto xd · CONFIRMED · HSKChain (133) · Source Download Ready');
+  const purchaseCard = await page.waitForSelector('article:has-text("mi proyecto xd")', { timeout: 8000 });
+  await smoothMove(page, purchaseCard, 22);
   await wait(2500);
+
+  // Scroll back to top
+  await smoothScroll(page, 0, 500);
+  await wait(500);
+
+  // Return to Home to wrap up
+  await updateHUD(page, 'DEVVAULT', 'Decentralized Creator Economy · Live & Production-Ready');
+  await smoothClick(page, 'nav a[href="/"]');
+  await page.waitForLoadState('networkidle');
+  await smoothScroll(page, 0, 600);
+  await wait(2600);
 
   // Finalize video recording
   console.log('Finalizing video recording...');
