@@ -44,6 +44,35 @@ export function validatePaymentEvidence(project: PaymentProject, buyer: string, 
   if (!minted) return bad();
   return { confirmedBlock: receipt.blockNumber, amount: tx.value.toString() };
 }
+export interface MembershipEvidence {
+  chainId: bigint;
+  tx: { from: string; to: string | null; data: string; hash: string } | null;
+  receipt: { status: number | null; blockNumber: number; hash: string } | null;
+}
+
+/** Pure synchronous validation of a PublicLock purchase transaction for article membership gating. */
+export function validateMembershipEvidence(
+  lockAddress: string,
+  buyerWallet: string,
+  evidence: MembershipEvidence,
+): { confirmedBlock: number } {
+  const { tx, receipt } = evidence;
+  const bad = (msg: string): never => { throw new HttpError(422, msg); };
+  if (evidence.chainId !== BigInt(HSK_CHAIN_ID)) throw bad('Transaction is not on HashKey Testnet');
+  if (!tx || !receipt) throw bad('Transaction not found on HashKey network');
+  if (receipt.status !== 1) throw bad('Transaction failed');
+  if (!eq(tx.hash, receipt.hash)) throw bad('Receipt does not match transaction');
+  if (!eq(tx.from, buyerWallet)) throw bad('Transaction sender does not match authenticated wallet');
+  if (!lockAddress || !eq(tx.to, lockAddress)) throw bad('Transaction target does not match publication lock');
+  let parsedCall;
+  try { parsedCall = abi.parseTransaction({ data: tx.data }); } catch { throw bad('Could not decode transaction calldata'); }
+  if (!parsedCall || parsedCall.name !== 'purchase') throw bad('Transaction is not a PublicLock purchase');
+  const purchaseArgs = parsedCall.args[0];
+  if (!Array.isArray(purchaseArgs) || purchaseArgs.length === 0) throw bad('Invalid purchase arguments');
+  const recipient: unknown = (purchaseArgs[0] as Record<string, unknown>)?.recipient;
+  if (typeof recipient !== 'string' || !eq(recipient, buyerWallet)) throw bad('Purchase recipient does not match authenticated wallet');
+  return { confirmedBlock: receipt.blockNumber };
+}
 export async function verifyPayment(project: PaymentProject, buyer: string, hash: string, provider: Provider = getHskProvider()) {
   if (!/^0x[0-9a-fA-F]{64}$/.test(hash)) throw new HttpError(400, 'Invalid transaction hash');
   const [network, tx, receipt, head] = await Promise.all([provider.getNetwork(), provider.getTransaction(hash), provider.getTransactionReceipt(hash), provider.getBlockNumber()]);

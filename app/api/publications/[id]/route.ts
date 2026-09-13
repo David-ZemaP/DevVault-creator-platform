@@ -8,5 +8,7 @@ export async function GET(_request: Request, props: { params: Promise<{ id: stri
     if (!publication || !isPublic(publication)) throw new HttpError(404, 'Publication not found');
     const safe = publicPublication(publication);
     return Response.json({ publication: safe, ...safe });
-  } catch (e) { return apiError(e); }
+  } catch (error) {
+    return apiError(error);
+  }
 }

@@ -1,7 +1,5 @@
 import { publicPublication } from "@/lib/marketplace/public";
 import { formatEther } from "viem";
-import { mockCreators } from "@/lib/mocks/creators";
-import { mockPublications } from "@/lib/mocks/publications";
 import type { Creator } from "@/types/creator";
 import type { Publication } from "@/types/publication";
 import type { PublicationRecord } from "@/lib/supabase/types";
@@ -9,29 +7,7 @@ import type { PublicationRecord } from "@/lib/supabase/types";
 export interface PublicationSummary {
   readonly publication: Publication;
   readonly creator: Creator;
-}
-
-export function getCreatorByAddress(address: string): Creator | undefined {
-  return mockCreators.find((creator) => creator.address.toLowerCase() === address.toLowerCase());
-}
-
-export function getPublicationById(id: string): PublicationSummary | undefined {
-  const publication = mockPublications.find((item) => item.id === id);
-  if (!publication) return undefined;
-
-  const creator = getCreatorByAddress(publication.creatorAddress);
-  if (!creator) throw new Error(`Creator missing for publication ${publication.id}`);
-  return { publication, creator };
-}
-
-export function listPublications(creatorAddress?: string): readonly PublicationSummary[] {
-  return mockPublications
-    .filter((item) => !creatorAddress || item.creatorAddress.toLowerCase() === creatorAddress.toLowerCase())
-    .map((publication) => {
-      const creator = getCreatorByAddress(publication.creatorAddress);
-      if (!creator) throw new Error(`Creator missing for publication ${publication.id}`);
-      return { publication, creator };
-    });
+  readonly source?: 'database';
 }
 
 export function publicationRecordToSummary(pub: PublicationRecord): PublicationSummary {
@@ -40,15 +16,14 @@ export function publicationRecordToSummary(pub: PublicationRecord): PublicationS
   const initials = pub.creatorWallet.length >= 4 ? pub.creatorWallet.slice(2, 4).toUpperCase() : "DV";
   const readingMinutes = Math.max(1, Math.ceil(((pub.preview?.length || 0) + (pub.description?.length || 0)) / 800));
 
-  const existingCreator = getCreatorByAddress(pub.creatorWallet);
-  const creator: Creator = existingCreator || {
+  const creator: Creator = {
     address: pub.creatorWallet.toLowerCase() as `0x${string}`,
     name: shortAddress,
     bio: "Independent Web3 Creator on DevVault",
     initials,
   };
 
-  const isConfirmedLock = Boolean(pub.lockAddress && pub.lockAddress.startsWith("0x") && pub.lockAddress.length === 42);
+  const isConfirmedLock = Boolean(pub.lockAddress && /^0x[0-9a-fA-F]{40}$/.test(pub.lockAddress) && !/^0x0{40}$/.test(pub.lockAddress));
   const isConfirmedProof = Boolean(pub.avalancheTx && pub.avalancheTx.startsWith("0x"));
 
   const publication: Publication = {
@@ -61,9 +36,9 @@ export function publicationRecordToSummary(pub: PublicationRecord): PublicationS
     category: pub.projectType === "software" ? "Software" : pub.isGated ? "Exclusive Research" : "General Architecture",
     readingMinutes,
     membership: {
-      price: pub.priceWei ? formatEther(BigInt(pub.priceWei)) : "10",
+      price: pub.priceWei ? formatEther(BigInt(pub.priceWei)) : "—",
       currency: "HSK",
-      durationDays: 30,
+      durationDays: pub.priceWei ? 30 : 0,
       network: "hashkey",
       lock: isConfirmedLock
         ? { status: "confirmed", address: pub.lockAddress!.toLowerCase() as `0x${string}`, chainId: 133 }
@@ -91,5 +66,5 @@ export function publicationRecordToSummary(pub: PublicationRecord): PublicationS
     acquisitionModel: pub.acquisitionModel || "lifetime",
   };
 
-  return { publication, creator };
+  return { publication, creator, source: 'database' };
 }

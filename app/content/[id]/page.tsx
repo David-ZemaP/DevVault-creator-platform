@@ -3,10 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Clock3, ShieldCheck, ExternalLink } from "lucide-react";
 import { resolvePublication } from "@/features/publications/server-repository";
-import { LockedContent } from "@/components/membership/locked-content";
-import { UnlockedContent } from "@/components/content/unlocked-content";
-import { AccessPreviewControls } from "@/components/membership/access-preview-controls";
-import { getDevelopmentAccessPreview } from "@/features/publications/development-access-preview";
+import { RealMembershipPurchase } from "@/components/membership/real-membership-purchase";
 import { cn, formatDate, formatAddress } from "@/lib/utils";
 import { getExplorerTxUrl } from "@/lib/web3/avalanche";
 import { getHskExplorerAddressUrl } from "@/lib/web3/hashkey";
@@ -17,7 +14,6 @@ export const dynamic = "force-dynamic";
 
 interface PageProps {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -29,13 +25,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function ContentDetailPage({ params, searchParams }: PageProps) {
+export default async function ContentDetailPage({ params }: PageProps) {
   const { id } = await params;
   const result = await resolvePublication(id);
   if (!result) notFound();
   const { publication, creator } = result;
-  const previewQuery = process.env.NODE_ENV === "development" ? await searchParams : undefined;
-  const premiumPreview = await getDevelopmentAccessPreview(id, previewQuery?.previewAccess);
 
   const hasConfirmedProof = publication.proof.status === "confirmed";
   const hasConfirmedLock = publication.membership.lock.status === "confirmed";
@@ -50,16 +44,7 @@ export default async function ContentDetailPage({ params, searchParams }: PagePr
         Back to Explore
       </Link>
 
-      {process.env.NODE_ENV === "development" && (
-        <AccessPreviewControls publicationId={id} isUnlocked={Boolean(premiumPreview)} />
-      )}
-
-      <div
-        className={cn(
-          "grid items-start gap-10 lg:gap-16",
-          premiumPreview ? "mx-auto max-w-3xl" : "lg:grid-cols-[minmax(0,1fr)_340px]",
-        )}
-      >
+      <div className={cn("grid items-start gap-10 lg:gap-16", "lg:grid-cols-[minmax(0,1fr)_340px]")}>
         <article className="min-w-0">
           <header className="border-b border-neutral-800 pb-8">
             <div className="flex flex-wrap items-center gap-3">
@@ -141,9 +126,13 @@ export default async function ContentDetailPage({ params, searchParams }: PagePr
             <p className="mt-4 text-lg leading-loose text-neutral-300">{publication.preview}</p>
           </section>
 
-          {publication.description && publication.description !== publication.preview && <section className="py-6"><h2 className="text-lg font-semibold">About this project</h2><p className="mt-4 whitespace-pre-wrap text-neutral-300">{publication.description}</p></section>}
+          {publication.description && publication.description !== publication.preview && (
+            <section className="py-6">
+              <h2 className="text-lg font-semibold">About this project</h2>
+              <p className="mt-4 whitespace-pre-wrap text-neutral-300">{publication.description}</p>
+            </section>
+          )}
 
-          {/* Interactive Software Execution Sandbox & Functional Demo */}
           <SoftwareDemoRunner
             title={publication.title}
             demoUrl={publication.demoUrl}
@@ -151,12 +140,10 @@ export default async function ContentDetailPage({ params, searchParams }: PagePr
             projectType={publication.projectType}
           />
 
-          {premiumPreview && <UnlockedContent content={premiumPreview} />}
-
           <p className="border-t border-neutral-800 pt-5 text-sm text-neutral-500">
             {hasConfirmedProof
               ? "Avalanche Fuji Proof Anchored · Immutable Content Commitment"
-              : "Demo publication · Content proof pending"}
+              : "Content proof pending"}
           </p>
         </article>
 
@@ -165,8 +152,10 @@ export default async function ContentDetailPage({ params, searchParams }: PagePr
             <SourcePurchase id={id} priceWei={publication.priceWei} acquisitionModel={publication.acquisitionModel} />
           )}
 
-          {publication.projectType !== "software" && !premiumPreview && (
-            <LockedContent creatorName={creator.name} membership={publication.membership} />
+          {publication.projectType !== "software" && (
+            hasConfirmedLock
+              ? <RealMembershipPurchase publicationId={id} lockAddress={publication.membership.lock.address} />
+              : null
           )}
         </div>
       </div>

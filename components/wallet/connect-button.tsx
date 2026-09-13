@@ -1,9 +1,11 @@
 "use client";
 
+import { AuthControls } from "./auth-controls";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 export function CustomConnectButton() {
   return (
+    <>
     <ConnectButton.Custom>
       {({ account, chain, openAccountModal, openChainModal, openConnectModal, mounted }) => {
         const ready = mounted;
@@ -80,5 +82,7 @@ export function CustomConnectButton() {
         );
       }}
     </ConnectButton.Custom>
+    <AuthControls />
+    </>
   );
 }
