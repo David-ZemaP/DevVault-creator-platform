@@ -1,73 +1,102 @@
-import React from "react";
 import Link from "next/link";
-import { formatAddress, formatDate } from "@/lib/utils";
-import { Lock, FileText, CheckCircle2 } from "lucide-react";
+import { ArrowUpRight, Code2, FileText, Lock } from "lucide-react";
+import type { PublicationSummary } from "@/features/publications/repository";
+import { formatDate } from "@/lib/utils";
 
-export interface ContentCardProps {
-  id: string;
-  title: string;
-  description: string;
-  author: string;
-  createdAt: number;
-  isGated: boolean;
-  lockAddress?: string;
-}
+export function ContentCard({ publication, creator }: PublicationSummary) {
+  const isSoftware = publication.projectType === "software";
+  const isSubscription = publication.acquisitionModel === "subscription";
 
-export function ContentCard({
-  id,
-  title,
-  description,
-  author,
-  createdAt,
-  isGated,
-}: ContentCardProps) {
   return (
-    <article className="group relative rounded-xl border border-neutral-800 bg-neutral-900/50 p-6 transition-all hover:border-neutral-700 hover:bg-neutral-900">
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-2 text-xs text-neutral-400">
-          <Link
-            href={`/profile/${author}`}
-            className="hover:text-red-400 font-mono transition-colors"
-          >
-            {formatAddress(author)}
-          </Link>
-          <span>•</span>
-          <time dateTime={new Date(createdAt * 1000).toISOString()}>
-            {formatDate(createdAt)}
-          </time>
-        </div>
-
-        {isGated ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-red-500/10 px-2.5 py-0.5 text-xs font-medium text-red-400 border border-red-500/20">
-            <Lock className="h-3 w-3" />
-            Members Only
-          </span>
-        ) : (
-          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-400 border border-emerald-500/20">
-            <CheckCircle2 className="h-3 w-3" />
-            Public
-          </span>
+    <article className="group flex min-w-0 flex-col justify-between rounded-xl border border-zinc-200 bg-white p-5 shadow-sm transition-all duration-150 hover:border-zinc-300 hover:shadow-md dark:border-zinc-800/80 dark:bg-zinc-900/30 dark:shadow-none dark:hover:border-zinc-700 dark:hover:bg-zinc-900/60">
+      <div>
+        {publication.coverImage && (
+          <div className="mb-4 overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-800">
+            <img
+              src={publication.coverImage}
+              alt=""
+              className="aspect-video w-full object-cover transition-transform duration-200 group-hover:scale-101"
+            />
+          </div>
         )}
-      </div>
 
-      <div className="mt-4">
-        <h3 className="text-lg font-semibold text-neutral-100 group-hover:text-red-400 transition-colors">
-          <Link href={`/content/${id}`}>{title}</Link>
-        </h3>
-        <p className="mt-2 text-sm text-neutral-400 line-clamp-2">{description}</p>
-      </div>
+        <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+          <div className="flex items-center gap-1.5">
+            <span className="inline-flex items-center gap-1 rounded border border-zinc-200 bg-zinc-100 px-2 py-0.5 font-medium text-zinc-700 text-[11px] dark:border-zinc-800 dark:bg-zinc-900/80 dark:text-zinc-300">
+              {isSoftware ? (
+                <>
+                  <Code2 className="h-3 w-3 text-zinc-600 dark:text-zinc-200" />
+                  <span>Software</span>
+                </>
+              ) : (
+                <>
+                  <FileText className="h-3 w-3 text-zinc-500 dark:text-zinc-400" />
+                  <span>Article</span>
+                </>
+              )}
+            </span>
 
-      <div className="mt-6 flex items-center justify-between border-t border-neutral-800/80 pt-4 text-xs text-neutral-500">
-        <div className="flex items-center gap-1">
-          <FileText className="h-3.5 w-3.5" />
-          <span>Proof Verified</span>
+            <span className="rounded border border-zinc-200 bg-zinc-50 px-2 py-0.5 font-medium text-zinc-600 text-[11px] dark:border-zinc-800 dark:bg-zinc-850 dark:text-zinc-400">
+              {isSubscription ? "Subscription" : "Lifetime"}
+            </span>
+          </div>
+
+          <span className="inline-flex items-center gap-1 rounded border border-zinc-200 bg-zinc-50 px-1.5 py-0.5 text-[10px] font-medium text-zinc-500 dark:border-zinc-800/80 dark:bg-zinc-900/40 dark:text-zinc-400">
+            <Lock aria-hidden="true" className="h-2.5 w-2.5 text-zinc-400" />
+            <span>Gated</span>
+          </span>
         </div>
+
+        <h3 className="mt-3.5 text-base font-semibold tracking-tight text-zinc-900 transition-colors group-hover:text-zinc-700 dark:text-zinc-100 dark:group-hover:text-white">
+          <Link href={`/content/${publication.id}`} className="focus-visible:outline-none">
+            {publication.title}
+          </Link>
+        </h3>
+
+        <p className="mt-2 text-xs leading-relaxed text-zinc-600 dark:text-zinc-400 line-clamp-3">
+          {publication.preview}
+        </p>
+      </div>
+
+      <div className="mt-5">
         <Link
-          href={`/content/${id}`}
-          className="text-xs font-medium text-red-400 hover:text-red-300"
+          href={`/profile/${creator.address}`}
+          className="flex w-fit items-center gap-2 rounded text-xs text-zinc-700 hover:text-zinc-950 dark:text-zinc-300 dark:hover:text-white transition-colors"
         >
-          View details →
+          <span
+            aria-hidden="true"
+            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-zinc-300 bg-zinc-100 font-mono text-[9px] font-bold text-zinc-800 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+          >
+            {creator.initials}
+          </span>
+          <div>
+            <span className="font-medium text-zinc-900 dark:text-zinc-200">{creator.name}</span>
+            <span className="block text-[10px] text-zinc-500">
+              <time dateTime={publication.publishedAt}>{formatDate(new Date(publication.publishedAt))}</time>
+              {" · "}
+              {isSoftware ? "Software package" : `${publication.readingMinutes} min read`}
+            </span>
+          </div>
         </Link>
+
+        <div className="mt-4 flex items-center justify-between border-t border-zinc-200 dark:border-zinc-800/80 pt-3.5">
+          <div>
+            <span className="text-[10px] text-zinc-500 block">Access price</span>
+            <p className="text-xs sm:text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+              {publication.membership.price} {publication.membership.currency}
+              {isSubscription && <span className="text-[11px] font-normal text-zinc-500 dark:text-zinc-400"> / 30d</span>}
+            </p>
+          </div>
+
+          <Link
+            href={`/content/${publication.id}`}
+            aria-label={`View ${publication.title}`}
+            className="inline-flex items-center gap-1 rounded border border-zinc-200 bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-800 transition-colors hover:bg-zinc-200 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:border-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-white"
+          >
+            <span>{isSoftware ? "View Demo" : "Preview"}</span>
+            <ArrowUpRight aria-hidden="true" className="h-3 w-3 text-zinc-500 dark:text-zinc-400" />
+          </Link>
+        </div>
       </div>
     </article>
   );

@@ -1,75 +1,58 @@
-import React from "react";
+import { notFound } from "next/navigation";
 import { formatAddress } from "@/lib/utils";
-import { ContentCard } from "@/components/content/content-card";
-import { getExplorerAddressUrl } from "@/lib/web3/avalanche";
-import { ExternalLink, ShieldCheck, User } from "lucide-react";
+import { PublicationList } from "@/components/content/publication-list";
+import { resolveAllPublications, resolveCreator } from "@/features/publications/server-repository";
+
+export const dynamic = "force-dynamic";
 
 interface PageProps {
-  params: { address: string };
+  params: Promise<{ address: string }>;
 }
 
-export default function ProfilePage({ params }: PageProps) {
-  const { address } = params;
+export default async function ProfilePage({ params }: PageProps) {
+  const { address } = await params;
 
-  const mockCreatorContent = [
-    {
-      id: "0x001",
-      title: "Building High-Throughput Subnets on Avalanche",
-      description: "A deep architectural dive into customizing EVM execution runtimes.",
-      author: address,
-      createdAt: Math.floor(Date.now() / 1000) - 86400 * 2,
-      isGated: false,
-    },
-    {
-      id: "0x002",
-      title: "Token-Gated Creator Monetization with Unlock Protocol",
-      description: "Full guide and contract templates to tokenize your newsletter or video vault.",
-      author: address,
-      createdAt: Math.floor(Date.now() / 1000) - 86400 * 5,
-      isGated: true,
-      lockAddress: "0x1234567890123456789012345678901234567890",
-    },
-  ];
+  if (!/^0x[0-9a-fA-F]{40}$/.test(address)) notFound();
+
+  const [creator, publications] = await Promise.all([
+    resolveCreator(address),
+    resolveAllPublications(address),
+  ]);
+
+  if (!creator && publications.length === 0) notFound();
+
+  const displayName = creator?.name ?? formatAddress(address as `0x${string}`);
+  const initials = creator?.initials ?? address.slice(2, 4).toUpperCase();
+  const bio = creator?.bio ?? "Creator on DevVault";
 
   return (
-    <div className="space-y-8">
-      {/* Profile Header */}
-      <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-6 sm:p-8">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-neutral-800 border border-neutral-700 text-neutral-300">
-            <User className="h-8 w-8" />
-          </div>
-
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl sm:text-2xl font-bold text-white font-mono">
-                {formatAddress(address)}
-              </h1>
-              <ShieldCheck className="h-5 w-5 text-emerald-400" />
-            </div>
-
-            <a
-              href={getExplorerAddressUrl(address)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-xs text-neutral-400 hover:text-red-400 transition-colors"
-            >
-              <span>View on Snowtrace</span>
-              <ExternalLink className="h-3 w-3" />
-            </a>
+    <div className="space-y-6">
+      <header className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800/80 dark:bg-zinc-900/30 dark:shadow-none">
+        <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+          <span
+            aria-hidden="true"
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-zinc-300 bg-zinc-100 text-base font-bold text-zinc-800 font-mono dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+          >
+            {initials}
+          </span>
+          <div className="min-w-0 space-y-1">
+            <p className="text-[11px] font-medium tracking-wider text-zinc-500 uppercase dark:text-zinc-400">
+              Creator Profile
+            </p>
+            <h1 className="text-xl font-bold text-zinc-900 dark:text-white sm:text-2xl">{displayName}</h1>
+            <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-300">{bio}</p>
+            <p className="font-mono text-xs text-zinc-500">{formatAddress(address as `0x${string}`)}</p>
           </div>
         </div>
-      </div>
-
-      {/* Creator Publications */}
-      <div className="space-y-4">
-        <h2 className="text-xl font-bold text-white">Publications by this Creator</h2>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {mockCreatorContent.map((pub) => (
-            <ContentCard key={pub.id} {...pub} />
-          ))}
+      </header>
+      <section aria-labelledby="creator-publications" className="space-y-4">
+        <div className="flex items-center justify-between border-b border-zinc-200 pb-3 dark:border-zinc-800/80">
+          <h2 id="creator-publications" className="text-base font-semibold text-zinc-900 dark:text-white">
+            Publications by {displayName}
+          </h2>
         </div>
-      </div>
+        <PublicationList publications={publications} />
+      </section>
     </div>
   );
 }

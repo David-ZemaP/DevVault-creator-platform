@@ -1,32 +1,60 @@
 "use client";
 
-import React from "react";
+import { PurchaseLibrary } from "@/components/content/purchase-library";
+import { CreatorDrafts } from "@/components/content/creator-drafts";
+import React, { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import { Button } from "@/components/ui/button";
-import { ContentCard } from "@/components/content/content-card";
+import { PublicationList } from "@/components/content/publication-list";
+import { apiClient } from "@/lib/api/client";
+import { publicationRecordToSummary, type PublicationSummary } from "@/features/publications/repository";
 import Link from "next/link";
 import { PlusCircle, TrendingUp, Users, FileCheck2, ShieldAlert } from "lucide-react";
 
 export default function CreatorDashboardPage() {
   const { address, isConnected } = useAccount();
 
-  const mockMyContent = [
-    {
-      id: "0x001",
-      title: "Building High-Throughput Subnets on Avalanche",
-      description: "A deep architectural dive into customizing EVM execution runtimes.",
-      author: address || "0x0000000000000000000000000000000000000000",
-      createdAt: Math.floor(Date.now() / 1000) - 12000,
-      isGated: false,
-    },
-  ];
+  const [publications, setPublications] = useState<PublicationSummary[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadMyPublications() {
+      if (!address || !isConnected) {
+        setIsLoading(false);
+        return;
+      }
+
+      setIsLoading(true);
+      try {
+        const res = await apiClient.getPublications(address);
+        if (isMounted && res.data?.publications) {
+          const summaries = res.data.publications.map(publicationRecordToSummary);
+          setPublications(summaries);
+        }
+      } catch (err) {
+        console.error("Failed to fetch creator publications:", err);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    loadMyPublications();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [address, isConnected]);
 
   if (!isConnected) {
     return (
-      <div className="max-w-xl mx-auto rounded-2xl border border-neutral-800 bg-neutral-900/60 p-8 text-center mt-12">
-        <ShieldAlert className="h-10 w-10 text-amber-400 mx-auto mb-3" />
-        <h2 className="text-xl font-bold text-white">Connect Wallet Required</h2>
-        <p className="mt-2 text-sm text-neutral-400">
+      <div className="max-w-md mx-auto rounded-xl border border-zinc-200 bg-white p-6 text-center mt-12 shadow-sm dark:border-zinc-800/80 dark:bg-zinc-900/40 dark:shadow-none">
+        <ShieldAlert className="h-8 w-8 text-amber-500 mx-auto mb-2.5" />
+        <h2 className="text-lg font-bold text-zinc-900 dark:text-white">Connect Wallet Required</h2>
+        <p className="mt-1.5 text-xs text-zinc-600 dark:text-zinc-400">
           Please connect your Web3 wallet to access your creator dashboard and publications.
         </p>
       </div>
@@ -35,10 +63,12 @@ export default function CreatorDashboardPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-neutral-800 pb-6">
+      <CreatorDrafts />
+      <PurchaseLibrary sales />
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-zinc-200 pb-5 dark:border-zinc-800/80">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-white">Creator Dashboard</h1>
-          <p className="mt-2 text-sm text-neutral-400">
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Creator Dashboard</h1>
+          <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
             Manage your on-chain publications, memberships, and analytics.
           </p>
         </div>
@@ -52,39 +82,66 @@ export default function CreatorDashboardPage() {
       </div>
 
       {/* Metrics Row */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-5">
-          <div className="flex items-center gap-2 text-xs font-medium text-neutral-400">
-            <FileCheck2 className="h-4 w-4 text-red-500" />
-            Verified Publications
+      <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-3">
+        <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800/80 dark:bg-zinc-900/30 dark:shadow-none">
+          <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+            <FileCheck2 className="h-3.5 w-3.5 text-zinc-600 dark:text-zinc-200" />
+            Published Items
           </div>
-          <div className="mt-2 text-2xl font-bold text-white">3</div>
+          <div className="mt-2 text-2xl font-bold text-zinc-900 dark:text-white">
+            {isLoading ? "..." : publications.length}
+          </div>
         </div>
 
-        <div className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-5">
-          <div className="flex items-center gap-2 text-xs font-medium text-neutral-400">
-            <Users className="h-4 w-4 text-red-500" />
+        <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800/80 dark:bg-zinc-900/30 dark:shadow-none">
+          <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+            <Users className="h-3.5 w-3.5 text-zinc-600 dark:text-zinc-200" />
             Active Key Holders
           </div>
-          <div className="mt-2 text-2xl font-bold text-white">42</div>
+          <div className="mt-2 text-2xl font-bold text-zinc-900 dark:text-white">
+            {isLoading ? "..." : "—"}
+          </div>
         </div>
 
-        <div className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-5">
-          <div className="flex items-center gap-2 text-xs font-medium text-neutral-400">
-            <TrendingUp className="h-4 w-4 text-red-500" />
+        <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800/80 dark:bg-zinc-900/30 dark:shadow-none">
+          <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+            <TrendingUp className="h-3.5 w-3.5 text-zinc-600 dark:text-zinc-200" />
             Revenue Earned
           </div>
-          <div className="mt-2 text-2xl font-bold text-white">21.5 AVAX</div>
+          <div className="mt-2 text-base font-semibold text-zinc-900 dark:text-white">
+            {isLoading ? "..." : "See confirmed sales above"}
+          </div>
         </div>
       </div>
 
       <div className="space-y-4">
-        <h2 className="text-xl font-bold text-white">Your Publications</h2>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {mockMyContent.map((pub) => (
-            <ContentCard key={pub.id} {...pub} />
-          ))}
+        <div className="flex items-center justify-between">
+          <h2 className="text-base font-semibold text-zinc-900 dark:text-white">Your Publications</h2>
+          <span className="text-xs text-zinc-500">{publications.length} total</span>
         </div>
+
+        {isLoading ? (
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {[1, 2].map((i) => (
+              <div
+                key={i}
+                className="rounded-xl border border-zinc-200 bg-white p-5 animate-pulse space-y-3 dark:border-zinc-800/80 dark:bg-zinc-900/30"
+              >
+                <div className="flex justify-between items-center">
+                  <div className="h-3.5 w-24 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                  <div className="h-3.5 w-14 bg-zinc-200 dark:bg-zinc-800 rounded-full" />
+                </div>
+                <div className="h-5 w-3/4 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                <div className="space-y-1.5">
+                  <div className="h-3 w-full bg-zinc-200 dark:bg-zinc-800 rounded" />
+                  <div className="h-3 w-5/6 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <PublicationList publications={publications} />
+        )}
       </div>
     </div>
   );

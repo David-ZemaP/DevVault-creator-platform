@@ -9,6 +9,9 @@ on:
 jobs:
   lint-and-test:
     runs-on: ubuntu-latest
+    env:
+      CI: "true"
+      HARDHAT_TELEMETRY_DISABLED: "1"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -28,11 +31,25 @@ jobs:
       - name: Compile contracts
         run: pnpm compile
 
-      - name: Run smart contract tests
+      - name: Run smart contract & integration tests
         run: pnpm test
 
-      - name: Run TypeScript typecheck
-        run: pnpm typecheck
+      - name: Run TypeScript typechecks
+        run: |
+          pnpm typecheck
+          pnpm typecheck:contracts
+
+      - name: Run automated dual-chain smoke test
+        run: pnpm smoke
 
       - name: Build Next.js application
         run: pnpm build
+
+      - name: Verify access-preview and client bundle security on running server
+        run: |
+          pnpm start &
+          SERVER_PID=$!
+          sleep 4
+          node scripts/check-access-preview.mjs production http://127.0.0.1:3000
+          kill $SERVER_PID
+

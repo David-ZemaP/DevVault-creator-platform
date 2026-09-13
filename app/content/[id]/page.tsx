@@ -1,89 +1,171 @@
-import React from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
-import { formatAddress, formatDate } from "@/lib/utils";
-import { MembershipGate } from "@/components/membership/membership-gate";
-import { ShieldCheck, ArrowLeft, ExternalLink } from "lucide-react";
+import { notFound } from "next/navigation";
+import { ArrowLeft, Clock3, ShieldCheck, ExternalLink } from "lucide-react";
+import { resolvePublication } from "@/features/publications/server-repository";
+import { RealMembershipPurchase } from "@/components/membership/real-membership-purchase";
+import { cn, formatDate, formatAddress } from "@/lib/utils";
+import { getExplorerTxUrl } from "@/lib/web3/avalanche";
+import { getHskExplorerAddressUrl } from "@/lib/web3/hashkey";
+import { SoftwareDemoRunner } from "@/components/content/software-demo-runner";
+import { SourcePurchase } from "@/components/content/source-purchase";
+
+export const dynamic = "force-dynamic";
 
 interface PageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-export default function ContentDetailPage({ params }: PageProps) {
-  const { id } = params;
-
-  // Mock content proof record
-  const contentItem = {
-    id,
-    title: "Token-Gated Creator Monetization with Unlock Protocol",
-    description: "Full guide and contract templates to tokenize your newsletter or video vault with self-sovereign NFT keys.",
-    body: `
-# Decentralized Subscriptions on Avalanche
-
-Unlock Protocol allows creators to deploy their own Non-Fungible Token lock contracts directly onto Avalanche C-Chain. When users mint a key, they receive a time-limited ERC-721 token that acts as their access pass.
-
-## Why Token Gating Over Centralized Web2 Subscriptions?
-
-1. **No Intermediary Fees**: Payment flows peer-to-peer directly from subscriber to creator wallet.
-2. **True Ownership**: Subscribers can transfer, renew, or resell their access passes.
-3. **Composability**: Your Unlock keys can grant access across multiple frontends, Discord servers, and Telegram groups.
-    `,
-    author: "0x9812A4F9901fB9189280a82B8bfa4E06A2665972",
-    createdAt: Math.floor(Date.now() / 1000) - 86400,
-    isGated: true,
-    lockAddress: "0x1234567890123456789012345678901234567890",
-    contentHash: "0x892348a87b1405c93c47318029d9124458f001efda091bc8d331908990a421b0",
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { id } = await params;
+  const result = await resolvePublication(id);
+  return {
+    title: result?.publication.title ?? "Publication not found",
+    description: result?.publication.preview,
   };
+}
+
+export default async function ContentDetailPage({ params }: PageProps) {
+  const { id } = await params;
+  const result = await resolvePublication(id);
+  if (!result) notFound();
+  const { publication, creator } = result;
+
+  const hasConfirmedProof = publication.proof.status === "confirmed";
+  const hasConfirmedLock = publication.membership.lock.status === "confirmed";
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="space-y-6">
       <Link
         href="/"
-        className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-white transition-colors"
+        className="inline-flex min-h-9 items-center gap-2 text-xs sm:text-sm font-medium text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors"
       >
-        <ArrowLeft className="h-4 w-4" />
+        <ArrowLeft aria-hidden="true" className="h-3.5 w-3.5" />
         Back to Explore
       </Link>
 
-      <article className="space-y-6">
-        <header className="space-y-4 border-b border-neutral-800 pb-6">
-          <div className="flex items-center gap-3 text-xs text-neutral-400">
-            <Link
-              href={`/profile/${contentItem.author}`}
-              className="font-mono text-red-400 hover:underline"
-            >
-              {formatAddress(contentItem.author)}
-            </Link>
-            <span>•</span>
-            <time>{formatDate(contentItem.createdAt)}</time>
-          </div>
-
-          <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-            {contentItem.title}
-          </h1>
-
-          <div className="flex flex-wrap items-center gap-3 pt-2">
-            <span className="inline-flex items-center gap-1.5 rounded-md border border-neutral-800 bg-neutral-900 px-2.5 py-1 text-xs text-neutral-300 font-mono">
-              <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
-              Proof: {contentItem.contentHash.slice(0, 10)}...{contentItem.contentHash.slice(-8)}
-            </span>
-
-            {contentItem.isGated && (
-              <span className="inline-flex items-center gap-1 rounded-md border border-red-500/20 bg-red-500/10 px-2.5 py-1 text-xs text-red-400">
-                Lock: {formatAddress(contentItem.lockAddress)}
+      <div className={cn("grid items-start gap-8 lg:gap-12", "lg:grid-cols-[minmax(0,1fr)_340px]")}>
+        <article className="min-w-0">
+          <header className="border-b border-zinc-200 pb-6 dark:border-zinc-800/80">
+            <div className="flex flex-wrap items-center gap-2.5">
+              <span className="rounded border border-zinc-200 bg-zinc-100 px-2 py-0.5 text-[11px] font-medium text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300">
+                {publication.category}
               </span>
-            )}
-          </div>
-        </header>
-
-        <MembershipGate isGated={contentItem.isGated} lockAddress={contentItem.lockAddress}>
-          <div className="prose prose-invert max-w-none space-y-4 text-neutral-300 leading-relaxed">
-            <p>{contentItem.description}</p>
-            <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-6 whitespace-pre-wrap font-sans">
-              {contentItem.body}
+              {hasConfirmedProof && (
+                <span className="inline-flex items-center gap-1.5 rounded border border-zinc-200 bg-zinc-100 px-2 py-0.5 text-[11px] font-medium text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300">
+                  <ShieldCheck className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
+                  <span>Fuji Proof Verified</span>
+                </span>
+              )}
             </div>
+
+            <h1 className="mt-3.5 text-2xl font-bold tracking-tight text-zinc-900 dark:text-white sm:text-3xl lg:text-4xl">
+              {publication.title}
+            </h1>
+
+            <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-zinc-500 dark:text-zinc-400">
+              <Link
+                href={`/profile/${creator.address}`}
+                className="flex items-center gap-2 rounded text-zinc-700 hover:text-zinc-950 dark:text-zinc-200 dark:hover:text-white transition-colors"
+              >
+                <span
+                  aria-hidden="true"
+                  className="flex h-6 w-6 items-center justify-center rounded-full border border-zinc-300 bg-zinc-100 font-mono text-[10px] font-bold text-zinc-800 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+                >
+                  {creator.initials}
+                </span>
+                <span className="font-medium text-zinc-900 dark:text-zinc-200">{creator.name}</span>
+              </Link>
+              <span className="text-zinc-300 dark:text-zinc-600">·</span>
+              <time dateTime={publication.publishedAt}>
+                {formatDate(new Date(publication.publishedAt))}
+              </time>
+              <span className="text-zinc-300 dark:text-zinc-600">·</span>
+              <span className="inline-flex items-center gap-1">
+                <Clock3 aria-hidden="true" className="h-3.5 w-3.5 text-zinc-400 dark:text-zinc-500" />
+                {publication.readingMinutes} min read
+              </span>
+            </div>
+
+            {(hasConfirmedProof || hasConfirmedLock) && (
+              <div className="mt-4 flex flex-wrap items-center gap-2 pt-1">
+                {hasConfirmedProof && publication.proof.status === "confirmed" && (
+                  <>
+                    <span className="inline-flex items-center gap-1 rounded border border-zinc-200 bg-zinc-100 px-2 py-0.5 text-xs font-mono text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300">
+                      Proof: {publication.proof.contentHash.slice(0, 10)}...{publication.proof.contentHash.slice(-6)}
+                    </span>
+                    <a
+                      href={getExplorerTxUrl(publication.proof.transactionHash)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 rounded border border-zinc-200 bg-zinc-100 px-2 py-0.5 text-xs text-zinc-600 hover:border-zinc-300 hover:text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400 dark:hover:border-zinc-700 dark:hover:text-white transition-colors"
+                    >
+                      <span>Snowtrace Tx</span>
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </>
+                )}
+
+                {hasConfirmedLock && publication.membership.lock.status === "confirmed" && (
+                  <a
+                    href={getHskExplorerAddressUrl(publication.membership.lock.address)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 rounded border border-zinc-200 bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-700 hover:border-zinc-300 hover:text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-zinc-700 dark:hover:text-white transition-colors"
+                  >
+                    <span>HSK Lock: {formatAddress(publication.membership.lock.address)}</span>
+                    <ExternalLink className="h-3 w-3 text-zinc-400" />
+                  </a>
+                )}
+              </div>
+            )}
+          </header>
+
+          <section aria-labelledby="preview-heading" className="py-6">
+            <h2 id="preview-heading" className="text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-zinc-400">
+              Public preview
+            </h2>
+            <p className="mt-3 text-base leading-relaxed text-zinc-800 dark:text-zinc-300">{publication.preview}</p>
+          </section>
+
+          {publication.description && publication.description !== publication.preview && (
+            <section className="py-5 border-t border-zinc-200 dark:border-zinc-800/80">
+              <h2 className="text-sm font-semibold text-zinc-900 dark:text-white">About this project</h2>
+              <p className="mt-2.5 whitespace-pre-wrap text-xs sm:text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+                {publication.description}
+              </p>
+            </section>
+          )}
+
+          {/* Interactive Software Execution Sandbox & Functional Demo */}
+          <div className="my-6">
+            <SoftwareDemoRunner
+              title={publication.title}
+              demoUrl={publication.demoUrl}
+              demoVideoUrl={publication.demoVideoUrl}
+              projectType={publication.projectType}
+            />
           </div>
-        </MembershipGate>
-      </article>
+
+          <p className="border-t border-zinc-200 pt-4 text-xs text-zinc-500 dark:border-zinc-800/80">
+            {hasConfirmedProof
+              ? "Avalanche Fuji Proof Anchored · Immutable Content Commitment"
+              : "Content proof pending"}
+          </p>
+        </article>
+
+        <div className="space-y-6">
+          {publication.projectType === "software" && (
+            <SourcePurchase id={id} priceWei={publication.priceWei} acquisitionModel={publication.acquisitionModel} />
+          )}
+
+          {publication.projectType !== "software" && (
+            hasConfirmedLock
+              ? <RealMembershipPurchase publicationId={id} lockAddress={publication.membership.lock.address} />
+              : null
+          )}
+        </div>
+      </div>
     </div>
   );
 }

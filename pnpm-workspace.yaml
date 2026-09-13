@@ -1,5 +1,11 @@
 allowBuilds:
+  bufferutil: true
   esbuild: true
   keccak: true
   secp256k1: true
   unrs-resolver: true
+  utf-8-validate: true
+
+overrides:
+  qr: 0.5.5
+

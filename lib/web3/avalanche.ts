@@ -8,7 +8,7 @@ export const AVALANCHE_CONFIG = {
   },
   fuji: {
     ...avalancheFuji,
-    explorerUrl: "https://testnet.snowtrace.io",
+    explorerUrl: "https://testnet.snowscan.xyz",
     faucetUrl: "https://core.app/tools/testnet-faucet/?subnet=c&token=c",
   },
 };

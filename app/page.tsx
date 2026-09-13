@@ -1,71 +1,65 @@
 import Link from "next/link";
-import { ContentCard } from "@/components/content/content-card";
-import { Button } from "@/components/ui/button";
-import { PlusCircle, Compass } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
+import { PublicationList } from "@/components/content/publication-list";
+import { resolveAllPublications } from "@/features/publications/server-repository";
+import { HeroAuthCTA } from "@/components/wallet/hero-auth-cta";
 
-const SAMPLE_PUBLICATIONS = [
-  {
-    id: "0xabc1230000000000000000000000000000000000000000000000000000000001",
-    title: "Building High-Throughput Subnets on Avalanche",
-    description:
-      "A deep architectural dive into customizing EVM execution runtimes and gas parameters on dedicated Avalanche subnets.",
-    author: "0x71C8343e3C8432a688D37A33eC55f4175b9fF835",
-    createdAt: Math.floor(Date.now() / 1000) - 3600,
-    isGated: false,
-  },
-  {
-    id: "0xabc1230000000000000000000000000000000000000000000000000000000002",
-    title: "Token-Gated Creator Monetization with Unlock Protocol",
-    description:
-      "Full guide and contract templates to tokenize your newsletter or video vault with self-sovereign NFT keys.",
-    author: "0x9812A4F9901fB9189280a82B8bfa4E06A2665972",
-    createdAt: Math.floor(Date.now() / 1000) - 86400,
-    isGated: true,
-    lockAddress: "0x1234567890123456789012345678901234567890",
-  },
-  {
-    id: "0xabc1230000000000000000000000000000000000000000000000000000000003",
-    title: "Content Provenance & Proof Registries on EVM",
-    description:
-      "How keccak256 hashes anchored on-chain protect creators against unauthorized AI scrapers and impersonation.",
-    author: "0x3344556677889900112233445566778899001122",
-    createdAt: Math.floor(Date.now() / 1000) - 172800,
-    isGated: false,
-  },
-];
+export const dynamic = "force-dynamic";
 
-export default function ExplorePage() {
+export default async function ExplorePage() {
+  const publications = await resolveAllPublications();
+
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-neutral-800 pb-6">
-        <div>
-          <div className="flex items-center gap-2 text-xs font-semibold tracking-wider text-red-500 uppercase">
-            <Compass className="h-4 w-4" />
-            Decentralized Feed
+    <div className="space-y-12">
+      <header className="relative overflow-hidden rounded-3xl border border-zinc-200 bg-gradient-to-b from-zinc-100/80 via-white to-white dark:border-zinc-800/80 dark:bg-gradient-to-b dark:from-zinc-900/40 dark:via-zinc-950/60 dark:to-zinc-950 px-6 py-12 sm:px-12 sm:py-16 text-center transition-colors">
+        {/* Subtle, soft ambient illumination */}
+        <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 h-48 w-80 rounded-full bg-zinc-400/10 dark:bg-zinc-700/10 blur-3xl" />
+
+        <div className="relative mx-auto flex max-w-2xl flex-col items-center space-y-6">
+          <div className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white/80 dark:border-zinc-800 dark:bg-zinc-900/80 px-3.5 py-1 text-xs font-medium text-zinc-700 dark:text-zinc-300 shadow-sm">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+            <span>Decentralized Creator Economy</span>
           </div>
-          <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-            Explore Publications
+
+          <h1 className="text-4xl font-extrabold tracking-tight text-zinc-950 dark:text-white sm:text-5xl lg:text-6xl leading-tight">
+            Software & Ideas. <br />
+            <span className="text-zinc-500 dark:text-zinc-400 font-normal">Proven onchain.</span>
           </h1>
-          <p className="mt-2 text-sm text-neutral-400">
-            Verifiable on-chain creator proofs and token-gated content powered by Avalanche.
+
+          <p className="max-w-xl text-sm sm:text-base leading-relaxed text-zinc-600 dark:text-zinc-400">
+            Discover software packages and articles from independent creators. Verify immutable proofs on Avalanche Fuji and purchase memberships on HashKey Chain.
           </p>
+
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            <Link
+              href="/create"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 px-5 py-2.5 text-sm font-semibold shadow-md hover:bg-zinc-800 dark:hover:bg-zinc-200 active:scale-[0.98] transition-all"
+            >
+              <span>Publish Content</span>
+              <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
+            </Link>
+            <HeroAuthCTA />
+          </div>
+        </div>
+      </header>
+
+      <section aria-labelledby="publications-heading" className="space-y-6">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-200 dark:border-zinc-800/80 pb-4">
+          <div>
+            <h2 id="publications-heading" className="text-lg font-semibold tracking-tight text-zinc-950 dark:text-white">
+              Explore Publications
+            </h2>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+              Available software repositories, demos, and gated knowledge
+            </p>
+          </div>
+          <span className="rounded border border-zinc-200 bg-zinc-100 px-2 py-0.5 font-mono text-xs text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
+            {publications.length} items total
+          </span>
         </div>
 
-        <div>
-          <Link href="/create">
-            <Button variant="primary" className="gap-2">
-              <PlusCircle className="h-4 w-4" />
-              Publish Content
-            </Button>
-          </Link>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {SAMPLE_PUBLICATIONS.map((pub) => (
-          <ContentCard key={pub.id} {...pub} />
-        ))}
-      </div>
+        <PublicationList publications={publications} />
+      </section>
     </div>
   );
 }

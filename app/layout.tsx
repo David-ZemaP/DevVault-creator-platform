@@ -1,13 +1,22 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { ThemeProvider } from "@/components/theme/theme-provider";
 import { Web3Provider } from "@/components/wallet/web3-provider";
-import { CustomConnectButton } from "@/components/wallet/connect-button";
+import { SiteHeader } from "@/components/layout/site-header";
 import Link from "next/link";
-import { Sparkles, PlusCircle, LayoutDashboard } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "DevVault Creator Platform",
-  description: "Decentralized creator economy & content provenance on Avalanche",
+  title: {
+    default: "DevVault — Independent creators, shared knowledge",
+    template: "%s | DevVault",
+  },
+  description:
+    "Discover independent creators, verify content proofs on Avalanche Fuji, and manage token-gated memberships on HashKey Chain.",
+  icons: {
+    icon: "/assets/logo.png",
+    shortcut: "/assets/logo.png",
+    apple: "/assets/logo.png",
+  },
 };
 
 export default function RootLayout({
@@ -16,49 +25,54 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="antialiased bg-neutral-950 text-neutral-100 flex flex-col min-h-screen">
-        <Web3Provider>
-          <header className="sticky top-0 z-50 border-b border-neutral-800/80 bg-neutral-950/80 backdrop-blur-md">
-            <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5 sm:px-6 lg:px-8">
-              <div className="flex items-center gap-8">
-                <Link href="/" className="flex items-center gap-2 font-bold text-lg text-white">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-600 text-white font-mono">
-                    DV
-                  </div>
-                  <span>DevVault</span>
-                </Link>
-
-                <nav className="hidden md:flex items-center gap-6 text-sm text-neutral-300">
-                  <Link href="/" className="hover:text-white transition-colors flex items-center gap-1.5">
-                    <Sparkles className="h-4 w-4" />
-                    Explore
-                  </Link>
-                  <Link href="/create" className="hover:text-white transition-colors flex items-center gap-1.5">
-                    <PlusCircle className="h-4 w-4" />
-                    Create
-                  </Link>
-                  <Link href="/dashboard" className="hover:text-white transition-colors flex items-center gap-1.5">
-                    <LayoutDashboard className="h-4 w-4" />
-                    Dashboard
-                  </Link>
-                </nav>
-              </div>
-
-              <div className="flex items-center gap-4">
-                <CustomConnectButton />
+    <html lang="en" suppressHydrationWarning className="dark">
+      <body
+        className="flex min-h-screen flex-col bg-background text-foreground antialiased selection:bg-zinc-200 selection:text-zinc-900 dark:selection:bg-zinc-800 dark:selection:text-zinc-100"
+        suppressHydrationWarning
+      >
+        <a
+          href="#main-content"
+          className="sr-only fixed top-3 left-3 z-[100] rounded-lg bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-3 py-1.5 text-xs font-semibold shadow-md focus:not-sr-only focus:outline-none focus:ring-2 focus:ring-zinc-400"
+        >
+          Skip to content
+        </a>
+        <ThemeProvider>
+          <Web3Provider>
+            <SiteHeader />
+            <div className="border-b border-zinc-200 bg-white dark:border-zinc-900 dark:bg-zinc-950/60 transition-colors">
+              <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2 text-xs text-zinc-500 dark:text-zinc-400 sm:px-6 lg:px-8">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 rounded border border-zinc-200 bg-zinc-100 px-2 py-0.5 font-mono text-[11px] font-medium text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300">
+                    <span className="h-1.5 w-1.5 rounded-full bg-zinc-900 dark:bg-white" />
+                    Dual-Chain
+                  </span>
+                  <span className="text-zinc-500 dark:text-zinc-400 text-xs">
+                    Content proofs on Avalanche Fuji (43113) · Memberships gated via Unlock on HashKey Chain (133)
+                  </span>
+                </div>
               </div>
             </div>
-          </header>
-
-          <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8 sm:px-6 lg:px-8">
-            {children}
-          </main>
-
-          <footer className="border-t border-neutral-800/60 py-6 text-center text-xs text-neutral-500">
-            DevVault Creator Platform • Built with Next.js, Wagmi & Avalanche
-          </footer>
-        </Web3Provider>
+            <main
+              id="main-content"
+              tabIndex={-1}
+              className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 outline-none sm:px-6 sm:py-10 lg:px-8"
+            >
+              {children}
+            </main>
+            <footer className="border-t border-zinc-200 bg-white dark:border-zinc-900 dark:bg-zinc-950 transition-colors">
+              <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-6 text-xs text-zinc-500 sm:flex-row sm:justify-between sm:px-6 lg:px-8">
+                <span>DevVault · Independent creator platform & provenance</span>
+                <div className="flex items-center gap-4">
+                  <Link href="/docs" className="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">
+                    API Docs (Swagger)
+                  </Link>
+                  <span>·</span>
+                  <span className="text-zinc-500">HashKey Chain & Avalanche Fuji</span>
+                </div>
+              </div>
+            </footer>
+          </Web3Provider>
+        </ThemeProvider>
       </body>
     </html>
   );
