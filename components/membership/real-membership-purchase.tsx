@@ -192,25 +192,25 @@ export function RealMembershipPurchase({ publicationId, lockAddress }: Props) {
 
   return (
     <section
-      className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-6 space-y-3"
+      className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900/50 dark:shadow-none space-y-3"
       aria-label="Membership"
       data-purchase-state={phase}
     >
-      <h2 className="text-lg font-semibold text-white">Membership</h2>
+      <h2 className="text-lg font-semibold text-zinc-900 dark:text-white">Membership</h2>
       {price !== undefined && (
-        <p className="text-sm text-neutral-400">
+        <p className="text-sm text-zinc-600 dark:text-neutral-400">
           {formatEther(price)} HSK{durationLabel ? ` · ${durationLabel}` : ''} · HSKChain Testnet
         </p>
       )}
       <Button disabled={isDisabled} onClick={() => void subscribe()}>
         {label}
       </Button>
-      {error && <p role="alert" className="text-sm text-red-400">{error}</p>}
+      {error && <p role="alert" className="text-sm text-rose-600 dark:text-red-400">{error}</p>}
       {isMember && premium === undefined && (
-        <p className="text-sm text-emerald-400">Membership active · loading content…</p>
+        <p className="text-sm text-emerald-600 dark:text-emerald-400">Membership active · loading content…</p>
       )}
       {premium !== undefined && (
-        <article className="border-t border-neutral-800 pt-4 whitespace-pre-wrap text-neutral-200">
+        <article className="border-t border-zinc-200 pt-4 whitespace-pre-wrap text-zinc-800 dark:border-neutral-800 dark:text-neutral-200">
           {premium}
         </article>
       )}

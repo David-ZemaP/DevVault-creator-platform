@@ -178,47 +178,47 @@ export function SourcePurchase(props: PurchaseProps) {
 export function ProjectPurchaseView({ id, priceEth, isSubscription, state, canDownload, pending, phase, message, tx, access, buttonLabel, run }: ReturnType<typeof useProjectPurchase>) {
   return (
     <section
-      className="rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-6 space-y-4"
+      className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800/80 dark:bg-zinc-900/40 dark:shadow-none space-y-4"
       aria-label="Source code"
       data-purchase-state={phase}
     >
-      <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3">
-        <h2 className="text-base font-semibold text-white">Source code</h2>
-        <span className="inline-flex items-center rounded border border-zinc-800 bg-zinc-900 px-2 py-0.5 text-xs font-mono text-zinc-400">
+      <div className="flex items-center justify-between border-b border-zinc-200 pb-3 dark:border-zinc-800/80">
+        <h2 className="text-base font-semibold text-zinc-900 dark:text-white">Source code</h2>
+        <span className="inline-flex items-center rounded border border-zinc-200 bg-zinc-100 px-2 py-0.5 text-xs font-mono text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
           HSKChain (133)
         </span>
       </div>
 
-      <p className="text-xs text-zinc-400 leading-relaxed">
+      <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
         {isSubscription
           ? '30-day subscription · Access to code & updates while subscribed'
           : 'Private archive · permanent access after verified purchase'}
       </p>
 
-      <div className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-3.5">
-        <span className="text-[11px] text-zinc-500 block">Required Payment</span>
-        <p className="text-xl font-bold text-white mt-0.5">
-          {priceEth} <span className="text-xs font-normal text-zinc-400">HSK</span>
+      <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-3.5 dark:border-zinc-800 dark:bg-zinc-950/60">
+        <span className="text-[11px] text-zinc-500 dark:text-zinc-400 block">Required Payment</span>
+        <p className="text-xl font-bold text-zinc-900 dark:text-white mt-0.5">
+          {priceEth} <span className="text-xs font-normal text-zinc-500 dark:text-zinc-400">HSK</span>
         </p>
-        <p className="text-[10px] text-zinc-500 mt-0.5">{priceEth} HSK · HSKChain Testnet (133)</p>
+        <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5">{priceEth} HSK · HSKChain Testnet (133)</p>
       </div>
 
       {state === 'creator' ? (
-        <div className="rounded-lg border border-zinc-800 bg-zinc-900/60 p-2.5 text-xs text-zinc-300">
-          Your project · <Link href={`/create?id=${id}`} className="font-medium text-white hover:underline">Manage project</Link>
+        <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-2.5 text-xs text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900/60 dark:text-zinc-300">
+          Your project · <Link href={`/create?id=${id}`} className="font-medium text-zinc-900 hover:underline dark:text-white">Manage project</Link>
         </div>
       ) : isSubscription ? (
         access.hasActiveMembership ? (
-          <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-2.5 text-xs font-medium text-emerald-400">
+          <div className="rounded-lg border border-emerald-500/30 bg-emerald-50 text-emerald-700 p-2.5 text-xs font-medium dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400">
             Subscribed · Active ✓
           </div>
         ) : access.purchased ? (
-          <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 p-2.5 text-xs font-medium text-amber-400">
+          <div className="rounded-lg border border-amber-500/30 bg-amber-50 text-amber-700 p-2.5 text-xs font-medium dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-400">
             Subscription Expired
           </div>
         ) : null
       ) : state === 'purchased' ? (
-        <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-2.5 text-xs font-medium text-emerald-400">
+        <div className="rounded-lg border border-emerald-500/30 bg-emerald-50 text-emerald-700 p-2.5 text-xs font-medium dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400">
           Purchased ✓
         </div>
       ) : null}
@@ -235,19 +235,19 @@ export function ProjectPurchaseView({ id, priceEth, isSubscription, state, canDo
       </div>
 
       {message && (
-        <div role="status" className="rounded-lg border border-zinc-800 bg-zinc-900/80 p-2.5 text-xs text-zinc-300">
+        <div role="status" className="rounded-lg border border-zinc-200 bg-zinc-50 p-2.5 text-xs text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900/80 dark:text-zinc-300">
           {message}
         </div>
       )}
 
-      <div className="flex flex-col gap-1.5 border-t border-zinc-800/80 pt-3 text-xs">
+      <div className="flex flex-col gap-1.5 border-t border-zinc-200 pt-3 text-xs dark:border-zinc-800/80">
         {tx && (
-          <a href={getHskExplorerTxUrl(tx)} target="_blank" rel="noopener noreferrer" className="text-zinc-400 hover:text-zinc-200 font-medium transition-colors">
+          <a href={getHskExplorerTxUrl(tx)} target="_blank" rel="noopener noreferrer" className="text-zinc-600 hover:text-zinc-900 font-medium transition-colors dark:text-zinc-400 dark:hover:text-zinc-200">
             View transaction ↗
           </a>
         )}
         {state === 'purchased' && (
-          <Link href="/purchases" className="text-zinc-200 hover:text-white font-medium transition-colors">
+          <Link href="/purchases" className="text-zinc-700 hover:text-zinc-950 font-medium transition-colors dark:text-zinc-200 dark:hover:text-white">
             My Purchases →
           </Link>
         )}

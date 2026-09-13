@@ -83,7 +83,7 @@ export default function CreatePublicationPage() {
   }
 
   const inputStyle =
-    'w-full rounded-lg border border-zinc-800 bg-zinc-950/80 px-3.5 py-2 text-xs sm:text-sm text-zinc-100 placeholder-zinc-500 focus:border-zinc-600 focus:outline-none transition-colors';
+    'w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-xs sm:text-sm text-zinc-900 placeholder-zinc-400 focus:border-zinc-400 focus:outline-none transition-colors dark:border-zinc-800 dark:bg-zinc-950/80 dark:text-zinc-100 dark:placeholder-zinc-500 dark:focus:border-zinc-600';
 
   const needsLock = project
     ? (project.projectType === 'software' && !project.lockAddress) ||
@@ -93,14 +93,14 @@ export default function CreatePublicationPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
-        <div className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-zinc-400">
-          <Sparkles className="h-3.5 w-3.5 text-zinc-200" />
+        <div className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+          <Sparkles className="h-3.5 w-3.5 text-zinc-600 dark:text-zinc-200" />
           <span>Creator Studio</span>
         </div>
-        <h1 className="mt-1.5 text-2xl font-bold tracking-tight text-white sm:text-3xl">
+        <h1 className="mt-1.5 text-2xl font-bold tracking-tight text-zinc-900 dark:text-white sm:text-3xl">
           {project ? 'Manage project' : 'Create publication'}
         </h1>
-        <p className="mt-1.5 text-xs text-zinc-400">
+        <p className="mt-1.5 text-xs text-zinc-600 dark:text-zinc-400">
           Add a public showcase, upload private source, and publish when ready. HSKChain Testnet
           payments grant permanent source access.
         </p>
@@ -109,16 +109,16 @@ export default function CreatePublicationPage() {
       {message && (
         <div
           role="status"
-          className="flex items-start gap-2.5 rounded-lg border border-zinc-800 bg-zinc-900/80 p-3 text-xs text-zinc-200"
+          className="flex items-start gap-2.5 rounded-lg border border-zinc-200 bg-zinc-50 p-3 text-xs text-zinc-800 dark:border-zinc-800 dark:bg-zinc-900/80 dark:text-zinc-200"
         >
-          <AlertCircle className="h-4 w-4 shrink-0 text-zinc-200 mt-0.5" />
+          <AlertCircle className="h-4 w-4 shrink-0 text-zinc-700 dark:text-zinc-200 mt-0.5" />
           <span>{message}</span>
         </div>
       )}
 
       {manageId && !project ? (
-        <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/30 p-6 text-center space-y-3">
-          <p className="text-zinc-300 text-xs font-medium">Session authentication required to edit project.</p>
+        <div className="rounded-xl border border-zinc-200 bg-white p-6 text-center space-y-3 shadow-sm dark:border-zinc-800/80 dark:bg-zinc-900/30 dark:shadow-none">
+          <p className="text-zinc-700 text-xs font-medium dark:text-zinc-300">Session authentication required to edit project.</p>
           <Button
             disabled={busy || !isConnected}
             onClick={() => task(() => reload(manageId))}
@@ -201,17 +201,17 @@ export default function CreatePublicationPage() {
             />
           </label>
 
-          <section className="rounded-xl border border-zinc-800/80 bg-zinc-900/30 p-5 space-y-4 shadow-sm">
+          <section className="rounded-xl border border-zinc-200 bg-white p-5 space-y-4 shadow-sm dark:border-zinc-800/80 dark:bg-zinc-900/30 dark:shadow-none">
             <div>
-              <h2 className="text-sm font-semibold text-white">Live Showcase & Media</h2>
-              <p className="text-xs text-zinc-400">
+              <h2 className="text-sm font-semibold text-zinc-900 dark:text-white">Live Showcase & Media</h2>
+              <p className="text-xs text-zinc-600 dark:text-zinc-400">
                 Buyers can interact with your demo or view video before purchasing.
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <label className="block space-y-1.5">
-                <span className="text-xs font-semibold text-zinc-300">Live demo URL (optional)</span>
+                <span className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">Live demo URL (optional)</span>
                 <input
                   type="url"
                   className={inputStyle}
@@ -221,7 +221,7 @@ export default function CreatePublicationPage() {
                 />
               </label>
               <label className="block space-y-1.5">
-                <span className="text-xs font-semibold text-zinc-300">Video demo URL (optional)</span>
+                <span className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">Video demo URL (optional)</span>
                 <input
                   type="url"
                   className={inputStyle}
@@ -233,7 +233,7 @@ export default function CreatePublicationPage() {
             </div>
 
             <label className="block space-y-1.5">
-              <span className="text-xs font-semibold text-zinc-300">Public cover image URL (optional)</span>
+              <span className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">Public cover image URL (optional)</span>
               <input
                 type="url"
                 className={inputStyle}
@@ -244,10 +244,10 @@ export default function CreatePublicationPage() {
             </label>
           </section>
 
-          <section className="rounded-xl border border-zinc-800/80 bg-zinc-900/30 p-5 space-y-4 shadow-sm">
+          <section className="rounded-xl border border-zinc-200 bg-white p-5 space-y-4 shadow-sm dark:border-zinc-800/80 dark:bg-zinc-900/30 dark:shadow-none">
             <div>
-              <h2 className="text-sm font-semibold text-white">Pricing & Token Gating</h2>
-              <p className="text-xs text-zinc-400">
+              <h2 className="text-sm font-semibold text-zinc-900 dark:text-white">Pricing & Token Gating</h2>
+              <p className="text-xs text-zinc-600 dark:text-zinc-400">
                 Configure acquisition model and pricing on HSKChain Testnet.
               </p>
             </div>
@@ -303,36 +303,36 @@ export default function CreatePublicationPage() {
         </form>
       ) : (
         <div className="space-y-5">
-          <section className="rounded-xl border border-zinc-800/80 bg-zinc-900/30 p-5 space-y-3 shadow-sm">
+          <section className="rounded-xl border border-zinc-200 bg-white p-5 space-y-3 shadow-sm dark:border-zinc-800/80 dark:bg-zinc-900/30 dark:shadow-none">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <h2 className="text-xl font-bold text-white">{project.title}</h2>
+              <h2 className="text-xl font-bold text-zinc-900 dark:text-white">{project.title}</h2>
               <span
                 className={`inline-flex items-center rounded px-2 py-0.5 text-[10px] font-mono uppercase tracking-wider border ${
                   project.status === 'PUBLISHED'
-                    ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
+                    ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
                     : project.status === 'DRAFT'
-                    ? 'border-amber-500/20 bg-amber-500/10 text-amber-400'
-                    : 'border-zinc-800 bg-zinc-900 text-zinc-400'
+                    ? 'border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                    : 'border-zinc-200 bg-zinc-100 text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400'
                 }`}
               >
                 {project.status}
               </span>
             </div>
 
-            <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">{project.description}</p>
+            <p className="text-xs sm:text-sm text-zinc-700 leading-relaxed dark:text-zinc-300">{project.description}</p>
 
-            <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-zinc-800/80 text-xs">
+            <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-zinc-200 text-xs dark:border-zinc-800/80">
               {project.priceWei && (
-                <div className="font-semibold text-white">
+                <div className="font-semibold text-zinc-900 dark:text-white">
                   {formatEther(BigInt(project.priceWei))} HSK{' '}
-                  <span className="text-[11px] font-normal text-zinc-400">· HSKChain Testnet</span>
+                  <span className="text-[11px] font-normal text-zinc-500 dark:text-zinc-400">· HSKChain Testnet</span>
                 </div>
               )}
 
               {project.projectType === 'software' && (
                 <div className="flex items-center gap-1.5">
                   <span className="text-zinc-500">Model:</span>
-                  <span className="rounded border border-zinc-800 bg-zinc-900 px-2 py-0.5 text-[10px] font-medium text-zinc-300">
+                  <span className="rounded border border-zinc-200 bg-zinc-100 px-2 py-0.5 text-[10px] font-medium text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300">
                     {project.acquisitionModel === 'subscription'
                       ? 'Monthly Subscription'
                       : 'Lifetime Purchase'}
@@ -341,10 +341,10 @@ export default function CreatePublicationPage() {
               )}
             </div>
 
-            <div className="flex flex-wrap gap-3 pt-2 border-t border-zinc-800/80">
+            <div className="flex flex-wrap gap-3 pt-2 border-t border-zinc-200 dark:border-zinc-800/80">
               {project.demoUrl && (
                 <a
-                  className="inline-flex items-center gap-1 text-xs font-medium text-zinc-300 hover:text-white hover:underline"
+                  className="inline-flex items-center gap-1 text-xs font-medium text-zinc-700 hover:text-zinc-950 hover:underline dark:text-zinc-300 dark:hover:text-white"
                   href={project.demoUrl}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -354,7 +354,7 @@ export default function CreatePublicationPage() {
               )}
               {project.demoVideoUrl && (
                 <a
-                  className="inline-flex items-center gap-1 text-xs font-medium text-zinc-300 hover:text-white hover:underline"
+                  className="inline-flex items-center gap-1 text-xs font-medium text-zinc-700 hover:text-zinc-950 hover:underline dark:text-zinc-300 dark:hover:text-white"
                   href={project.demoVideoUrl}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -364,7 +364,7 @@ export default function CreatePublicationPage() {
               )}
               {project.avalancheTx && (
                 <a
-                  className="inline-flex items-center gap-1 text-xs font-medium text-emerald-400 hover:text-emerald-300 hover:underline"
+                  className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 hover:text-emerald-700 hover:underline dark:text-emerald-400 dark:hover:text-emerald-300"
                   href={getExplorerTxUrl(project.avalancheTx)}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -379,21 +379,21 @@ export default function CreatePublicationPage() {
           {project.status === 'DRAFT' && (
             <div className="space-y-4">
               {project.projectType === 'software' && (
-                <section className="rounded-xl border border-zinc-800/80 bg-zinc-900/30 p-5 space-y-4 shadow-sm">
+                <section className="rounded-xl border border-zinc-200 bg-white p-5 space-y-4 shadow-sm dark:border-zinc-800/80 dark:bg-zinc-900/30 dark:shadow-none">
                   <div className="flex items-center gap-2">
-                    <FolderArchive className="h-4 w-4 text-zinc-200" />
-                    <h2 className="text-sm font-semibold text-white">Private Source</h2>
+                    <FolderArchive className="h-4 w-4 text-zinc-700 dark:text-zinc-200" />
+                    <h2 className="text-sm font-semibold text-zinc-900 dark:text-white">Private Source</h2>
                   </div>
                   {hasSource ? (
-                    <div className="flex items-center gap-2 rounded border border-emerald-500/20 bg-emerald-500/10 p-2.5 text-xs font-medium text-emerald-400">
+                    <div className="flex items-center gap-2 rounded border border-emerald-500/20 bg-emerald-500/10 p-2.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
                       <CheckCircle2 className="h-3.5 w-3.5" />
                       <span>Private source uploaded ✓</span>
                     </div>
                   ) : (
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <p className="text-xs font-medium text-zinc-200">Option A — Upload ZIP archive</p>
-                        <p className="text-xs text-zinc-400">
+                        <p className="text-xs font-medium text-zinc-800 dark:text-zinc-200">Option A — Upload ZIP archive</p>
+                        <p className="text-xs text-zinc-600 dark:text-zinc-400">
                           ZIP only, up to 20 MiB. Remove secrets before upload. Uploaded archives are
                           immutable and encrypted on the server.
                         </p>
@@ -403,7 +403,7 @@ export default function CreatePublicationPage() {
                             type="file"
                             accept=".zip,application/zip"
                             onChange={(e) => setFile(e.target.files?.[0] || null)}
-                            className="text-xs text-zinc-400 file:mr-2.5 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-medium file:bg-zinc-800 file:text-zinc-200 hover:file:bg-zinc-700 cursor-pointer"
+                            className="text-xs text-zinc-600 dark:text-zinc-400 file:mr-2.5 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-medium file:bg-zinc-100 file:text-zinc-800 hover:file:bg-zinc-200 dark:file:bg-zinc-800 dark:file:text-zinc-200 dark:hover:file:bg-zinc-700 cursor-pointer"
                           />
                           <Button
                             disabled={busy || !file}
@@ -557,7 +557,7 @@ export default function CreatePublicationPage() {
           {project.status === 'PUBLISHED' && (
             <div className="flex items-center gap-3">
               <Link
-                className="inline-flex items-center gap-1 text-xs sm:text-sm font-medium text-zinc-200 hover:text-white hover:underline"
+                className="inline-flex items-center gap-1 text-xs sm:text-sm font-medium text-zinc-700 hover:text-zinc-950 hover:underline dark:text-zinc-200 dark:hover:text-white"
                 href={`/content/${project.id}`}
               >
                 Open published project <ArrowRight className="h-3.5 w-3.5" />
@@ -565,7 +565,7 @@ export default function CreatePublicationPage() {
             </div>
           )}
 
-          <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-zinc-800/80">
+          <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-zinc-200 dark:border-zinc-800/80">
             {project.status === 'PUBLISHED' && (
               <Button
                 variant="outline"
@@ -598,7 +598,7 @@ export default function CreatePublicationPage() {
 
             <Link
               href="/create"
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-400 hover:text-white transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-600 hover:text-zinc-900 transition-colors dark:text-zinc-400 dark:hover:text-white"
             >
               <PlusCircle className="h-3.5 w-3.5" /> Create another publication
             </Link>

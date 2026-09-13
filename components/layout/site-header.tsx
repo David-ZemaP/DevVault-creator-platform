@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import logoImg from "@/public/assets/logo.png";
+import logoDarkImg from "@/public/assets/logo-dark.png";
+import logoWhiteImg from "@/public/assets/logo-white.png";
 import { MainNavigation } from "./main-navigation";
 import { CustomConnectButton } from "@/components/wallet/connect-button";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
@@ -14,10 +15,18 @@ export function SiteHeader() {
           aria-label="DevVault home"
           className="group flex shrink-0 items-center rounded-lg transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
         >
+          {/* Light mode: dark logo with black letters */}
           <Image
-            src={logoImg}
+            src={logoDarkImg}
             alt="DevVault"
-            className="h-14 sm:h-16 w-auto object-contain transition-transform group-hover:scale-105"
+            className="h-14 sm:h-16 w-auto object-contain transition-transform group-hover:scale-105 dark:hidden"
+            priority
+          />
+          {/* Dark mode: white logo with white letters */}
+          <Image
+            src={logoWhiteImg}
+            alt="DevVault"
+            className="hidden h-14 sm:h-16 w-auto object-contain transition-transform group-hover:scale-105 dark:block"
             priority
           />
         </Link>
