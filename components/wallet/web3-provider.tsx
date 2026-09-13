@@ -1,6 +1,7 @@
 "use client";
 
 import { AuthProvider } from "@/lib/auth/use-auth";
+import { AuthModalProvider } from "./auth-modal";
 import React, { useState } from "react";
 import "@rainbow-me/rainbowkit/styles.css";
 import { getDefaultConfig, RainbowKitProvider, darkTheme, lightTheme } from "@rainbow-me/rainbowkit";
@@ -67,7 +68,9 @@ function RainbowKitThemedWrapper({ children }: { children: React.ReactNode }) {
             })
       }
     >
-      <AuthProvider>{children}</AuthProvider>
+      <AuthProvider>
+        <AuthModalProvider>{children}</AuthModalProvider>
+      </AuthProvider>
     </RainbowKitProvider>
   );
 }

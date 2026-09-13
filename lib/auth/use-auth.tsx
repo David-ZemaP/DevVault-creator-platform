@@ -4,7 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState, ty
 import { useAccount, useConfig, useSignMessage } from 'wagmi';
 import { getAccount } from 'wagmi/actions';
 import { useQueryClient } from '@tanstack/react-query';
-import { AUTH_HEARTBEAT_MS, sessionMatchesWallet, type AuthStatus, type WalletSession } from './constants';
+import { AUTH_HEARTBEAT_MS, AUTH_INACTIVITY_TIMEOUT_MS, sessionMatchesWallet, type AuthStatus, type WalletSession } from './constants';
 import { authRequest, AuthRequestError, installAuthGuard } from './request';
 
 interface AuthContextValue {
@@ -17,6 +17,8 @@ interface AuthContextValue {
   login: () => Promise<void>;
   logout: () => Promise<void>;
   refreshSession: () => Promise<WalletSession | null>;
+  idleTimeoutExpired: boolean;
+  resetIdleTimeout: () => void;
 }
 const AuthContext = createContext<AuthContextValue | null>(null);
 
@@ -28,6 +30,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<WalletSession | null>(null);
   const [phase, setPhase] = useState<AuthStatus>('CHECKING');
   const [error, setError] = useState('');
+  const [idleTimeoutExpired, setIdleTimeoutExpired] = useState(false);
+  const lastActivity = useRef<number>(Date.now());
   const current = useRef<WalletSession | null>(null);
   const generation = useRef(0);
   const previousWallet = useRef<string | undefined>(undefined);
@@ -36,6 +40,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const mutations = useRef<Promise<unknown>>(Promise.resolve());
   const checking = useRef<Promise<WalletSession | null> | null>(null);
   const wallet = useCallback(() => getAccount(config).address?.toLowerCase(), [config]);
+
+  const recordActivity = useCallback(() => {
+    const now = Date.now();
+    if (now - lastActivity.current > 5_000) {
+      try {
+        localStorage.setItem('devvault:last_activity', String(now));
+      } catch {}
+    }
+    lastActivity.current = now;
+  }, []);
+
+  const resetIdleTimeout = useCallback(() => {
+    setIdleTimeoutExpired(false);
+    lastActivity.current = Date.now();
+    try {
+      localStorage.setItem('devvault:last_activity', String(Date.now()));
+    } catch {}
+  }, []);
   const clear = useCallback(() => {
     generation.current++;
     current.current = null;
@@ -158,10 +180,51 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => clearTimeout(timer);
   }, [clear, session]);
 
+  useEffect(() => {
+    if (!session) return;
+    lastActivity.current = Date.now();
+    try {
+      localStorage.setItem('devvault:last_activity', String(Date.now()));
+    } catch {}
+
+    const onActivity = () => recordActivity();
+    window.addEventListener('mousemove', onActivity, { passive: true });
+    window.addEventListener('keydown', onActivity, { passive: true });
+    window.addEventListener('click', onActivity, { passive: true });
+    window.addEventListener('scroll', onActivity, { passive: true });
+    window.addEventListener('touchstart', onActivity, { passive: true });
+
+    const idleTimer = setInterval(() => {
+      let latest = lastActivity.current;
+      try {
+        const stored = localStorage.getItem('devvault:last_activity');
+        if (stored) {
+          const parsed = Number(stored);
+          if (Number.isFinite(parsed) && parsed > latest) latest = parsed;
+        }
+      } catch {}
+
+      if (Date.now() - latest >= AUTH_INACTIVITY_TIMEOUT_MS) {
+        setIdleTimeoutExpired(true);
+        void logout().catch(() => {});
+      }
+    }, 10_000);
+
+    return () => {
+      clearInterval(idleTimer);
+      window.removeEventListener('mousemove', onActivity);
+      window.removeEventListener('keydown', onActivity);
+      window.removeEventListener('click', onActivity);
+      window.removeEventListener('scroll', onActivity);
+      window.removeEventListener('touchstart', onActivity);
+    };
+  }, [session, recordActivity, logout]);
+
   const authenticated = sessionMatchesWallet(session, account.address);
   const status = !account.isConnected ? 'DISCONNECTED' : authenticated ? 'AUTHENTICATED' : phase === 'AUTHENTICATING' || phase === 'CHECKING' ? phase : 'REAUTH_REQUIRED';
   return <AuthContext.Provider value={{ walletAddress: account.address, isWalletConnected: account.isConnected, isSessionAuthenticated: authenticated,
-    authenticatedAddress: authenticated ? session!.wallet : undefined, status, error, login, logout, refreshSession }}>{children}</AuthContext.Provider>;
+    authenticatedAddress: authenticated ? session!.wallet : undefined, status, error, login, logout, refreshSession,
+    idleTimeoutExpired, resetIdleTimeout }}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { PublicationList } from "@/components/content/publication-list";
 import { resolveAllPublications } from "@/features/publications/server-repository";
+import { HeroAuthCTA } from "@/components/wallet/hero-auth-cta";
 
 export const dynamic = "force-dynamic";
 
@@ -29,7 +30,7 @@ export default async function ExplorePage() {
             Discover software packages and articles from independent creators. Verify immutable proofs on Avalanche Fuji and purchase memberships on HashKey Chain.
           </p>
 
-          <div className="pt-2">
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             <Link
               href="/create"
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 px-5 py-2.5 text-sm font-semibold shadow-md hover:bg-zinc-800 dark:hover:bg-zinc-200 active:scale-[0.98] transition-all"
@@ -37,6 +38,7 @@ export default async function ExplorePage() {
               <span>Publish Content</span>
               <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
             </Link>
+            <HeroAuthCTA />
           </div>
         </div>
       </header>
