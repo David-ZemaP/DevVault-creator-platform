@@ -4,7 +4,13 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   webpack: (config) => {
     config.externals.push("pino-pretty", "lokijs", "encoding");
-    config.resolve.fallback = { fs: false, net: false, tls: false };
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      net: false,
+      tls: false,
+      "@react-native-async-storage/async-storage": false,
+    };
     // Wallet connectors use the browser SDK, including while prerendering the UI.
     // Its node entry imports unrelated server payment dependencies.
     config.resolve.alias = config.resolve.alias || {};

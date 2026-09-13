@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { BookOpen, Code2, FileText, Search, X } from "lucide-react";
+import Link from "next/link";
+import { BookOpen, Code2, FileText, PlusCircle, Search, X } from "lucide-react";
 import type { PublicationSummary } from "@/features/publications/repository";
 import { ContentCard } from "./content-card";
 import { cn } from "@/lib/utils";
@@ -44,6 +45,29 @@ export function PublicationList({ publications }: PublicationListProps) {
     { id: "lifetime", label: "Lifetime" },
     { id: "subscription", label: "Subscriptions" },
   ];
+
+  if (publications.length === 0) {
+    return (
+      <div className="rounded-2xl border border-dashed border-zinc-800 bg-zinc-900/20 px-6 py-16 text-center">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-zinc-800 bg-zinc-900/80 text-zinc-400 shadow-inner">
+          <BookOpen aria-hidden="true" className="h-6 w-6 text-zinc-500" />
+        </div>
+        <h3 className="mt-4 text-base font-semibold text-white">No publications published yet</h3>
+        <p className="mx-auto mt-1.5 max-w-md text-xs sm:text-sm leading-relaxed text-zinc-400">
+          There are no items registered in the database yet. Be the first creator to anchor cryptographic proofs on Avalanche and monetize via Unlock.
+        </p>
+        <div className="mt-6">
+          <Link
+            href="/create"
+            className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-xs font-semibold text-zinc-950 shadow-sm hover:bg-zinc-200 transition-colors"
+          >
+            <PlusCircle className="h-4 w-4" />
+            <span>Publish First Content</span>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

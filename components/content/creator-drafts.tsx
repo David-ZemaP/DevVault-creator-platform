@@ -13,7 +13,25 @@ export function CreatorDrafts() {
   const { address } = useAccount();
   const [items, setItems] = useState<PublicationRecord[]>([]);
   const [owner, setOwner] = useState('');
+  const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  async function loadDrafts() {
+    setBusy(true);
+    setError('');
+    try {
+      await authenticate();
+      const result = await marketplaceRequest('/publications?mine=true');
+      setItems(result.publications || []);
+      setOwner(address || '');
+      setLoaded(true);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Unable to load drafts');
+    } finally {
+      setBusy(false);
+    }
+  }
 
   return (
     <section className="rounded-xl border border-zinc-800/80 bg-zinc-900/30 p-5 space-y-3 shadow-sm">
@@ -25,20 +43,16 @@ export function CreatorDrafts() {
           </p>
         </div>
         <Button
-          onClick={async () => {
-            try {
-              await authenticate();
-              const result = await marketplaceRequest('/publications?mine=true');
-              setItems(result.publications);
-              setOwner(address || '');
-            } catch (e) {
-              setError(e instanceof Error ? e.message : 'Unable to load drafts');
-            }
-          }}
+          disabled={busy || !address}
+          onClick={loadDrafts}
           className="gap-2"
         >
           <FileEdit className="h-3.5 w-3.5" />
-          Sign in to load drafts and projects
+          {busy
+            ? 'Check wallet to sign...'
+            : loaded && owner === address
+            ? 'Refresh drafts'
+            : 'Load drafts & projects'}
         </Button>
       </div>
 
@@ -46,6 +60,12 @@ export function CreatorDrafts() {
         <p role="alert" className="rounded-lg border border-rose-500/30 bg-rose-500/10 p-2.5 text-xs text-rose-300">
           {error}
         </p>
+      )}
+
+      {loaded && owner === address && items.length === 0 && (
+        <div className="rounded-lg border border-dashed border-zinc-800 bg-zinc-950/40 p-4 text-center">
+          <p className="text-xs text-zinc-400">No saved drafts or pending projects found for this wallet.</p>
+        </div>
       )}
 
       {owner === address && items.length > 0 && (

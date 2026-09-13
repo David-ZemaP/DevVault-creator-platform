@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { formatAddress } from "@/lib/utils";
 import { PublicationList } from "@/components/content/publication-list";
-import { getCreatorByAddress, listPublications } from "@/features/publications/repository";
+import { resolveCreator, resolveAllPublications } from "@/features/publications/server-repository";
 
 interface PageProps {
   params: Promise<{ address: string }>;
@@ -9,8 +9,9 @@ interface PageProps {
 
 export default async function ProfilePage({ params }: PageProps) {
   const { address } = await params;
-  const creator = getCreatorByAddress(address);
+  const creator = await resolveCreator(address);
   if (!creator) notFound();
+  const publications = await resolveAllPublications(creator.address);
 
   return (
     <div className="space-y-6">
@@ -38,7 +39,7 @@ export default async function ProfilePage({ params }: PageProps) {
             Publications by {creator.name}
           </h2>
         </div>
-        <PublicationList publications={listPublications(creator.address)} />
+        <PublicationList publications={publications} />
       </section>
     </div>
   );

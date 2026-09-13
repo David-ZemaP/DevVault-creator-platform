@@ -67,7 +67,13 @@ export function PurchaseLibrary({ sales = false }: { sales?: boolean }) {
         </div>
 
         <Button disabled={busy || !address} onClick={load} className="shrink-0">
-          {busy ? 'Loading...' : address ? 'Sign in / refresh' : 'Connect wallet to continue'}
+          {busy
+            ? 'Check wallet to sign...'
+            : loaded && owner === address
+            ? sales ? 'Refresh sales' : 'Refresh purchases'
+            : address
+            ? sales ? 'Load sales' : 'Load purchases'
+            : 'Connect wallet to continue'}
         </Button>
       </div>
 

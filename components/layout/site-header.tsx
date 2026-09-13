@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import logoImg from "@/public/assets/logo.png";
 import { MainNavigation } from "./main-navigation";
 import { CustomConnectButton } from "@/components/wallet/connect-button";
 
@@ -13,10 +14,8 @@ export function SiteHeader() {
           className="group flex shrink-0 items-center rounded-lg transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
         >
           <Image
-            src="/assets/logo.png"
+            src={logoImg}
             alt="DevVault"
-            width={64}
-            height={64}
             className="h-14 sm:h-16 w-auto object-contain transition-transform group-hover:scale-105"
             priority
           />

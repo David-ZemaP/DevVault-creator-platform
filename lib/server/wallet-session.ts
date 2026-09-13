@@ -9,7 +9,14 @@ export const cookieOptions = { httpOnly: true, secure: process.env.NODE_ENV === 
 export function sameOrigin(request: Request) {
   const expected = process.env.APP_ORIGIN || (process.env.NODE_ENV !== 'production' ? 'http://localhost:3000' : undefined);
   if (!expected) throw new HttpError(503, 'APP_ORIGIN must be configured');
-  if (request.headers.get('origin') !== new URL(expected).origin) throw new HttpError(403, 'Invalid request origin');
+  const origin = request.headers.get('origin');
+  if (process.env.NODE_ENV !== 'production' && origin) {
+    try {
+      const originHost = new URL(origin).hostname;
+      if (originHost === 'localhost' || originHost === '127.0.0.1') return;
+    } catch {}
+  }
+  if (origin !== new URL(expected).origin) throw new HttpError(403, 'Invalid request origin');
 }
 export async function authenticatedWallet() {
   const value = (await cookies()).get(sessionCookie)?.value;
