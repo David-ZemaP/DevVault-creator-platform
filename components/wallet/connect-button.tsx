@@ -60,7 +60,7 @@ export function CustomConnectButton() {
               <button
                 onClick={openChainModal}
                 type="button"
-                className="hidden sm:flex items-center gap-1.5 rounded-xl border border-zinc-200 bg-white px-2.5 py-1.5 text-xs font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-850 cursor-pointer"
+                className="hidden sm:flex items-center gap-1.5 rounded-xl border border-zinc-200 bg-white px-2.5 py-1.5 text-xs font-medium text-zinc-700 transition-colors hover:border-zinc-300 hover:bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-zinc-700 dark:hover:bg-zinc-800 cursor-pointer"
               >
                 {chain.hasIcon && chain.iconUrl && (
                   <img
@@ -93,7 +93,7 @@ export function CustomConnectButton() {
             <button
               onClick={openChainModal}
               type="button"
-              className="hidden sm:flex items-center gap-1.5 rounded-xl border border-zinc-200 bg-white px-2.5 py-1.5 text-xs font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-850 cursor-pointer"
+              className="hidden sm:flex items-center gap-1.5 rounded-xl border border-zinc-200 bg-white px-2.5 py-1.5 text-xs font-medium text-zinc-700 transition-colors hover:border-zinc-300 hover:bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-zinc-700 dark:hover:bg-zinc-800 cursor-pointer"
             >
               {chain.hasIcon && chain.iconUrl && (
                 <img
@@ -108,7 +108,7 @@ export function CustomConnectButton() {
             <button
               onClick={openAuthModal}
               type="button"
-              className="flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-800 transition-colors hover:bg-zinc-100 active:scale-[0.98] dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:text-white cursor-pointer shadow-sm"
+              className="flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-800 transition-colors hover:border-zinc-300 hover:bg-zinc-100 active:scale-[0.98] dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:border-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-white cursor-pointer shadow-sm"
             >
               <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-sm" aria-hidden="true" />
               <span>{account.displayName}</span>
