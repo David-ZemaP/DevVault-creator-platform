@@ -97,7 +97,16 @@ pnpm test
 
 # Deploy to Avalanche Fuji
 pnpm hardhat run scripts/deploy.ts --network avalancheFuji
+
+# Verify source code on the block explorer
+pnpm hardhat verify --network avalancheFuji <deployed_address>
 ```
+
+#### Deployed Contracts
+
+| Contract | Network | Address | Verified Source |
+|---|---|---|---|
+| `ContentProofRegistry` | Avalanche Fuji (testnet, chain ID 43113) | `0x5451C57dA3A8a3f0f04a74475702501628170211` | [View on Snowtrace](https://testnet.snowtrace.io/address/0x5451C57dA3A8a3f0f04a74475702501628170211#code) |
 
 ### 4. Development Server (Next.js)
 
