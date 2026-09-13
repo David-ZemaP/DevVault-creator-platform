@@ -1,3 +1,4 @@
+import { HSK_CHAIN_ID, HSK_RPC_URL, HSK_EXPLORER_URL } from "./hsk";
 import { defineChain } from "viem";
 import { avalanche, hashkey } from "viem/chains";
 
@@ -39,7 +40,7 @@ export const avalancheFuji = defineChain({
 });
 
 export const hashkeyTestnet = defineChain({
-  id: 133,
+  id: HSK_CHAIN_ID,
   name: "HashKey Chain Testnet",
   nativeCurrency: {
     decimals: 18,
@@ -48,16 +49,16 @@ export const hashkeyTestnet = defineChain({
   },
   rpcUrls: {
     default: {
-      http: ["https://testnet.hsk.xyz"],
+      http: [HSK_RPC_URL],
     },
     public: {
-      http: ["https://testnet.hsk.xyz"],
+      http: [HSK_RPC_URL],
     },
   },
   blockExplorers: {
     default: {
       name: "HashKey Explorer",
-      url: "https://testnet-explorer.hskchain.net",
+      url: HSK_EXPLORER_URL,
     },
   },
   testnet: true,

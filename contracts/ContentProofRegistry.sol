@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.24;
+pragma solidity 0.8.24;
 
 /// @title ContentProofRegistry
 /// @notice Append-only publication provenance; content stays off-chain.
@@ -84,12 +84,16 @@ contract ContentProofRegistry {
     }
 
     /// @notice Return whether a publication ID has been registered; ID zero never exists.
+    /// @param contentId Publication ID to inspect.
+    /// @return True when registered.
     function contentExists(uint256 contentId) public view returns (bool) {
         return _contents[contentId].creator != address(0);
     }
 
     /// @notice Return the original creator, latest version number, and creation timestamp.
     /// @dev Reverts with ContentNotFound for an unregistered ID.
+    /// @param contentId Registered publication ID.
+    /// @return Original ownership and version metadata.
     function getContentMetadata(uint256 contentId) external view returns (ContentMetadata memory) {
         _requireContent(contentId);
         return _contents[contentId];
@@ -97,6 +101,9 @@ contract ContentProofRegistry {
 
     /// @notice Return an immutable historical proof for a publication and version.
     /// @dev Versions start at 1. Reverts if the publication or version does not exist.
+    /// @param contentId Registered publication ID.
+    /// @param version Historical version number starting at one.
+    /// @return The exact stored proof.
     function getProof(uint256 contentId, uint256 version) external view returns (Proof memory) {
         _requireContent(contentId);
         if (version == 0 || version > _contents[contentId].latestVersion) {
@@ -106,6 +113,8 @@ contract ContentProofRegistry {
     }
 
     /// @notice Return the latest proof; reverts with ContentNotFound for an unregistered ID.
+    /// @param contentId Registered publication ID.
+    /// @return The most recently appended proof.
     function getLatestProof(uint256 contentId) external view returns (Proof memory) {
         _requireContent(contentId);
         return _proofs[contentId][_contents[contentId].latestVersion];

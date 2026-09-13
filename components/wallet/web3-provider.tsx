@@ -1,5 +1,6 @@
 "use client";
 
+import { AuthProvider } from "@/lib/auth/use-auth";
 import React, { useState } from "react";
 import "@rainbow-me/rainbowkit/styles.css";
 import { getDefaultConfig, RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
@@ -58,7 +59,7 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
             overlayBlur: "small",
           })}
         >
-          {children}
+          <AuthProvider>{children}</AuthProvider>
         </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>

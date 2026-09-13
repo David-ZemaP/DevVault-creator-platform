@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useAccount } from 'wagmi';
+import { useAuth } from '@/lib/auth/use-auth';
 import { formatEther } from 'viem';
 import { marketplaceRequest, useWalletSession } from '@/lib/marketplace/client';
 import { getHskExplorerTxUrl } from '@/lib/web3/hashkey';
@@ -23,14 +23,15 @@ interface Purchase {
 
 export function PurchaseLibrary({ sales = false }: { sales?: boolean }) {
   const authenticate = useWalletSession();
-  const { address } = useAccount();
+  const { authenticatedAddress, walletAddress } = useAuth();
   const [records, setRecords] = useState<Purchase[]>([]);
   const [owner, setOwner] = useState('');
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const address = walletAddress?.toLowerCase();
 
-  const visible = owner === address ? records : [];
+  const visible = owner === authenticatedAddress ? records : [];
 
   async function load() {
     setBusy(true);
@@ -69,7 +70,7 @@ export function PurchaseLibrary({ sales = false }: { sales?: boolean }) {
         <Button disabled={busy || !address} onClick={load} className="shrink-0">
           {busy
             ? 'Check wallet to sign...'
-            : loaded && owner === address
+            : loaded && owner === authenticatedAddress
             ? sales ? 'Refresh sales' : 'Refresh purchases'
             : address
             ? sales ? 'Load sales' : 'Load purchases'
@@ -86,7 +87,7 @@ export function PurchaseLibrary({ sales = false }: { sales?: boolean }) {
         </p>
       )}
 
-      {loaded && owner === address && !visible.length && (
+      {loaded && owner === authenticatedAddress && !visible.length && (
         <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/30 p-10 text-center">
           <p className="text-xs text-zinc-400">No confirmed {sales ? 'sales' : 'purchases'} yet.</p>
         </div>

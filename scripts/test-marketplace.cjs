@@ -9,4 +9,5 @@ require('ts-node').register({ transpileOnly: true, compilerOptions: { module: 'c
 const Mocha = require('mocha');
 const mocha = new Mocha({ timeout: 10000 });
 mocha.addFile('tests/Marketplace.test.ts');
+mocha.addFile('tests/AuthSecurity.test.ts');
 mocha.run(failures => { process.exitCode = failures ? 1 : 0; });

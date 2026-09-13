@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useAccount } from 'wagmi';
 import Link from 'next/link';
+import { useAuth } from '@/lib/auth/use-auth';
 import { marketplaceRequest, useWalletSession } from '@/lib/marketplace/client';
 import { Button } from '@/components/ui/button';
 import type { PublicationRecord } from '@/lib/supabase/types';
@@ -10,7 +10,8 @@ import { FileEdit } from 'lucide-react';
 
 export function CreatorDrafts() {
   const authenticate = useWalletSession();
-  const { address } = useAccount();
+  const { authenticatedAddress, walletAddress } = useAuth();
+  const address = walletAddress?.toLowerCase();
   const [items, setItems] = useState<PublicationRecord[]>([]);
   const [owner, setOwner] = useState('');
   const [loaded, setLoaded] = useState(false);

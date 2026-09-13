@@ -22,3 +22,17 @@ export const PUBLIC_LOCK_ABI = [
   'function totalSupply() view returns (uint256)',
   'function purchase((uint256 value,address recipient,address referrer,address protocolReferrer,address keyManager,bytes data,uint256 additionalPeriods)[] purchaseArgs) payable returns (uint256[])',
 ] as const
+
+/** Viem-compatible ABI for the Unlock factory. Used by wallet.writeContract in the browser. */
+export const UNLOCK_ABI_VIEM = [
+  {
+    type: 'function',
+    name: 'createUpgradeableLockAtVersion',
+    inputs: [
+      { name: 'data', type: 'bytes' },
+      { name: 'lockVersion', type: 'uint16' },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+] as const;

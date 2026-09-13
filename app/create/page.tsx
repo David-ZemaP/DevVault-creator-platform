@@ -6,10 +6,12 @@ import { useAccount, useSwitchChain, useWalletClient } from 'wagmi';
 import { createPublicClient, http, parseEther, formatEther, zeroAddress } from 'viem';
 import { Button } from '@/components/ui/button';
 import { marketplaceRequest, useWalletSession } from '@/lib/marketplace/client';
+import { useAuth } from '@/lib/auth/use-auth';
 import type { PublicationRecord } from '@/lib/supabase/types';
 import { CONTENT_PROOF_REGISTRY_ABI, CONTENT_PROOF_REGISTRY_ADDRESS } from '@/lib/web3/contentProof';
 import { avalancheFuji } from '@/lib/web3/chains';
 import { getExplorerTxUrl } from '@/lib/web3/avalanche';
+import { CreateLockSection } from '@/components/membership/create-lock-section';
 import {
   Sparkles,
   ExternalLink,
@@ -19,7 +21,7 @@ import {
   FolderArchive,
   ArrowRight,
   PlusCircle,
-  AlertCircle
+  AlertCircle,
 } from 'lucide-react';
 
 export default function CreatePublicationPage() {
@@ -27,6 +29,7 @@ export default function CreatePublicationPage() {
   const { data: wallet } = useWalletClient();
   const { switchChainAsync } = useSwitchChain();
   const authenticate = useWalletSession();
+  const { authenticatedAddress } = useAuth();
 
   const [project, setProject] = useState<PublicationRecord | null>(null);
   const [hasSource, setHasSource] = useState(false);
@@ -37,11 +40,11 @@ export default function CreatePublicationPage() {
   const [demoVideoUrl, setDemoVideoUrl] = useState('');
   const [coverImage, setCoverImage] = useState('');
   const [price, setPrice] = useState('');
-  const [lockAddress, setLockAddress] = useState('');
   const [projectType, setProjectType] = useState<'software' | 'article'>('software');
   const [acquisitionModel, setAcquisitionModel] = useState<'lifetime' | 'subscription'>('lifetime');
   const [premiumContent, setPremiumContent] = useState('');
   const [file, setFile] = useState<File | null>(null);
+  const [repositoryUrl, setRepositoryUrl] = useState('');
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
   const [manageId, setManageId] = useState('');
@@ -52,7 +55,7 @@ export default function CreatePublicationPage() {
     setManageId(new URLSearchParams(window.location.search).get('id') || '');
     setProject(null);
     setHasSource(false);
-  }, [address]);
+  }, [address, authenticatedAddress]);
 
   async function task(work: () => Promise<void>) {
     setBusy(true);
@@ -74,10 +77,18 @@ export default function CreatePublicationPage() {
     if (result.publication?.acquisitionModel) {
       setAcquisitionModel(result.publication.acquisitionModel);
     }
+    if (result.publication?.repositoryUrl) {
+      setRepositoryUrl(result.publication.repositoryUrl);
+    }
   }
 
   const inputStyle =
     'w-full rounded-lg border border-zinc-800 bg-zinc-950/80 px-3.5 py-2 text-xs sm:text-sm text-zinc-100 placeholder-zinc-500 focus:border-zinc-600 focus:outline-none transition-colors';
+
+  const needsLock = project
+    ? (project.projectType === 'software' && !project.lockAddress) ||
+      (project.projectType !== 'software' && project.acquisitionModel === 'subscription' && !project.lockAddress)
+    : false;
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -129,19 +140,18 @@ export default function CreatePublicationPage() {
                 demoVideoUrl,
                 coverImage,
                 priceWei: projectType === 'software' ? parseEther(price).toString() : undefined,
-                lockAddress: lockAddress || undefined,
                 projectType,
                 premiumContent,
-                acquisitionModel: projectType === 'software' ? acquisitionModel : 'lifetime',
+                acquisitionModel,
               });
               setProject(result.publication);
               setManageId(result.publication.id);
               window.history.replaceState(null, '', `/create?id=${result.publication.id}`);
-              setMessage('Draft saved. Upload source and review before publishing.');
+              setMessage('Draft saved. Complete setup and publish when ready.');
             });
           }}
         >
-          <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/30 p-5 space-y-4 shadow-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <label className="block space-y-1.5">
               <span className="text-xs font-semibold text-zinc-300">Publication type</span>
               <select
@@ -159,67 +169,68 @@ export default function CreatePublicationPage() {
               <input
                 required
                 maxLength={180}
-                placeholder="e.g. Real-time Crypto Analytics Engine"
+                placeholder="e.g. Next.js Web3 Starter Kit"
                 className={inputStyle}
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
               />
             </label>
-
-            <label className="block space-y-1.5">
-              <span className="text-xs font-semibold text-zinc-300">Short summary (public)</span>
-              <input
-                maxLength={1000}
-                placeholder="Brief one-line overview of the publication..."
-                className={inputStyle}
-                value={preview}
-                onChange={(e) => setPreview(e.target.value)}
-              />
-            </label>
-
-            <label className="block space-y-1.5">
-              <span className="text-xs font-semibold text-zinc-300">Description (public)</span>
-              <textarea
-                required
-                maxLength={50000}
-                rows={4}
-                placeholder="Detailed technical description, architecture, and features..."
-                className={inputStyle}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
-            </label>
           </div>
+
+          <label className="block space-y-1.5">
+            <span className="text-xs font-semibold text-zinc-300">Short summary (public)</span>
+            <input
+              maxLength={1000}
+              placeholder="Brief summary for listings and explore cards"
+              className={inputStyle}
+              value={preview}
+              onChange={(e) => setPreview(e.target.value)}
+            />
+          </label>
+
+          <label className="block space-y-1.5">
+            <span className="text-xs font-semibold text-zinc-300">Full Description (public)</span>
+            <textarea
+              required
+              maxLength={50000}
+              rows={4}
+              placeholder="Detailed overview of your project, tech stack, and what buyers will receive"
+              className={inputStyle}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </label>
 
           <section className="rounded-xl border border-zinc-800/80 bg-zinc-900/30 p-5 space-y-4 shadow-sm">
             <div>
-              <h2 className="text-sm font-semibold text-white">Demo & Showcase</h2>
+              <h2 className="text-sm font-semibold text-white">Live Showcase & Media</h2>
               <p className="text-xs text-zinc-400">
-                Use public showcase URLs only. Upload the private source archive after saving this draft.
+                Buyers can interact with your demo or view video before purchasing.
               </p>
             </div>
 
-            <label className="block space-y-1.5">
-              <span className="text-xs font-semibold text-zinc-300">Live demo URL (optional)</span>
-              <input
-                type="url"
-                className={inputStyle}
-                value={demoUrl}
-                onChange={(e) => setDemoUrl(e.target.value)}
-                placeholder="https://demo.example.com"
-              />
-            </label>
-
-            <label className="block space-y-1.5">
-              <span className="text-xs font-semibold text-zinc-300">Video demo URL (optional)</span>
-              <input
-                type="url"
-                className={inputStyle}
-                value={demoVideoUrl}
-                onChange={(e) => setDemoVideoUrl(e.target.value)}
-                placeholder="https://youtube.com/watch?v=..."
-              />
-            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <label className="block space-y-1.5">
+                <span className="text-xs font-semibold text-zinc-300">Live demo URL (optional)</span>
+                <input
+                  type="url"
+                  className={inputStyle}
+                  value={demoUrl}
+                  onChange={(e) => setDemoUrl(e.target.value)}
+                  placeholder="https://demo.example.com"
+                />
+              </label>
+              <label className="block space-y-1.5">
+                <span className="text-xs font-semibold text-zinc-300">Video demo URL (optional)</span>
+                <input
+                  type="url"
+                  className={inputStyle}
+                  value={demoVideoUrl}
+                  onChange={(e) => setDemoVideoUrl(e.target.value)}
+                  placeholder="https://youtu.be/..."
+                />
+              </label>
+            </div>
 
             <label className="block space-y-1.5">
               <span className="text-xs font-semibold text-zinc-300">Public cover image URL (optional)</span>
@@ -237,7 +248,7 @@ export default function CreatePublicationPage() {
             <div>
               <h2 className="text-sm font-semibold text-white">Pricing & Token Gating</h2>
               <p className="text-xs text-zinc-400">
-                Configure acquisition model and on-chain lock parameters on HSKChain Testnet.
+                Configure acquisition model and pricing on HSKChain Testnet.
               </p>
             </div>
 
@@ -271,6 +282,7 @@ export default function CreatePublicationPage() {
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
                 />
+                <p className="text-xs text-zinc-500">You will configure the payment contract in the next step.</p>
               </label>
             ) : (
               <label className="block space-y-1.5">
@@ -283,23 +295,6 @@ export default function CreatePublicationPage() {
                 />
               </label>
             )}
-
-            <label className="block space-y-1.5">
-              <span className="text-xs font-semibold text-zinc-300">
-                Existing Unlock PublicLock v15 address on HSKChain Testnet
-              </span>
-              <input
-                required={projectType === 'software'}
-                className={inputStyle}
-                value={lockAddress}
-                onChange={(e) => setLockAddress(e.target.value)}
-                placeholder="0x…"
-              />
-              <p className="text-[11px] text-zinc-500">
-                For software, you must manage this lock and its current native HSK price must match.
-                The existing HSK lock tools remain available; no contract is deployed by this form.
-              </p>
-            </label>
           </section>
 
           <Button type="submit" disabled={busy || !isConnected}>
@@ -384,50 +379,123 @@ export default function CreatePublicationPage() {
           {project.status === 'DRAFT' && (
             <div className="space-y-4">
               {project.projectType === 'software' && (
-                <section className="rounded-xl border border-zinc-800/80 bg-zinc-900/30 p-5 space-y-3 shadow-sm">
+                <section className="rounded-xl border border-zinc-800/80 bg-zinc-900/30 p-5 space-y-4 shadow-sm">
                   <div className="flex items-center gap-2">
                     <FolderArchive className="h-4 w-4 text-zinc-200" />
-                    <h2 className="text-sm font-semibold text-white">Private Source Archive</h2>
+                    <h2 className="text-sm font-semibold text-white">Private Source</h2>
                   </div>
-                  <p className="text-xs text-zinc-400">
-                    ZIP only, up to 20 MiB. Remove secrets before upload. Uploaded archives are
-                    immutable and encrypted on the server.
-                  </p>
                   {hasSource ? (
                     <div className="flex items-center gap-2 rounded border border-emerald-500/20 bg-emerald-500/10 p-2.5 text-xs font-medium text-emerald-400">
                       <CheckCircle2 className="h-3.5 w-3.5" />
                       <span>Private source uploaded ✓</span>
                     </div>
                   ) : (
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 pt-1">
-                      <input
-                        aria-label="Private source ZIP"
-                        type="file"
-                        accept=".zip,application/zip"
-                        onChange={(e) => setFile(e.target.files?.[0] || null)}
-                        className="text-xs text-zinc-400 file:mr-2.5 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-medium file:bg-zinc-800 file:text-zinc-200 hover:file:bg-zinc-700 cursor-pointer"
-                      />
-                      <Button
-                        disabled={busy || !file}
-                        onClick={() =>
-                          task(async () => {
-                            const data = new FormData();
-                            data.set('file', file!);
-                            await marketplaceRequest(`/publications/${project.id}/upload`, data);
-                            await reload(project.id);
-                          })
-                        }
-                        className="gap-1.5"
-                      >
-                        <Upload className="h-3.5 w-3.5" />
-                        Upload private source
-                      </Button>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <p className="text-xs font-medium text-zinc-200">Option A — Upload ZIP archive</p>
+                        <p className="text-xs text-zinc-400">
+                          ZIP only, up to 20 MiB. Remove secrets before upload. Uploaded archives are
+                          immutable and encrypted on the server.
+                        </p>
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 pt-1">
+                          <input
+                            aria-label="Private source ZIP"
+                            type="file"
+                            accept=".zip,application/zip"
+                            onChange={(e) => setFile(e.target.files?.[0] || null)}
+                            className="text-xs text-zinc-400 file:mr-2.5 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-medium file:bg-zinc-800 file:text-zinc-200 hover:file:bg-zinc-700 cursor-pointer"
+                          />
+                          <Button
+                            disabled={busy || !file}
+                            onClick={() =>
+                              task(async () => {
+                                const data = new FormData();
+                                data.set('file', file!);
+                                await marketplaceRequest(`/publications/${project.id}/upload`, data);
+                                await reload(project.id);
+                              })
+                            }
+                            className="gap-1.5"
+                          >
+                            <Upload className="h-3.5 w-3.5" />
+                            Upload private source
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="border-t border-zinc-800/80 pt-4 space-y-2">
+                        <p className="text-xs font-medium text-zinc-200">Option B — GitHub / repository URL</p>
+                        <p className="text-xs text-zinc-400">
+                          Buyers with a valid purchase will receive this link. Use a private repo URL or a pre-signed link.
+                        </p>
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                          <input
+                            type="url"
+                            className={inputStyle}
+                            placeholder="https://github.com/you/private-repo"
+                            value={repositoryUrl}
+                            onChange={(e) => setRepositoryUrl(e.target.value)}
+                            aria-label="Repository URL"
+                          />
+                          <Button
+                            variant="outline"
+                            disabled={busy || !repositoryUrl}
+                            onClick={() =>
+                              task(async () => {
+                                await marketplaceRequest(`/publications/${project.id}/set-repo`, { repositoryUrl });
+                                await reload(project.id);
+                                setMessage('Repository URL saved.');
+                              })
+                            }
+                          >
+                            Save repository URL
+                          </Button>
+                        </div>
+                        {project.repositoryUrl && (
+                          <p className="text-emerald-400 text-xs font-medium">Repository URL saved ✓</p>
+                        )}
+                      </div>
                     </div>
                   )}
                 </section>
               )}
 
-              <div className="flex flex-wrap gap-3 pt-1">
+              {/* Payment / membership lock configuration */}
+              {project.projectType === 'software' && (
+                project.lockAddress ? (
+                  <section className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 space-y-1">
+                    <p className="text-emerald-400 text-xs sm:text-sm font-medium">Payment contract configured ✓</p>
+                    <p className="font-mono text-xs text-zinc-400 break-all">{project.lockAddress}</p>
+                    <p className="text-xs text-zinc-500">Buyers pay through this Unlock lock. Source access is permanent.</p>
+                  </section>
+                ) : (
+                  <CreateLockSection
+                    project={project}
+                    mode="payment"
+                    onLockSaved={(addr, priceWei) =>
+                      setProject((prev) => (prev ? { ...prev, lockAddress: addr, priceWei } : prev))
+                    }
+                  />
+                )
+              )}
+
+              {project.projectType !== 'software' && project.acquisitionModel === 'subscription' && (
+                project.lockAddress ? (
+                  <section className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 space-y-1">
+                    <p className="text-emerald-400 text-xs sm:text-sm font-medium">Membership contract configured ✓</p>
+                    <p className="font-mono text-xs text-zinc-400 break-all">{project.lockAddress}</p>
+                  </section>
+                ) : (
+                  <CreateLockSection
+                    project={project}
+                    onLockSaved={(addr, priceWei) =>
+                      setProject((prev) => (prev ? { ...prev, lockAddress: addr, priceWei } : prev))
+                    }
+                  />
+                )
+              )}
+
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-2">
                 {CONTENT_PROOF_REGISTRY_ADDRESS !== zeroAddress &&
                   project.lockAddress &&
                   !project.avalancheTx && (
@@ -466,7 +534,11 @@ export default function CreatePublicationPage() {
                   )}
 
                 <Button
-                  disabled={busy || (project.projectType === 'software' && !hasSource)}
+                  disabled={
+                    busy ||
+                    (project.projectType === 'software' && !hasSource && !project.repositoryUrl) ||
+                    needsLock
+                  }
                   onClick={() =>
                     task(async () => {
                       await marketplaceRequest(`/publications/${project.id}/publish`, {});
@@ -476,7 +548,7 @@ export default function CreatePublicationPage() {
                   }
                   variant="primary"
                 >
-                  {busy ? 'Checking...' : 'Publish project'}
+                  {busy ? 'Checking...' : needsLock ? 'Configure payment contract first' : 'Publish project'}
                 </Button>
               </div>
             </div>

@@ -1,3 +1,4 @@
+import { apiError } from "@/lib/server/marketplace-db";
 import { NextRequest, NextResponse } from "next/server";
 import { serverDb } from "@/lib/supabase/server";
 
@@ -25,11 +26,7 @@ export async function GET(
     }
 
     return NextResponse.json({ user, ...user }, { status: 200 });
-  } catch (err: any) {
-    console.error("Error in GET /api/users/[wallet]:", err);
-    return NextResponse.json(
-      { error: err?.message || "Failed to fetch user" },
-      { status: 500 }
-    );
+  } catch (error) {
+    return apiError(error);
   }
 }

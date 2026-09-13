@@ -1,10 +1,11 @@
 import type { PublicationRecord } from '../supabase/types';
 
 export function safeUrl(value?: string | null): string | undefined {
-  if (!value) return undefined;
+  if (!value || typeof value !== 'string') return undefined;
   try {
     const url = new URL(value);
-    if (!['https:', 'http:'].includes(url.protocol) || url.username || url.password) return undefined;
+    const local = process.env.NODE_ENV !== 'production' && url.protocol === 'http:' && url.hostname === 'localhost';
+    if ((url.protocol !== 'https:' && !local) || url.username || url.password) return undefined;
     return url.href;
   } catch { return undefined; }
 }

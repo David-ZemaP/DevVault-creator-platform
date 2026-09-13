@@ -1,12 +1,12 @@
 # DevVault Creator Platform
 
-Decentralized content platform for creators built with Next.js, TypeScript, Tailwind CSS, Hardhat, Solidity, OpenZeppelin, wagmi, viem, and RainbowKit.
+Decentralized content platform for creators built with Next.js, TypeScript, Tailwind CSS, Hardhat, Solidity, wagmi, viem, and RainbowKit.
 
 ## Tech Stack
 
-- **Frontend**: Next.js 14+ (App Router), React, TypeScript, Tailwind CSS
+- **Frontend**: Next.js 16.3.4 (App Router), React, TypeScript, Tailwind CSS
 - **Web3 Integration**: Wagmi, Viem, RainbowKit, Unlock Protocol
-- **Smart Contracts**: Solidity ^0.8.24, Hardhat, OpenZeppelin Contracts
+- **Smart Contracts**: Solidity 0.8.24, Hardhat
 - **Network**: Avalanche (C-Chain Mainnet & Fuji Testnet)
 
 ## Project Structure
@@ -126,3 +126,7 @@ Demo metadata is public; source is private. The frontend cannot authorize access
 ### Current Testnet
 
 HSKChain Testnet (133) uses existing Unlock PublicLock v15 payments. Optional content provenance uses the existing Avalanche Fuji (43113) registry. This is a testnet integration, not a mainnet or production-readiness claim.
+
+## Security and local validation
+
+See [Security architecture and exact local setup](docs/SECURITY_ARCHITECTURE.md) for SIWE, two-hour sessions, wallet changes, private downloads, Live Demo isolation and the dual-chain boundary. [Validation record](docs/SECURITY_VALIDATION.md) separates tested behavior from missing development services. Run `corepack pnpm smoke:web` against a running development server to check HTTP and database readiness.
