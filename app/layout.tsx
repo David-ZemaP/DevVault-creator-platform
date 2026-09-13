@@ -19,8 +19,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="flex min-h-screen flex-col bg-zinc-950 text-zinc-100 antialiased selection:bg-blue-900 selection:text-white">
+    <html lang="en" suppressHydrationWarning>
+      <body
+        className="flex min-h-screen flex-col bg-zinc-950 text-zinc-100 antialiased selection:bg-blue-900 selection:text-white"
+        suppressHydrationWarning
+      >
         <a
           href="#main-content"
           className="sr-only fixed top-3 left-3 z-[100] rounded-lg bg-zinc-100 px-3 py-1.5 text-xs font-semibold text-zinc-900 shadow-md focus:not-sr-only focus:outline-none focus:ring-2 focus:ring-blue-500"
