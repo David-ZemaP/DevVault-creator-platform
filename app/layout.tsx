@@ -11,6 +11,11 @@ export const metadata: Metadata = {
   },
   description:
     "Discover independent creators, verify content proofs on Avalanche Fuji, and manage token-gated memberships on HashKey Chain.",
+  icons: {
+    icon: "/assets/logo.png",
+    shortcut: "/assets/logo.png",
+    apple: "/assets/logo.png",
+  },
 };
 
 export default function RootLayout({

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { MainNavigation } from "./main-navigation";
 import { CustomConnectButton } from "@/components/wallet/connect-button";
 
@@ -11,8 +12,15 @@ export function SiteHeader() {
           aria-label="DevVault home"
           className="group flex shrink-0 items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
         >
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900 font-mono text-xs font-bold text-zinc-200 shadow-sm transition-colors group-hover:border-zinc-700 group-hover:text-white">
-            DV
+          <div className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900 shadow-sm transition-colors group-hover:border-zinc-700">
+            <Image
+              src="/assets/logo.png"
+              alt="DevVault Logo"
+              width={32}
+              height={32}
+              className="h-full w-full object-contain p-0.5"
+              priority
+            />
           </div>
           <span className="text-sm font-semibold tracking-tight text-zinc-200 transition-colors group-hover:text-white">
             DevVault
