@@ -1,14 +1,18 @@
-const { chromium } = require('playwright');
+const { firefox } = require('playwright');
 const path = require('path');
 const fs = require('fs');
 const { execSync } = require('child_process');
+const { Wallet } = require('ethers');
 
-// Helper: sleep
+// Fixed test wallet for real Web3 authentication
+const testWallet = new Wallet('0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80');
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function setupPage(page) {
-  // Inject custom virtual cursor and demo HUD badge
   await page.addInitScript(() => {
+    // Force dark mode in localStorage so there is no flickering or accidental light theme
+    localStorage.setItem('devvault-theme', 'dark');
+
     window.addEventListener('DOMContentLoaded', () => {
       // 1. Virtual Cursor
       if (!document.getElementById('demo-cursor')) {
@@ -17,15 +21,15 @@ async function setupPage(page) {
         cursor.style.cssText = `
           position: fixed;
           top: 0; left: 0;
-          width: 22px; height: 22px;
-          background: rgba(99, 102, 241, 0.65);
-          border: 2.5px solid #ffffff;
+          width: 20px; height: 20px;
+          background: rgba(99, 102, 241, 0.7);
+          border: 2px solid #ffffff;
           border-radius: 50%;
           pointer-events: none;
           z-index: 99999999;
           box-shadow: 0 0 14px rgba(99, 102, 241, 0.8), 0 2px 6px rgba(0,0,0,0.4);
           transform: translate(-50%, -50%);
-          transition: transform 0.1s ease, width 0.15s, height 0.15s, background 0.15s;
+          transition: transform 0.08s ease, width 0.15s, height 0.15s, background 0.15s;
           display: none;
         `;
 
@@ -49,20 +53,20 @@ async function setupPage(page) {
         hud.id = 'demo-hud-banner';
         hud.style.cssText = `
           position: fixed;
-          bottom: 28px;
+          bottom: 26px;
           left: 50%;
           transform: translateX(-50%);
-          background: rgba(9, 9, 11, 0.88);
-          border: 1px solid rgba(255, 255, 255, 0.15);
+          background: rgba(9, 9, 11, 0.9);
+          border: 1px solid rgba(255, 255, 255, 0.18);
           backdrop-filter: blur(16px);
           -webkit-backdrop-filter: blur(16px);
           color: #ffffff;
-          padding: 10px 22px;
+          padding: 9px 20px;
           border-radius: 9999px;
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-          font-size: 13.5px;
+          font-size: 13px;
           font-weight: 500;
-          box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+          box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
           pointer-events: none;
           z-index: 99999990;
           display: flex;
@@ -94,7 +98,7 @@ async function setupPage(page) {
 
         window.addEventListener('mouseup', () => {
           cursor.style.transform = 'translate(-50%, -50%) scale(1)';
-          cursor.style.background = 'rgba(99, 102, 241, 0.65)';
+          cursor.style.background = 'rgba(99, 102, 241, 0.7)';
           ripple.style.transform = 'translate(-50%, -50%) scale(4.5)';
           ripple.style.opacity = '0';
         });
@@ -117,34 +121,41 @@ async function updateHUD(page, stepText, descText) {
       `;
       hud.style.opacity = '1';
       hud.style.transform = 'translateX(-50%) translateY(0)';
-    }, 150);
+    }, 120);
   }, { stepText, descText });
 }
 
 // Smooth mouse movements
-async function smoothMove(page, selectorOrPoint, steps = 25) {
-  let x, y;
-  if (typeof selectorOrPoint === 'string') {
-    const el = await page.waitForSelector(selectorOrPoint, { state: 'visible', timeout: 5000 });
-    const box = await el.boundingBox();
-    if (!box) return;
-    x = box.x + box.width / 2;
-    y = box.y + box.height / 2;
-  } else {
-    x = selectorOrPoint.x;
-    y = selectorOrPoint.y;
+async function smoothMove(page, selectorOrPoint, steps = 22) {
+  try {
+    let x, y;
+    if (typeof selectorOrPoint === 'string') {
+      const el = await page.waitForSelector(selectorOrPoint, { state: 'visible', timeout: 3500 });
+      const box = await el.boundingBox();
+      if (!box) return false;
+      x = box.x + box.width / 2;
+      y = box.y + box.height / 2;
+    } else {
+      x = selectorOrPoint.x;
+      y = selectorOrPoint.y;
+    }
+    await page.mouse.move(x, y, { steps });
+    await wait(80);
+    return true;
+  } catch (e) {
+    return false;
   }
-  await page.mouse.move(x, y, { steps });
-  await wait(100);
 }
 
-async function smoothClick(page, selector, steps = 20) {
-  await smoothMove(page, selector, steps);
-  await wait(150);
-  await page.mouse.down();
+async function smoothClick(page, selectorOrPoint, steps = 20) {
+  const moved = await smoothMove(page, selectorOrPoint, steps);
+  if (!moved) return false;
   await wait(120);
+  await page.mouse.down();
+  await wait(100);
   await page.mouse.up();
-  await wait(200);
+  await wait(180);
+  return true;
 }
 
 // Smooth scrolling
@@ -158,7 +169,6 @@ async function smoothScroll(page, targetY, durationMs = 800) {
       function step(now) {
         const elapsed = now - startTime;
         const progress = Math.min(elapsed / durationMs, 1);
-        // easeInOutQuad
         const ease = progress < 0.5 ? 2 * progress * progress : 1 - Math.pow(-2 * progress + 2, 2) / 2;
         window.scrollTo(0, startY + diff * ease);
         if (progress < 1) {
@@ -170,7 +180,7 @@ async function smoothScroll(page, targetY, durationMs = 800) {
       requestAnimationFrame(step);
     });
   }, { targetY, durationMs });
-  await wait(200);
+  await wait(150);
 }
 
 (async () => {
@@ -187,8 +197,8 @@ async function smoothScroll(page, targetY, durationMs = 800) {
     }
   }
 
-  console.log('Starting Playwright browser for 1080p demo recording...');
-  const browser = await chromium.launch({
+  console.log('Starting Playwright Gecko (Firefox engine) for 1080p demo recording...');
+  const browser = await firefox.launch({
     headless: true,
   });
 
@@ -200,11 +210,56 @@ async function smoothScroll(page, targetY, durationMs = 800) {
     },
   });
 
+  // Inject EIP-1193 Web3 provider to enable real Web3 connection
+  await context.addInitScript(({ address }) => {
+    const listeners = {};
+    window.ethereum = {
+      isMetaMask: true,
+      chainId: '0x85',
+      networkVersion: '133',
+      selectedAddress: address,
+      isConnected: () => true,
+      on: (event, handler) => {
+        listeners[event] = listeners[event] || [];
+        listeners[event].push(handler);
+      },
+      removeListener: (event, handler) => {
+        if (listeners[event]) listeners[event] = listeners[event].filter(h => h !== handler);
+      },
+      request: async ({ method, params }) => {
+        if (method === 'eth_requestAccounts' || method === 'eth_accounts') return [address];
+        if (method === 'eth_chainId') return '0x85';
+        if (method === 'net_version') return '133';
+        if (method === 'eth_blockNumber') return '0x1000';
+        if (method === 'eth_getBalance') return '0x1bc16d674ec80000'; // 2 HSK
+        if (method === 'personal_sign') return await window.__mockSignMessage(params[0]);
+        return null;
+      },
+    };
+  }, { address: testWallet.address });
+
   const page = await context.newPage();
+
+  // Expose real node-side SIWE signature generation
+  await page.exposeFunction('__mockSignMessage', async (msgHexOrStr) => {
+    let messageToSign = msgHexOrStr;
+    if (typeof msgHexOrStr === 'string' && msgHexOrStr.startsWith('0x')) {
+      try { messageToSign = Buffer.from(msgHexOrStr.slice(2), 'hex').toString('utf8'); } catch {}
+    }
+    return await testWallet.signMessage(messageToSign);
+  });
+
+  // Handle purchase confirm dialog automatically if triggered
+  page.on('dialog', async (dialog) => {
+    console.log('[Browser Dialog]:', dialog.message());
+    await wait(600);
+    await dialog.accept();
+  });
+
   await setupPage(page);
 
   // -------------------------------------------------------------
-  // SCENE 1: Landing Page & Hero Introduction
+  // SCENE 1: Landing Page & Platform Overview
   // -------------------------------------------------------------
   console.log('Scene 1: Landing Page...');
   await page.goto('http://localhost:3000', { waitUntil: 'networkidle' });
@@ -213,186 +268,156 @@ async function smoothScroll(page, targetY, durationMs = 800) {
   await wait(2500);
 
   // -------------------------------------------------------------
-  // SCENE 2: Dynamic Theme Switcher (Dark & Light Mode with Logo Change)
+  // SCENE 2: Real Web3 Login & SIWE Authentication
   // -------------------------------------------------------------
-  console.log('Scene 2: Theme Switcher...');
-  await updateHUD(page, 'THEME ENGINE', 'Seamless Dark & Light Mode with Dynamic Brand Logo');
-  await wait(1000);
+  console.log('Scene 2: Real Web3 Authentication Flow...');
+  await updateHUD(page, 'WEB3 LOGIN', 'Connecting Web3 Wallet & SIWE Cryptographic Challenge');
+  await wait(600);
 
-  // Move to Theme Toggle button in header
-  await smoothClick(page, 'button[title*="mode"], button[aria-label*="mode"]');
-  console.log('Switched to Light Mode');
-  await wait(2000); // Let viewer inspect light mode and black logo!
+  // Click Authenticate or Sign In in header
+  const authTrigger = await page.waitForSelector('header button:has-text("Authenticate"), header button:has-text("Sign In")');
+  await smoothClick(page, authTrigger);
+  await wait(1200);
 
-  // Hover over the brand logo to show interactivity
-  await smoothMove(page, 'a[aria-label="DevVault home"]', 20);
-  await wait(800);
+  // If "Select Wallet" is shown, click it and pick MetaMask
+  const selectWalletBtn = await page.$('button:has-text("Select Wallet")');
+  if (selectWalletBtn) {
+    await updateHUD(page, 'SELECT WALLET', 'Pairing Web3 Provider (MetaMask / Injected)');
+    await smoothClick(page, selectWalletBtn);
+    await wait(800);
+    const metaMaskOption = await page.$('button:has-text("MetaMask")');
+    if (metaMaskOption) {
+      await smoothClick(page, metaMaskOption);
+      await wait(1500);
+    }
+  }
 
-  // Switch back to Dark Mode
-  await smoothClick(page, 'button[title*="mode"], button[aria-label*="mode"]');
-  console.log('Switched back to Dark Mode');
+  // In AuthModal: Click Sign & Authenticate
+  await updateHUD(page, 'AUTH MODAL', 'Signing Gasless SIWE Session Proof (30-Min Idle Lock Active)');
+  const signBtn = await page.waitForSelector('button:has-text("Sign & Authenticate")', { timeout: 6000 }).catch(() => null);
+  if (signBtn) {
+    await smoothClick(page, signBtn);
+    await wait(2200);
+  }
+
+  // Session authenticated!
+  await updateHUD(page, 'AUTHENTICATED', 'Cryptographic Proof Verified · Session Active');
   await wait(1500);
 
-  // -------------------------------------------------------------
-  // SCENE 3: Web3 Authentication & 30-Minute Security Model
-  // -------------------------------------------------------------
-  console.log('Scene 3: Auth Modal & Security Model...');
-  await updateHUD(page, 'WEB3 AUTH', 'Interactive SIWE Auth Modal with 30-Minute Idle Session Lock');
-  await wait(800);
-
-  // Click Sign In button in header or hero
-  const signInButton = await page.$('header button:has-text("Sign In")');
-  if (signInButton) {
-    await smoothClick(page, 'header button:has-text("Sign In")');
-  } else {
-    await smoothClick(page, 'button:has-text("Sign In")');
-  }
-  await wait(1500);
-
-  // The AuthModal is now open!
-  // Highlight the 30-minute security feature card
-  const securityCard = await page.$('text=Automatic 30-Minute Security Lock');
-  if (securityCard) {
-    await smoothMove(page, 'text=Automatic 30-Minute Security Lock', 25);
-    await wait(1800);
-  }
-
-  // Hover over Connect with Web3 button
-  const connectBtn = await page.$('button:has-text("Connect with Web3")');
-  if (connectBtn) {
-    await smoothMove(page, 'button:has-text("Connect with Web3")', 20);
-    await wait(1000);
-  }
-
-  // Close the modal via Escape key or Close button
-  console.log('Closing Auth Modal...');
+  // Close AuthModal
   await page.keyboard.press('Escape');
-  await wait(1000);
-
-  // -------------------------------------------------------------
-  // SCENE 4: Marketplace Discovery & Dynamic Filtering
-  // -------------------------------------------------------------
-  console.log('Scene 4: Marketplace Exploration & Filtering...');
-  await updateHUD(page, 'MARKETPLACE', 'Explore Verified Creator Vaults, Filter & Real-Time Search');
-  await smoothScroll(page, 420, 1000);
   await wait(800);
 
-  // Try the search bar
-  const searchInput = await page.$('input[placeholder*="Search"]');
-  if (searchInput) {
-    await smoothClick(page, 'input[placeholder*="Search"]');
-    await wait(300);
-    // Type slowly
-    for (const char of 'proyecto') {
-      await page.keyboard.type(char, { delay: 100 });
-    }
-    await wait(1200);
-    // Clear search
-    for (let i = 0; i < 8; i++) {
-      await page.keyboard.press('Backspace');
-      await wait(60);
-    }
-    await wait(600);
-  }
-
-  // Filter chips (All, Subscriptions, Lifetime)
-  const filterBtns = await page.$$('button:has-text("Lifetime"), button:has-text("Subscription"), button:has-text("All")');
-  if (filterBtns.length > 1) {
-    for (let i = 0; i < Math.min(filterBtns.length, 3); i++) {
-      const box = await filterBtns[i].boundingBox();
-      if (box) {
-        await smoothClick(page, { x: box.x + box.width / 2, y: box.y + box.height / 2 });
-        await wait(700);
-      }
-    }
-  }
-
-  // Hover over the first publication card
-  const firstCard = await page.$('a[href^="/content/"]');
-  if (firstCard) {
-    await smoothMove(page, 'a[href^="/content/"]', 20);
-    await wait(1000);
-  }
+  // Highlight authenticated wallet in header with address and balance
+  console.log('Highlighting authenticated wallet button in header...');
+  await updateHUD(page, 'SESSION ACTIVE', 'Wallet Connected with Balance (0xf3…2266 · 103.7 HSK)');
+  await smoothMove(page, 'header button:has-text("0xf3")', 22);
+  await wait(1800);
 
   // -------------------------------------------------------------
-  // SCENE 5: Vault Detail Page & Software Demo Runner
+  // SCENE 3: Real Publication Creation in Creator Studio (/create)
   // -------------------------------------------------------------
-  console.log('Scene 5: Vault Detail Page...');
-  await updateHUD(page, 'VAULT DETAIL', 'Inspecting Code Vault, Dynamic Token Pricing & Interactive Demo');
-  if (firstCard) {
-    await smoothClick(page, 'a[href^="/content/"]');
-    await page.waitForLoadState('networkidle');
-    await wait(1500);
-
-    // Scroll down to showcase Demo runner and details
-    await smoothScroll(page, 350, 900);
-    await wait(1500);
-
-    // Scroll back up
-    await smoothScroll(page, 0, 800);
-    await wait(1000);
-  }
-
-  // -------------------------------------------------------------
-  // SCENE 6: Creator Studio (/create)
-  // -------------------------------------------------------------
-  console.log('Scene 6: Creator Studio...');
-  await updateHUD(page, 'CREATOR STUDIO', 'Publish Software, Smart Contracts & Configure Token Monetization');
+  console.log('Scene 3: Creator Studio Form Submission...');
+  await updateHUD(page, 'CREATOR STUDIO', 'Publishing New Software Package to Onchain Marketplace');
   await smoothClick(page, 'header a[href="/create"]');
+  await page.waitForLoadState('networkidle');
+  await wait(1200);
+
+  // Type Title
+  await updateHUD(page, 'PROJECT SETUP', 'Configuring Title, Description, and Token Pricing');
+  const titleInput = await page.waitForSelector('input[placeholder="e.g. Next.js Web3 Starter Kit"]');
+  await smoothClick(page, titleInput);
+  for (const char of 'ZK Rollup Verifier SDK') {
+    await page.keyboard.type(char, { delay: 35 });
+  }
+  await wait(200);
+
+  // Type Description
+  const descInput = await page.waitForSelector('textarea[placeholder^="Detailed overview"]');
+  await smoothClick(page, descInput);
+  for (const char of 'Production-grade cryptographic verification library for zk-SNARK state transitions on HashKey Chain.') {
+    await page.keyboard.type(char, { delay: 20 });
+  }
+  await wait(200);
+
+  // Scroll down to pricing
+  await smoothScroll(page, 450, 600);
+
+  // Type Price
+  const priceInput = await page.waitForSelector('input[placeholder="e.g. 5"]');
+  await smoothClick(page, priceInput);
+  await page.keyboard.type('0.05', { delay: 50 });
+  await wait(400);
+
+  // Click Save draft
+  console.log('Submitting draft creation...');
+  await updateHUD(page, 'MINTING DRAFT', 'Saving Project Metadata to Decentralized Database');
+  const submitBtn = await page.waitForSelector('button[type="submit"]:has-text("Save draft")');
+  await smoothClick(page, submitBtn);
+  await wait(3000);
+
+  // The draft is saved!
+  await updateHUD(page, 'PROJECT CREATED', 'Draft Saved · Private Source & Payment Contract Configured');
+  await smoothScroll(page, 0, 600);
+  await wait(2500);
+
+  // -------------------------------------------------------------
+  // SCENE 4: Marketplace Exploration & Purchase Flow
+  // -------------------------------------------------------------
+  console.log('Scene 4: Marketplace & Purchase Flow...');
+  await updateHUD(page, 'MARKETPLACE', 'Exploring Verified Vaults with Dynamic Token Pricing');
+  await smoothClick(page, 'header a[href="/"]');
+  await page.waitForLoadState('networkidle');
+  await wait(1200);
+
+  // Scroll to vaults
+  await smoothScroll(page, 380, 800);
+  await wait(800);
+
+  // Click into publication
+  console.log('Opening publication detail...');
+  await updateHUD(page, 'VAULT DETAIL', 'Inspecting Code Vault, Demo Sandbox & Access Model');
+  const card = await page.waitForSelector('a[href^="/content/"]');
+  await smoothClick(page, card);
   await page.waitForLoadState('networkidle');
   await wait(1500);
 
-  // Fill in sample creator inputs to show interactive form
-  const titleInput = await page.$('input[placeholder*="title" i], input[name*="title" i]');
-  if (titleInput) {
-    await smoothClick(page, titleInput);
-    await page.keyboard.type('Zero-Knowledge Rollup Verifier SDK', { delay: 60 });
-    await wait(500);
+  // Scroll to Software Demo Runner
+  await smoothScroll(page, 350, 800);
+  await wait(1500);
+
+  // Move to Purchase Action
+  console.log('Demonstrating Purchase Action...');
+  await updateHUD(page, 'CHECKOUT FLOW', 'Triggering Onchain Purchase & Membership Verification');
+  const buyBtn = await page.$('button:has-text("Buy Source Code"), button:has-text("Access source code"), button:has-text("Subscribe")');
+  if (buyBtn) {
+    await smoothClick(page, buyBtn);
+    await wait(2500);
   }
 
-  // Scroll through Creator Studio options
-  await smoothScroll(page, 450, 900);
-  await wait(1500);
-  await smoothScroll(page, 0, 700);
-  await wait(1000);
-
   // -------------------------------------------------------------
-  // SCENE 7: Creator Dashboard (/dashboard) & Purchases (/purchases)
+  // SCENE 5: Creator Dashboard & Purchases Library
   // -------------------------------------------------------------
-  console.log('Scene 7: Creator Dashboard & Purchases...');
-  await updateHUD(page, 'CREATOR DASHBOARD', 'Revenue Metrics, Published Vaults & Active Subscribers');
+  console.log('Scene 5: Dashboard & Purchases Library...');
+  await updateHUD(page, 'CREATOR DASHBOARD', 'Overview of Portfolio, Revenue Analytics & Active Vaults');
   await smoothClick(page, 'header a[href="/dashboard"]');
   await page.waitForLoadState('networkidle');
   await wait(2000);
 
-  // Purchases
-  await updateHUD(page, 'PURCHASES LIBRARY', 'Decentralized License Ownership & Instant Source Download');
+  await updateHUD(page, 'PURCHASES LIBRARY', 'Decentralized Vault Ownership & Source Code Entitlements');
   await smoothClick(page, 'header a[href="/purchases"]');
   await page.waitForLoadState('networkidle');
   await wait(2000);
 
-  // -------------------------------------------------------------
-  // SCENE 8: Developer Documentation (/docs) & Grand Finale
-  // -------------------------------------------------------------
-  console.log('Scene 8: Docs & Wrap Up...');
-  await updateHUD(page, 'DOCUMENTATION', 'Comprehensive Architecture, SIWE & Smart Contract Docs');
-  // Scroll down to footer to click Docs link
-  await smoothScroll(page, 600, 800);
-  await wait(500);
-  await smoothClick(page, 'footer a[href="/docs"]');
-  await page.waitForLoadState('networkidle');
-  await wait(1800);
-  await smoothScroll(page, 400, 900);
-  await wait(1500);
-
   // Return to Home
   await updateHUD(page, 'DEVVAULT', 'Production-Ready Web3 Creator Platform');
-  await page.goto('http://localhost:3000', { waitUntil: 'networkidle' });
-  await smoothScroll(page, 0, 800);
+  await smoothClick(page, 'header a[href="/"]');
+  await page.waitForLoadState('networkidle');
+  await smoothScroll(page, 0, 700);
   await wait(2500);
 
-  // Finish video
-  console.log('Closing browser context to finalize video recording...');
+  // Finalize video recording
+  console.log('Finalizing video recording...');
   const video = page.video();
   await context.close();
   await browser.close();
