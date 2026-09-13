@@ -18,7 +18,8 @@
     "deploy": "hardhat deploy",
     "test:marketplace": "node scripts/test-marketplace.cjs",
     "test:unit": "mocha --require ./tests/register.cjs --require ts-node/register --extension ts 'tests/*.test.ts'",
-    "smoke:web": "node scripts/smoke-web.cjs"
+    "smoke:web": "node scripts/smoke-web.cjs",
+    "record:demo": "node scripts/record-demo-workflow.cjs"
   },
   "dependencies": {
     "@rainbow-me/rainbowkit": "2.2.11",
@@ -48,10 +49,11 @@
     "eslint-config-next": "16.3.4",
     "ethers": "^6.17.0",
     "hardhat": "^2.29.1",
+    "mocha": "10.8.2",
+    "playwright": "^1.63.0",
     "postcss": "8.5.28",
     "tailwindcss": "4.3.3",
-    "typescript": "5.9.3",
-    "mocha": "10.8.2",
-    "ts-node": "10.9.2"
+    "ts-node": "10.9.2",
+    "typescript": "5.9.3"
   }
 }
