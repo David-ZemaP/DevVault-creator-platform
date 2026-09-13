@@ -10,21 +10,16 @@ export function SiteHeader() {
         <Link
           href="/"
           aria-label="DevVault home"
-          className="group flex shrink-0 items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          className="group flex shrink-0 items-center rounded-lg transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
         >
-          <div className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900 shadow-sm transition-colors group-hover:border-zinc-700">
-            <Image
-              src="/assets/logo.png"
-              alt="DevVault Logo"
-              width={32}
-              height={32}
-              className="h-full w-full object-contain p-0.5"
-              priority
-            />
-          </div>
-          <span className="text-sm font-semibold tracking-tight text-zinc-200 transition-colors group-hover:text-white">
-            DevVault
-          </span>
+          <Image
+            src="/assets/logo.png"
+            alt="DevVault"
+            width={48}
+            height={48}
+            className="h-11 w-auto object-contain transition-transform group-hover:scale-105"
+            priority
+          />
         </Link>
         <div className="order-last w-full md:order-none md:w-auto">
           <MainNavigation />
