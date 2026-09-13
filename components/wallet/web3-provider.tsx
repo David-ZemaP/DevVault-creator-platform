@@ -3,7 +3,7 @@
 import { AuthProvider } from "@/lib/auth/use-auth";
 import React, { useState } from "react";
 import "@rainbow-me/rainbowkit/styles.css";
-import { getDefaultConfig, RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
+import { getDefaultConfig, RainbowKitProvider, darkTheme, lightTheme } from "@rainbow-me/rainbowkit";
 import {
   metaMaskWallet,
   rabbyWallet,
@@ -16,6 +16,7 @@ import {
 import { WagmiProvider } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { avalancheFuji, hashkeyTestnet } from "@/lib/web3/chains";
+import { useTheme } from "@/components/theme/theme-provider";
 
 // Use developer-configured project ID or demo fallback ID for local/preview development
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || "3fbb6bba6f1de962d911bb5b5c9dba88";
@@ -46,21 +47,37 @@ const config = getDefaultConfig({
   ssr: true,
 });
 
+function RainbowKitThemedWrapper({ children }: { children: React.ReactNode }) {
+  const { theme } = useTheme();
+  return (
+    <RainbowKitProvider
+      theme={
+        theme === "dark"
+          ? darkTheme({
+              accentColor: "#ffffff",
+              accentColorForeground: "#09090b",
+              borderRadius: "medium",
+              overlayBlur: "small",
+            })
+          : lightTheme({
+              accentColor: "#09090b",
+              accentColorForeground: "#ffffff",
+              borderRadius: "medium",
+              overlayBlur: "small",
+            })
+      }
+    >
+      <AuthProvider>{children}</AuthProvider>
+    </RainbowKitProvider>
+  );
+}
+
 export function Web3Provider({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient());
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider
-          theme={darkTheme({
-            accentColor: "#2563EB",
-            accentColorForeground: "white",
-            borderRadius: "medium",
-            overlayBlur: "small",
-          })}
-        >
-          <AuthProvider>{children}</AuthProvider>
-        </RainbowKitProvider>
+        <RainbowKitThemedWrapper>{children}</RainbowKitThemedWrapper>
       </QueryClientProvider>
     </WagmiProvider>
   );
