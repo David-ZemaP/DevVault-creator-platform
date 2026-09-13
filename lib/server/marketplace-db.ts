@@ -13,7 +13,7 @@ export function commerceDb() {
 export function checked<T>(result: { data: T; error: { message: string; code?: string } | null }): T {
   if (result.error) {
     if (result.error.code === 'PGRST205' || result.error.message?.includes('schema cache')) {
-      throw new HttpError(503, 'Database table missing. Please apply supabase/migrations/20260912_marketplace.sql.');
+      throw new HttpError(503, 'Database table missing. Please apply supabase/schema.sql.');
     }
     throw new HttpError(503, 'Persistence operation failed. Check server database configuration.');
   }
