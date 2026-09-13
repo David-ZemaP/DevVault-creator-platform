@@ -26,7 +26,7 @@ export function SoftwareAssetsCard({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300">
-            <FileArchive className="h-4 w-4 text-blue-400" />
+            <FileArchive className="h-4 w-4 text-zinc-200" />
           </div>
           <div>
             <h4 className="text-xs sm:text-sm font-semibold text-white">Software Source & Binaries</h4>
@@ -89,7 +89,7 @@ export function SoftwareAssetsCard({
         <div className="space-y-2.5 pt-1">
           <div className="rounded-lg border border-zinc-800/80 bg-zinc-950/60 p-3.5 space-y-2.5">
             <div className="flex items-center gap-2 text-xs font-semibold text-zinc-300">
-              <Lock className="h-3.5 w-3.5 text-blue-400" />
+              <Lock className="h-3.5 w-3.5 text-zinc-200" />
               <span>Source files are hidden</span>
             </div>
             <p className="text-xs text-zinc-400 leading-relaxed">

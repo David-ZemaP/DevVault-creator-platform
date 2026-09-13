@@ -33,7 +33,7 @@ export function MainNavigation() {
           >
             <Icon
               aria-hidden="true"
-              className={cn("h-4 w-4 shrink-0 transition-colors", isActive ? "text-blue-400" : "text-zinc-400")}
+              className={cn("h-4 w-4 shrink-0 transition-colors", isActive ? "text-white" : "text-zinc-400")}
             />
             <span>{label}</span>
           </Link>

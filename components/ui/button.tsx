@@ -12,7 +12,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       "inline-flex items-center justify-center font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 disabled:opacity-50 disabled:pointer-events-none";
 
     const variantStyles = {
-      primary: "bg-blue-600 text-white hover:bg-blue-500 active:bg-blue-700 focus-visible:ring-blue-500 shadow-sm shadow-blue-500/10",
+      primary: "bg-white text-zinc-950 hover:bg-zinc-200 active:bg-zinc-300 focus-visible:ring-zinc-400 shadow-sm",
       secondary: "bg-zinc-800 text-zinc-100 hover:bg-zinc-700 active:bg-zinc-800/90 focus-visible:ring-zinc-500 border border-zinc-700/60",
       outline:
         "border border-zinc-800 bg-zinc-900/40 text-zinc-300 hover:bg-zinc-800 hover:text-white hover:border-zinc-700 focus-visible:ring-zinc-500",

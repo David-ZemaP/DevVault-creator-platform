@@ -25,7 +25,7 @@ export function ContentCard({ publication, creator }: PublicationSummary) {
             <span className="inline-flex items-center gap-1 rounded border border-zinc-800 bg-zinc-900/80 px-2 py-0.5 font-medium text-zinc-300 text-[11px]">
               {isSoftware ? (
                 <>
-                  <Code2 className="h-3 w-3 text-blue-400" />
+                  <Code2 className="h-3 w-3 text-zinc-200" />
                   <span>Software</span>
                 </>
               ) : (

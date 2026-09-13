@@ -17,7 +17,7 @@ export function SoftwareDemoRunner({ title, demoUrl, demoVideoUrl, projectType }
     <section className="rounded-xl border border-zinc-800/80 bg-zinc-900/30 p-5 space-y-3" aria-label="Public demo">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Code2 className="h-4 w-4 text-blue-400" />
+          <Code2 className="h-4 w-4 text-zinc-200" />
           <h2 className="text-sm font-semibold text-white">Interactive Demo & Preview</h2>
         </div>
         <span className="inline-flex items-center rounded border border-zinc-800 bg-zinc-900 px-2 py-0.5 text-[11px] font-medium text-zinc-400">
@@ -35,7 +35,7 @@ export function SoftwareDemoRunner({ title, demoUrl, demoVideoUrl, projectType }
             href={live}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs sm:text-sm font-medium text-white shadow-sm hover:bg-blue-500 active:bg-blue-700 transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-xs sm:text-sm font-medium text-zinc-950 shadow-sm hover:bg-zinc-200 active:bg-zinc-300 transition-colors"
           >
             <span>Open live demo</span>
             <ExternalLink className="h-3.5 w-3.5" />

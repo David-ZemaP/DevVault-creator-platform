@@ -14,7 +14,7 @@ export default async function ExplorePage() {
         <div className="flex flex-col justify-between gap-8 md:flex-row md:items-end">
           <div className="max-w-2xl space-y-4">
             <div className="inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-900/80 px-3 py-1 text-xs font-medium text-zinc-300">
-              <Compass aria-hidden="true" className="h-3.5 w-3.5 text-blue-400" />
+              <Compass aria-hidden="true" className="h-3.5 w-3.5 text-white" />
               <span>Decentralized Creator Economy</span>
             </div>
 
@@ -31,7 +31,7 @@ export default async function ExplorePage() {
 
           <Link
             href="/create"
-            className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-500 active:bg-blue-700 transition-colors"
+            className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-medium text-zinc-950 shadow-sm hover:bg-zinc-200 active:bg-zinc-300 transition-colors"
           >
             <span>Publish Content</span>
             <ArrowUpRight aria-hidden="true" className="h-4 w-4" />

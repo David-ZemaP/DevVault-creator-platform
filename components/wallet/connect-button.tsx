@@ -27,7 +27,7 @@ export function CustomConnectButton() {
                   <button
                     onClick={openConnectModal}
                     type="button"
-                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-3.5 py-1.5 text-xs sm:text-sm font-medium text-white shadow-sm hover:bg-blue-500 active:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors"
+                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-3.5 py-1.5 text-xs sm:text-sm font-medium text-zinc-950 shadow-sm hover:bg-zinc-200 active:bg-zinc-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 transition-colors"
                   >
                     <Wallet className="h-4 w-4" />
                     <span>Connect Wallet</span>

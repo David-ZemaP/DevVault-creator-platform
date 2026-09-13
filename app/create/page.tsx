@@ -83,7 +83,7 @@ export default function CreatePublicationPage() {
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
         <div className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-zinc-400">
-          <Sparkles className="h-3.5 w-3.5 text-blue-400" />
+          <Sparkles className="h-3.5 w-3.5 text-zinc-200" />
           <span>Creator Studio</span>
         </div>
         <h1 className="mt-1.5 text-2xl font-bold tracking-tight text-white sm:text-3xl">
@@ -100,7 +100,7 @@ export default function CreatePublicationPage() {
           role="status"
           className="flex items-start gap-2.5 rounded-lg border border-zinc-800 bg-zinc-900/80 p-3 text-xs text-zinc-200"
         >
-          <AlertCircle className="h-4 w-4 shrink-0 text-blue-400 mt-0.5" />
+          <AlertCircle className="h-4 w-4 shrink-0 text-zinc-200 mt-0.5" />
           <span>{message}</span>
         </div>
       )}
@@ -386,7 +386,7 @@ export default function CreatePublicationPage() {
               {project.projectType === 'software' && (
                 <section className="rounded-xl border border-zinc-800/80 bg-zinc-900/30 p-5 space-y-3 shadow-sm">
                   <div className="flex items-center gap-2">
-                    <FolderArchive className="h-4 w-4 text-blue-400" />
+                    <FolderArchive className="h-4 w-4 text-zinc-200" />
                     <h2 className="text-sm font-semibold text-white">Private Source Archive</h2>
                   </div>
                   <p className="text-xs text-zinc-400">
@@ -485,7 +485,7 @@ export default function CreatePublicationPage() {
           {project.status === 'PUBLISHED' && (
             <div className="flex items-center gap-3">
               <Link
-                className="inline-flex items-center gap-1 text-xs sm:text-sm font-medium text-blue-400 hover:text-blue-300 hover:underline"
+                className="inline-flex items-center gap-1 text-xs sm:text-sm font-medium text-zinc-200 hover:text-white hover:underline"
                 href={`/content/${project.id}`}
               >
                 Open published project <ArrowRight className="h-3.5 w-3.5" />

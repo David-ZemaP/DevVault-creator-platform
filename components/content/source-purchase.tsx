@@ -153,7 +153,7 @@ export function SourcePurchase({
 
       {state === 'creator' ? (
         <div className="rounded-lg border border-zinc-800 bg-zinc-900/60 p-2.5 text-xs text-zinc-300">
-          Your project · <Link href={`/create?id=${id}`} className="font-medium text-blue-400 hover:underline">Manage project</Link>
+          Your project · <Link href={`/create?id=${id}`} className="font-medium text-white hover:underline">Manage project</Link>
         </div>
       ) : isSubscription ? (
         access.hasActiveMembership ? (
@@ -195,7 +195,7 @@ export function SourcePurchase({
           </a>
         )}
         {state === 'purchased' && (
-          <Link href="/purchases" className="text-blue-400 hover:text-blue-300 font-medium transition-colors">
+          <Link href="/purchases" className="text-zinc-200 hover:text-white font-medium transition-colors">
             My Purchases →
           </Link>
         )}

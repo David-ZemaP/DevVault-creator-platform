@@ -85,7 +85,7 @@ export default function CreatorDashboardPage() {
       <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-3">
         <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/30 p-4 shadow-sm">
           <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-wider text-zinc-400">
-            <FileCheck2 className="h-3.5 w-3.5 text-blue-400" />
+            <FileCheck2 className="h-3.5 w-3.5 text-zinc-200" />
             Published Items
           </div>
           <div className="mt-2 text-2xl font-bold text-white">
@@ -95,7 +95,7 @@ export default function CreatorDashboardPage() {
 
         <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/30 p-4 shadow-sm">
           <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-wider text-zinc-400">
-            <Users className="h-3.5 w-3.5 text-blue-400" />
+            <Users className="h-3.5 w-3.5 text-zinc-200" />
             Active Key Holders
           </div>
           <div className="mt-2 text-2xl font-bold text-white">
@@ -105,7 +105,7 @@ export default function CreatorDashboardPage() {
 
         <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/30 p-4 shadow-sm">
           <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-wider text-zinc-400">
-            <TrendingUp className="h-3.5 w-3.5 text-blue-400" />
+            <TrendingUp className="h-3.5 w-3.5 text-zinc-200" />
             Revenue Earned
           </div>
           <div className="mt-2 text-base font-semibold text-white">

@@ -53,7 +53,7 @@ export function PurchaseLibrary({ sales = false }: { sales?: boolean }) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-800/80 pb-5">
         <div>
           <div className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-zinc-400">
-            <ShoppingBag className="h-3.5 w-3.5 text-blue-400" />
+            <ShoppingBag className="h-3.5 w-3.5 text-zinc-200" />
             <span>{sales ? 'Creator Studio' : 'Library'}</span>
           </div>
           <h1 className="mt-1 text-2xl font-bold tracking-tight text-white">

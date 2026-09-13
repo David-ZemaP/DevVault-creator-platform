@@ -10,7 +10,7 @@ export function SiteHeader() {
         <Link
           href="/"
           aria-label="DevVault home"
-          className="group flex shrink-0 items-center rounded-lg transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          className="group flex shrink-0 items-center rounded-lg transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
         >
           <Image
             src="/assets/logo.png"
