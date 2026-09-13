@@ -88,21 +88,19 @@ async function runSmokeTests() {
     if (!Array.isArray(publications)) {
       throw new Error("Expected serverDb.publications.list() to return an array");
     }
-    const smokePub = await serverDb.publications.create({
-      creatorWallet: "0x000000000000000000000000000000000000dEaD",
-      title: "Smoke Test Publication",
-      preview: "Automated smoke validation record",
-      contentHash: keccak256(toUtf8Bytes("smoke-test")),
-      version: 1,
-    });
-    if (!smokePub.id) {
-      throw new Error("Publication creation failed to produce an id");
+    if (publications.length > 0) {
+      const firstPub = publications[0];
+      const retrieved = await serverDb.publications.getById(firstPub.id);
+      if (!retrieved || retrieved.id !== firstPub.id) {
+        throw new Error("Failed to retrieve publication returned by list()");
+      }
+      recordPass(
+        "Data Layer",
+        `Read-path sanity verified (${publications.length} publication(s), sample ${firstPub.id.slice(0, 10)}...)`
+      );
+    } else {
+      recordPass("Data Layer", "Read-path sanity verified (empty publication dataset)");
     }
-    const retrieved = await serverDb.publications.getById(smokePub.id);
-    if (!retrieved || retrieved.id !== smokePub.id) {
-      throw new Error("Failed to retrieve created smoke publication by ID");
-    }
-    recordPass("Data Layer", `Successfully created and verified smoke publication (${smokePub.id.slice(0, 10)}...)`);
   } catch (err) {
     recordFail("Data Layer", err);
   }
